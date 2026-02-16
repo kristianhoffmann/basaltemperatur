@@ -1,12 +1,7 @@
 import { type ReactNode } from 'react';
 import {
-  Users,
-  FileText,
-  Folder,
   Search,
   Inbox,
-  Calendar,
-  Receipt,
   Package,
   type LucideIcon,
 } from 'lucide-react';
@@ -65,17 +60,12 @@ export function EmptyState({
 }: EmptyStateProps) {
   const sizes = sizeClasses[size];
 
-  // Handle icon - can be ReactNode or LucideIcon component
   const renderIcon = () => {
     if (!icon) return null;
-
-    // If it's a Lucide icon component
     if (typeof icon === 'function') {
       const IconComponent = icon as LucideIcon;
       return <IconComponent className={cn('text-gray-400', sizes.icon)} />;
     }
-
-    // If it's already a ReactNode
     return icon;
   };
 
@@ -126,93 +116,6 @@ export function EmptyState({
         </div>
       )}
     </div>
-  );
-}
-
-// Pre-configured empty states for common entities
-
-interface EntityEmptyStateProps {
-  onAdd?: () => void;
-  className?: string;
-}
-
-export function CustomersEmptyState({ onAdd, className }: EntityEmptyStateProps) {
-  return (
-    <EmptyState
-      icon={Users}
-      title="Noch keine Kunden"
-      description="Fügen Sie Ihren ersten Kunden hinzu, um loszulegen."
-      action={
-        onAdd
-          ? { label: 'Kunde hinzufügen', onClick: onAdd }
-          : undefined
-      }
-      className={className}
-    />
-  );
-}
-
-export function ProjectsEmptyState({ onAdd, className }: EntityEmptyStateProps) {
-  return (
-    <EmptyState
-      icon={Folder}
-      title="Noch keine Projekte"
-      description="Erstellen Sie Ihr erstes Projekt, um Ihre Arbeit zu organisieren."
-      action={
-        onAdd
-          ? { label: 'Projekt erstellen', onClick: onAdd }
-          : undefined
-      }
-      className={className}
-    />
-  );
-}
-
-export function QuotesEmptyState({ onAdd, className }: EntityEmptyStateProps) {
-  return (
-    <EmptyState
-      icon={FileText}
-      title="Noch keine Angebote"
-      description="Erstellen Sie Ihr erstes Angebot für einen Kunden."
-      action={
-        onAdd
-          ? { label: 'Angebot erstellen', onClick: onAdd }
-          : undefined
-      }
-      className={className}
-    />
-  );
-}
-
-export function InvoicesEmptyState({ onAdd, className }: EntityEmptyStateProps) {
-  return (
-    <EmptyState
-      icon={Receipt}
-      title="Noch keine Rechnungen"
-      description="Erstellen Sie Ihre erste Rechnung aus einem Angebot oder manuell."
-      action={
-        onAdd
-          ? { label: 'Rechnung erstellen', onClick: onAdd }
-          : undefined
-      }
-      className={className}
-    />
-  );
-}
-
-export function AppointmentsEmptyState({ onAdd, className }: EntityEmptyStateProps) {
-  return (
-    <EmptyState
-      icon={Calendar}
-      title="Keine Termine"
-      description="Planen Sie Ihren ersten Termin mit einem Kunden."
-      action={
-        onAdd
-          ? { label: 'Termin planen', onClick: onAdd }
-          : undefined
-      }
-      className={className}
-    />
   );
 }
 

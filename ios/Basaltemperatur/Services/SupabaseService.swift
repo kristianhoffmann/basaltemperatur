@@ -3,6 +3,48 @@
 
 import Foundation
 import Combine
+import Security
+
+// MARK: - Keychain Helper
+
+private struct KeychainHelper {
+    static func save(_ value: String, forKey key: String) {
+        guard let data = value.data(using: .utf8) else { return }
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: "co.basaltemperatur.app",
+        ]
+        SecItemDelete(query as CFDictionary)
+        var addQuery = query
+        addQuery[kSecValueData as String] = data
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+        SecItemAdd(addQuery as CFDictionary, nil)
+    }
+    
+    static func load(forKey key: String) -> String? {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: "co.basaltemperatur.app",
+            kSecReturnData as String: true,
+            kSecMatchLimit as String: kSecMatchLimitOne,
+        ]
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        guard status == errSecSuccess, let data = result as? Data else { return nil }
+        return String(data: data, encoding: .utf8)
+    }
+    
+    static func delete(forKey key: String) {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrAccount as String: key,
+            kSecAttrService as String: "co.basaltemperatur.app",
+        ]
+        SecItemDelete(query as CFDictionary)
+    }
+}
 
 class SupabaseService: ObservableObject {
     // MARK: - Configuration
@@ -19,10 +61,10 @@ class SupabaseService: ObservableObject {
     }()
     
     init() {
-        // Restore token, userId, and refreshToken from UserDefaults
-        self.accessToken = UserDefaults.standard.string(forKey: "access_token")
-        self.userId = UserDefaults.standard.string(forKey: "user_id")
-        self.refreshToken = UserDefaults.standard.string(forKey: "refresh_token")
+        // Restore tokens from Keychain (secure storage)
+        self.accessToken = KeychainHelper.load(forKey: "access_token")
+        self.userId = KeychainHelper.load(forKey: "user_id")
+        self.refreshToken = KeychainHelper.load(forKey: "refresh_token")
     }
     
     // MARK: - Auth
@@ -43,10 +85,10 @@ class SupabaseService: ObservableObject {
         self.userId = response.user?.id
         self.refreshToken = response.refreshToken
         if let uid = response.user?.id {
-            UserDefaults.standard.set(uid, forKey: "user_id")
+            KeychainHelper.save(uid, forKey: "user_id")
         }
         if let rt = response.refreshToken {
-            UserDefaults.standard.set(rt, forKey: "refresh_token")
+            KeychainHelper.save(rt, forKey: "refresh_token")
         }
         return response
     }
@@ -82,12 +124,15 @@ class SupabaseService: ObservableObject {
     func signOut() {
         self.accessToken = nil
         self.refreshToken = nil
-        UserDefaults.standard.removeObject(forKey: "refresh_token")
+        self.userId = nil
+        KeychainHelper.delete(forKey: "access_token")
+        KeychainHelper.delete(forKey: "refresh_token")
+        KeychainHelper.delete(forKey: "user_id")
     }
     
     /// Refresh the access token using the stored refresh token
     func refreshSession() async throws {
-        guard let rt = refreshToken ?? UserDefaults.standard.string(forKey: "refresh_token") else {
+        guard let rt = refreshToken ?? KeychainHelper.load(forKey: "refresh_token") else {
             throw SupabaseError.notAuthenticated
         }
         
@@ -106,8 +151,8 @@ class SupabaseService: ObservableObject {
             // Refresh failed — clear tokens
             self.accessToken = nil
             self.refreshToken = nil
-            UserDefaults.standard.removeObject(forKey: "access_token")
-            UserDefaults.standard.removeObject(forKey: "refresh_token")
+            KeychainHelper.delete(forKey: "access_token")
+            KeychainHelper.delete(forKey: "refresh_token")
             throw SupabaseError.notAuthenticated
         }
         
@@ -117,13 +162,13 @@ class SupabaseService: ObservableObject {
         self.userId = authResponse.user?.id
         
         if let token = authResponse.accessToken {
-            UserDefaults.standard.set(token, forKey: "access_token")
+            KeychainHelper.save(token, forKey: "access_token")
         }
         if let newRt = authResponse.refreshToken {
-            UserDefaults.standard.set(newRt, forKey: "refresh_token")
+            KeychainHelper.save(newRt, forKey: "refresh_token")
         }
         if let uid = authResponse.user?.id {
-            UserDefaults.standard.set(uid, forKey: "user_id")
+            KeychainHelper.save(uid, forKey: "user_id")
         }
     }
     

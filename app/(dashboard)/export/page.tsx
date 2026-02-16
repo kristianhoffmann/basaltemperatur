@@ -7,6 +7,7 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { ExportClient } from './ExportClient'
 import { detectAllOvulations } from '@/lib/ovulation'
+import { format } from 'date-fns'
 import type { Profile } from '@/types/database'
 
 export const metadata = {
@@ -23,7 +24,7 @@ export default async function ExportPage() {
     // Last 90 days of data
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - 90)
-    const startDateStr = startDate.toISOString().split('T')[0]
+    const startDateStr = format(startDate, 'yyyy-MM-dd')
 
     const [tempResult, periodResult, profileResult] = await Promise.all([
         supabase

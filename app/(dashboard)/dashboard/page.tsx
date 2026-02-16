@@ -27,7 +27,7 @@ export default async function DashboardPage() {
 
   const startDate = new Date()
   startDate.setDate(startDate.getDate() - 365)
-  const startDateStr = startDate.toISOString().split('T')[0]
+  const startDateStr = format(startDate, 'yyyy-MM-dd')
 
   const [tempResult, periodResult, profileResult] = await Promise.all([
     supabase

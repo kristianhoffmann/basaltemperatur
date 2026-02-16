@@ -31,7 +31,7 @@ export default async function StatisticsPage() {
 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - 365)
-    const startDateStr = startDate.toISOString().split('T')[0]
+    const startDateStr = format(startDate, 'yyyy-MM-dd')
 
     const [tempResult, periodResult, profileResult] = await Promise.all([
         supabase
@@ -241,13 +241,13 @@ function calculateStreak(dates: string[]): number {
     if (dates.length === 0) return 0
 
     const sorted = [...dates].sort().reverse()
-    const today = new Date().toISOString().split('T')[0]
+    const today = format(new Date(), 'yyyy-MM-dd')
 
     // Check if the latest entry is today or yesterday
     if (sorted[0] !== today) {
         const yesterday = new Date()
         yesterday.setDate(yesterday.getDate() - 1)
-        if (sorted[0] !== yesterday.toISOString().split('T')[0]) {
+        if (sorted[0] !== format(yesterday, 'yyyy-MM-dd')) {
             return 0
         }
     }

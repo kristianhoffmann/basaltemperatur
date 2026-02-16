@@ -11,6 +11,12 @@ struct TemperatureEntry: Identifiable, Codable {
     let createdAt: String?
     let updatedAt: String?
     
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
@@ -22,9 +28,7 @@ struct TemperatureEntry: Identifiable, Codable {
     }
     
     var dateObject: Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: date) ?? Date()
+        Self.dateFormatter.date(from: date) ?? Date()
     }
     
     var formattedTemperature: String {
@@ -39,6 +43,12 @@ struct PeriodEntry: Identifiable, Codable {
     let flowIntensity: FlowIntensity
     let createdAt: String?
     
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+    
     enum CodingKeys: String, CodingKey {
         case id
         case userId = "user_id"
@@ -48,9 +58,7 @@ struct PeriodEntry: Identifiable, Codable {
     }
     
     var dateObject: Date {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: date) ?? Date()
+        Self.dateFormatter.date(from: date) ?? Date()
     }
 }
 

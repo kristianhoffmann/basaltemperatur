@@ -34,6 +34,21 @@ export function calculateCoverLine(temperatures: number[]): number | null {
 }
 
 /**
+ * Berechnet den Zyklustag basierend auf der tatsächlichen Datumsdifferenz
+ * (nicht dem Array-Index, da Benutzer Tage überspringen können)
+ */
+function calculateCycleDay(
+    entries: Pick<TemperatureEntry, 'date' | 'temperature'>[],
+    ovulationIndex: number
+): number | null {
+    if (ovulationIndex < 0 || ovulationIndex >= entries.length) return null
+    const firstDate = new Date(entries[0].date)
+    const ovDate = new Date(entries[ovulationIndex].date)
+    const diffMs = ovDate.getTime() - firstDate.getTime()
+    return Math.round(diffMs / (1000 * 60 * 60 * 24)) + 1
+}
+
+/**
  * Erkennt den Eisprung nach der 3-über-6-Regel (Sensiplan-Methode)
  * 
  * Regeln:
@@ -74,7 +89,7 @@ export function detectOvulation(
 
         const first3 = available.slice(0, 3)
         const allAbove = first3.every(t => t > coverLine)
-        const thirdHighEnough = first3[2] >= coverLine + 0.2
+        const thirdHighEnough = Math.round(first3[2] * 100) >= Math.round((coverLine + 0.2) * 100)
 
         if (allAbove && thirdHighEnough) {
             // Standard-Regel: 3 über 6, 3. ≥ coverLine + 0.2°C
@@ -85,7 +100,7 @@ export function detectOvulation(
                 ovulationDate: entries[ovulationIndex]?.date || null,
                 coverLineTemp: coverLineValue,
                 phase: 'luteal',
-                cycleDay: ovulationIndex + 1,
+                cycleDay: calculateCycleDay(entries, ovulationIndex),
             }
         }
 
@@ -99,7 +114,7 @@ export function detectOvulation(
                     ovulationDate: entries[ovulationIndex]?.date || null,
                     coverLineTemp: coverLineValue,
                     phase: 'luteal',
-                    cycleDay: ovulationIndex + 1,
+                    cycleDay: calculateCycleDay(entries, ovulationIndex),
                 }
             }
         }
@@ -110,7 +125,7 @@ export function detectOvulation(
             if (aboveCount === 2) {
                 // Genau 1 Wert auf/unter coverLine → 4. muss drüber liegen
                 const valuesAbove = [...first3.filter(t => t > coverLine), available[3]]
-                if (available[3] > coverLine && valuesAbove.some(t => t >= coverLine + 0.2)) {
+                if (available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
                     const coverLineValue = calculateCoverLine(previousSix)
                     const ovulationIndex = i - 1
 
@@ -118,7 +133,7 @@ export function detectOvulation(
                         ovulationDate: entries[ovulationIndex]?.date || null,
                         coverLineTemp: coverLineValue,
                         phase: 'luteal',
-                        cycleDay: ovulationIndex + 1,
+                        cycleDay: calculateCycleDay(entries, ovulationIndex),
                     }
                 }
             }
@@ -155,7 +170,7 @@ export function detectAllOvulations(
 
         const first3 = available.slice(0, 3)
         const allAbove = first3.every(t => t > coverLine)
-        const thirdHighEnough = first3[2] >= coverLine + 0.2
+        const thirdHighEnough = Math.round(first3[2] * 100) >= Math.round((coverLine + 0.2) * 100)
 
         let detected = false
 
@@ -174,7 +189,7 @@ export function detectAllOvulations(
             const aboveCount = first3.filter(t => t > coverLine).length
             if (aboveCount === 2) {
                 const valuesAbove = [...first3.filter(t => t > coverLine), available[3]]
-                if (available[3] > coverLine && valuesAbove.some(t => t >= coverLine + 0.2)) {
+                if (available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
                     detected = true
                 }
             }
@@ -188,7 +203,7 @@ export function detectAllOvulations(
                 ovulationDate: sortedEntries[ovulationIndex]?.date || null,
                 coverLineTemp: coverLineValue,
                 phase: 'luteal',
-                cycleDay: ovulationIndex + 1,
+                cycleDay: calculateCycleDay(sortedEntries, ovulationIndex),
             })
 
             // Mindestens 20 Tage Pause – ein Zyklus ist mind. ~21 Tage

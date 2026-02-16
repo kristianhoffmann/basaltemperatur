@@ -20,11 +20,9 @@ const CACHE_BLACKLIST = [
   '/api/',
   '/auth/',
   'supabase',
-  'stripe',
   '/login',
   '/registrieren',
   '/dashboard',
-  '/_next/',
 ];
 
 // ============================================================================

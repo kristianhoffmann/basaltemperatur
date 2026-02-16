@@ -18,7 +18,7 @@ export default async function CalendarPage() {
 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - 90)
-    const startDateStr = startDate.toISOString().split('T')[0]
+    const startDateStr = format(startDate, 'yyyy-MM-dd')
 
     const [tempResult, periodResult, profileResult] = await Promise.all([
         supabase

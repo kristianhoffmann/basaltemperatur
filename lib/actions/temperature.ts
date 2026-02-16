@@ -4,7 +4,18 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
+import { format } from 'date-fns'
+import { z } from 'zod'
 import type { CervicalMucusType } from '@/types/database'
+
+const temperatureEntrySchema = z.object({
+    date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Ungültiges Datumsformat'),
+    temperature: z.number().min(34.0, 'Temperatur zu niedrig').max(42.0, 'Temperatur zu hoch'),
+    notes: z.string().max(500, 'Notiz zu lang').default(''),
+    hasPeriod: z.boolean(),
+    flowIntensity: z.enum(['light', 'medium', 'heavy', 'spotting']),
+    cervicalMucus: z.string().nullable().optional(),
+})
 
 export async function saveTemperatureEntry(data: {
     date: string
@@ -14,6 +25,9 @@ export async function saveTemperatureEntry(data: {
     flowIntensity: 'light' | 'medium' | 'heavy' | 'spotting'
     cervicalMucus?: CervicalMucusType | null
 }) {
+    // Validate input server-side
+    const validated = temperatureEntrySchema.parse(data)
+
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
@@ -28,10 +42,10 @@ export async function saveTemperatureEntry(data: {
         .from('temperature_entries')
         .upsert({
             user_id: userId,
-            date: data.date,
-            temperature: data.temperature,
-            notes: data.notes || null,
-            cervical_mucus: data.cervicalMucus || null,
+            date: validated.date,
+            temperature: validated.temperature,
+            notes: validated.notes || null,
+            cervical_mucus: validated.cervicalMucus || null,
         }, {
             onConflict: 'user_id,date',
         })
@@ -41,13 +55,13 @@ export async function saveTemperatureEntry(data: {
     }
 
     // Periode speichern oder löschen
-    if (data.hasPeriod) {
+    if (validated.hasPeriod) {
         const { error: periodError } = await supabase
             .from('period_entries')
             .upsert({
                 user_id: userId,
-                date: data.date,
-                flow_intensity: data.flowIntensity,
+                date: validated.date,
+                flow_intensity: validated.flowIntensity,
             }, {
                 onConflict: 'user_id,date',
             })
@@ -61,7 +75,7 @@ export async function saveTemperatureEntry(data: {
             .from('period_entries')
             .delete()
             .eq('user_id', userId)
-            .eq('date', data.date)
+            .eq('date', validated.date)
     }
 
     revalidatePath('/')
@@ -101,7 +115,7 @@ export async function getTemperatureEntries(days: number = 45) {
 
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - days)
-    const startDateStr = startDate.toISOString().split('T')[0]
+    const startDateStr = format(startDate, 'yyyy-MM-dd')
 
     const [tempResult, periodResult] = await Promise.all([
         supabase

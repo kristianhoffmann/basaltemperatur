@@ -23,7 +23,7 @@ export default async function CycleComparisonPage() {
     // Lade alle Perioden- und Temperatureinträge der letzten 365 Tage
     const startDate = new Date()
     startDate.setDate(startDate.getDate() - 365)
-    const startDateStr = startDate.toISOString().split('T')[0]
+    const startDateStr = format(startDate, 'yyyy-MM-dd')
 
     const [tempResult, periodResult] = await Promise.all([
         supabase

@@ -69,7 +69,7 @@ class OvulationCalculator {
             
             let first3 = Array(available[0..<3])
             let allAbove = first3.allSatisfy { $0 > coverLine }
-            let thirdHighEnough = first3[2] >= coverLine + 0.2
+            let thirdHighEnough = (first3[2] * 100).rounded() >= ((coverLine + 0.2) * 100).rounded()
             
             var detected = false
             
@@ -88,7 +88,7 @@ class OvulationCalculator {
                 let aboveCount = first3.filter { $0 > coverLine }.count
                 if aboveCount == 2 {
                     let valuesAbove = first3.filter { $0 > coverLine } + [available[3]]
-                    if available[3] > coverLine && valuesAbove.contains(where: { $0 >= coverLine + 0.2 }) {
+                    if available[3] > coverLine && valuesAbove.contains(where: { ($0 * 100).rounded() >= ((coverLine + 0.2) * 100).rounded() }) {
                         detected = true
                     }
                 }

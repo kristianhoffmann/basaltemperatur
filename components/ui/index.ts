@@ -39,8 +39,7 @@ export { Tabs, TabList, TabTrigger, TabContent, SimpleTabs } from './tabs';
 // Feedback components
 export { Alert, InlineAlert, BannerAlert, Callout } from './alert';
 export {
-  EmptyState, CustomersEmptyState, ProjectsEmptyState,
-  QuotesEmptyState, InvoicesEmptyState, AppointmentsEmptyState,
+  EmptyState,
   SearchEmptyState, FilterEmptyState, NoDataEmptyState
 } from './empty-state';
 export {
