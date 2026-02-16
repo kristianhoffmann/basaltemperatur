@@ -324,7 +324,7 @@ export default function LandingPage() {
             <div>
               <h4 className="font-semibold mb-4 text-sm text-[var(--text)]">Kontakt</h4>
               <ul className="space-y-2 text-sm text-[var(--text-secondary)]">
-                <li>info@basaltemperatur.app</li>
+                <li>info@basaltemperatur.online</li>
               </ul>
             </div>
           </div>

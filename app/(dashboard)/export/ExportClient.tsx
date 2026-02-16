@@ -130,7 +130,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                         </div>
                         <div style={{ textAlign: 'right', fontSize: '11px', opacity: 0.75 }}>
                             <div>Erstellt: {format(new Date(), 'd. MMMM yyyy', { locale: de })}</div>
-                            <div style={{ marginTop: '2px' }}>basaltemperatur.app</div>
+                            <div style={{ marginTop: '2px' }}>basaltemperatur.online</div>
                         </div>
                     </div>
                 </div>
@@ -424,7 +424,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                     background: '#fafafa',
                 }}>
                     <span>
-                        Erstellt am {format(new Date(), 'd. MMMM yyyy', { locale: de })} • basaltemperatur.app
+                        Erstellt am {format(new Date(), 'd. MMMM yyyy', { locale: de })} • basaltemperatur.online
                     </span>
                     <span>
                         Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.

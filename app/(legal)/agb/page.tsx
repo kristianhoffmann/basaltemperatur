@@ -15,7 +15,7 @@ export const metadata: Metadata = {
 export default function AGBPage() {
   const company = {
     name: process.env.NEXT_PUBLIC_COMPANY_NAME || '[Dein vollständiger Name]',
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.app]',
+    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
   };
 
   return (

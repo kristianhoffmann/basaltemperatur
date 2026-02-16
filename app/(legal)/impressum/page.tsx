@@ -18,7 +18,7 @@ export default function ImpressumPage() {
     street: process.env.NEXT_PUBLIC_COMPANY_STREET || '[Straße Hausnummer]',
     city: process.env.NEXT_PUBLIC_COMPANY_CITY || '[PLZ Stadt]',
     country: 'Deutschland',
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.app]',
+    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
     phone: process.env.NEXT_PUBLIC_COMPANY_PHONE || '',
   };
 

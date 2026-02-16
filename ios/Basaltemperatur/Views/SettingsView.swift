@@ -143,16 +143,16 @@ struct SettingsView: View {
                 
                 // Rechtliches
                 Section {
-                    Link(destination: URL(string: "https://basaltemperatur.app/datenschutz")!) {
+                    Link(destination: URL(string: "https://www.basaltemperatur.online/datenschutz")!) {
                         Label("Datenschutz", systemImage: "lock.shield")
                     }
-                    Link(destination: URL(string: "https://basaltemperatur.app/impressum")!) {
+                    Link(destination: URL(string: "https://www.basaltemperatur.online/impressum")!) {
                         Label("Impressum", systemImage: "building.2")
                     }
-                    Link(destination: URL(string: "https://basaltemperatur.app/agb")!) {
+                    Link(destination: URL(string: "https://www.basaltemperatur.online/agb")!) {
                         Label("AGB", systemImage: "doc.text")
                     }
-                    Link(destination: URL(string: "https://basaltemperatur.app/widerruf")!) {
+                    Link(destination: URL(string: "https://www.basaltemperatur.online/widerruf")!) {
                         Label("Widerruf", systemImage: "arrow.uturn.backward.circle")
                     }
                 } header: {

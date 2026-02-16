@@ -301,7 +301,7 @@ class SupabaseService: ObservableObject {
     /// Calls the Next.js API route to delete the account and all data
     func deleteAccount() async throws {
         // Use the web app's API route for deletion (uses admin client server-side)
-        let webAppUrl = "https://basaltemperatur.app"
+        let webAppUrl = "https://www.basaltemperatur.online"
         let url = URL(string: "\(webAppUrl)/api/delete-account")!
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"

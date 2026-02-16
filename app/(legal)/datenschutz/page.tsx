@@ -17,7 +17,7 @@ export default function DatenschutzPage() {
     name: process.env.NEXT_PUBLIC_COMPANY_NAME || '[Dein vollständiger Name]',
     street: process.env.NEXT_PUBLIC_COMPANY_STREET || '[Straße Hausnummer]',
     city: process.env.NEXT_PUBLIC_COMPANY_CITY || '[PLZ Stadt]',
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.app]',
+    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
   };
 
   return (

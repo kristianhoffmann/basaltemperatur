@@ -478,7 +478,7 @@ struct PDFHTMLBuilder {
                     </div>
                     <div style="text-align:right;font-size:11px;opacity:0.75">
                         <div>Erstellt: \(todayStr)</div>
-                        <div style="margin-top:2px">basaltemperatur.app</div>
+                        <div style="margin-top:2px">basaltemperatur.online</div>
                     </div>
                 </div>
             </div>
@@ -546,7 +546,7 @@ struct PDFHTMLBuilder {
         
             <!-- Footer -->
             <div style="padding:16px 32px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9ca3af;background:#fafafa">
-                <span>Erstellt am \(todayStr) • basaltemperatur.app</span>
+                <span>Erstellt am \(todayStr) • basaltemperatur.online</span>
                 <span>Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.</span>
             </div>
         </div>
