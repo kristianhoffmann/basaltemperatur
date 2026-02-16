@@ -1,0 +1,362 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   CSS Custom Properties – Hell (Light Only)
+   ============================================================ */
+
+:root {
+  --bg: #FBF7F5;
+  --bg-secondary: #F5EFEC;
+  --surface: #FFFFFF;
+  --surface-elevated: #FFFFFF;
+  --text: #1A1118;
+  --text-secondary: #6B5E65;
+  --text-muted: #A89DA3;
+  --border: #EDE6E3;
+  --border-subtle: #F5F0EE;
+  --chart-grid: #F0EBE9;
+  --chart-label: #A89DA3;
+  --rose: #E8788A;
+  --rose-dark: #D4637A;
+  --rose-light: #F2919F;
+  --gold: #D4A574;
+  --violet: #7B61FF;
+  --period: #E85D75;
+  --emerald: #6DB784;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    color: var(--text);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--rose);
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 3px;
+  }
+}
+
+/* ============================================================
+   COMPONENTS
+   ============================================================ */
+
+@layer components {
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 font-medium text-sm transition-all duration-200 cursor-pointer border-none;
+    padding: 0.625rem 1.25rem;
+    border-radius: 16px;
+  }
+
+  .btn:disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply text-white;
+    background: linear-gradient(135deg, var(--rose), var(--rose-dark));
+    box-shadow: 0 4px 16px rgba(232, 120, 138, 0.3);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    box-shadow: 0 8px 24px rgba(232, 120, 138, 0.4);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  .btn-secondary {
+    color: var(--text-secondary);
+    background: var(--surface);
+    border: 1px solid var(--border);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    border-color: var(--rose);
+    color: var(--rose);
+  }
+
+  .btn-ghost {
+    @apply bg-transparent;
+    color: var(--text-secondary);
+  }
+
+  .btn-ghost:hover {
+    color: var(--rose);
+  }
+
+  .btn-sm {
+    @apply text-[13px];
+    padding: 0.375rem 0.875rem;
+    border-radius: 12px;
+  }
+
+  .btn-lg {
+    @apply text-base;
+    padding: 0.875rem 2rem;
+    border-radius: 16px;
+  }
+
+  /* Cards */
+  .card {
+    @apply p-6 transition-all duration-300;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+
+  .card-hover:hover {
+    border-color: var(--rose-light);
+    box-shadow: 0 8px 32px rgba(232, 120, 138, 0.15);
+    transform: translateY(-2px);
+  }
+
+  /* Inputs */
+  .input {
+    @apply w-full text-[15px] transition-all duration-200;
+    padding: 0.75rem 1rem;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+  }
+
+  .input::placeholder {
+    color: var(--text-muted);
+  }
+
+  .input:focus {
+    @apply outline-none;
+    border-color: var(--rose);
+    box-shadow: 0 0 0 3px rgba(232, 120, 138, 0.15);
+  }
+
+  .label {
+    @apply block text-[13px] font-medium mb-1.5;
+    color: var(--text-secondary);
+  }
+
+  .error-message {
+    @apply text-[13px] mt-1.5;
+    color: #DC4A5A;
+  }
+
+  /* Badges */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold;
+  }
+
+  .badge-period {
+    background: #FDE8EC;
+    color: var(--period);
+  }
+
+  .badge-ovulation {
+    background: #E8E3FF;
+    color: var(--violet);
+  }
+
+  .badge-success {
+    @apply bg-emerald-50 text-emerald-600;
+  }
+
+  /* Chart */
+  .chart-container {
+    @apply overflow-hidden;
+    background: var(--surface);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 1.25rem;
+  }
+
+  .chart-period-bg {
+    fill: rgba(232, 93, 117, 0.06);
+  }
+
+  .chart-temp-line {
+    stroke: var(--rose);
+    stroke-width: 2.5;
+    fill: none;
+    filter: drop-shadow(0 2px 4px rgba(232, 120, 138, 0.25));
+  }
+
+  .chart-temp-dot {
+    fill: var(--rose);
+    stroke: var(--surface);
+    stroke-width: 2;
+  }
+
+  .chart-cover-line {
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    stroke-dasharray: 6 4;
+    opacity: 0.7;
+  }
+
+  .chart-ovulation-marker {
+    fill: var(--violet);
+    stroke: var(--surface);
+    stroke-width: 2;
+  }
+
+  /* Bottom Nav */
+  .bottom-nav {
+    @apply fixed bottom-0 left-0 right-0 flex items-center justify-around z-50;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(16px);
+    padding: 0.5rem 1rem;
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom));
+  }
+
+  .bottom-nav-item {
+    @apply flex flex-col items-center gap-1 py-1.5 px-3 text-[10px] font-medium no-underline transition-colors duration-200;
+    color: var(--text-muted);
+  }
+
+  .bottom-nav-item:hover,
+  .bottom-nav-item-active {
+    color: var(--rose);
+  }
+
+  /* Empty State */
+  .empty-state {
+    @apply flex flex-col items-center justify-center py-16 px-4 text-center;
+  }
+
+  .empty-state-title {
+    @apply text-lg font-medium mb-2;
+    color: var(--text);
+  }
+
+  .empty-state-description {
+    @apply max-w-xs mb-6;
+    color: var(--text-secondary);
+  }
+
+  /* Text Gradient */
+  .text-gradient {
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    background-image: linear-gradient(135deg, var(--rose), var(--rose-light));
+  }
+}
+
+/* ============================================================
+   UTILITIES
+   ============================================================ */
+
+@layer utilities {
+  .shadow-soft {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  }
+
+  .shadow-card {
+    box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+  }
+
+  .shadow-glow {
+    box-shadow: 0 4px 20px rgba(232, 120, 138, 0.25);
+  }
+
+  .shadow-strong {
+    box-shadow: 0 8px 32px rgba(232, 120, 138, 0.15);
+  }
+
+  .skeleton {
+    background: linear-gradient(90deg, var(--border-subtle) 25%, var(--border) 50%, var(--border-subtle) 75%);
+    background-size: 200% 100%;
+    @apply animate-pulse;
+    border-radius: 12px;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    scrollbar-width: none;
+  }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.4s ease-out;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: white !important;
+  }
+}

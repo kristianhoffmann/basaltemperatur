@@ -1,0 +1,412 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 63;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		02A4829BBF17E5CFFFAC5AB7 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */; };
+		0C806CD68B27C01B674C5346 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FA494043BCA32921358F17D /* DashboardViewModel.swift */; };
+		1E77E4EA998723AA8410B532 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D899FF58E516C4A2A92792 /* SettingsView.swift */; };
+		48DDF8AD2F4119E900FC4FCD /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */; };
+		4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9906C41250972C7A055CE766 /* OvulationCalculator.swift */; };
+		6AC72E3B2CB32BA456FD98D5 /* TemperatureEntry.swift in Sources */ = {isa = PBXBuildFile; fileRef = E3FADDEFF146AE8D8DE70787 /* TemperatureEntry.swift */; };
+		714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917BC58216F5A55926C02139 /* LoginView.swift */; };
+		7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3951E1BA4E043DD771249C92 /* MainTabView.swift */; };
+		9758D971A77890C5497453E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00CB16ECC39B54B76618055 /* Assets.xcassets */; };
+		C1CB455A0B179481E5EB46E3 /* BasaltemperaturApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */; };
+		C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778563E83BB92BF4FB2CA1CC /* EntryView.swift */; };
+		A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */; };
+		D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */; };
+		D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C57EA5BDC2515F0649AA542 /* DashboardView.swift */; };
+		DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBAAC47E185425F6C662C1DA /* SupabaseService.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		3951E1BA4E043DD771249C92 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
+		40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasaltemperaturApp.swift; sourceTree = "<group>"; };
+		48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		69D899FF58E516C4A2A92792 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		778563E83BB92BF4FB2CA1CC /* EntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
+		F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportView.swift; sourceTree = "<group>"; };
+		7FA494043BCA32921358F17D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTabView.swift; sourceTree = "<group>"; };
+		917BC58216F5A55926C02139 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		9906C41250972C7A055CE766 /* OvulationCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvulationCalculator.swift; sourceTree = "<group>"; };
+		9C57EA5BDC2515F0649AA542 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Basaltemperatur.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		DBAAC47E185425F6C662C1DA /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
+		E3FADDEFF146AE8D8DE70787 /* TemperatureEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureEntry.swift; sourceTree = "<group>"; };
+		F00CB16ECC39B54B76618055 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		26BD4B7733C8F3F7E6E21627 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */,
+				82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */,
+				9C57EA5BDC2515F0649AA542 /* DashboardView.swift */,
+				778563E83BB92BF4FB2CA1CC /* EntryView.swift */,
+				F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */,
+				917BC58216F5A55926C02139 /* LoginView.swift */,
+				3951E1BA4E043DD771249C92 /* MainTabView.swift */,
+				69D899FF58E516C4A2A92792 /* SettingsView.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		65239FC825AF45EA9469618C = {
+			isa = PBXGroup;
+			children = (
+				83AC910456A96129CC6831AA /* Basaltemperatur */,
+				CBFBC435078C099C4DC6C687 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		83AC910456A96129CC6831AA /* Basaltemperatur */ = {
+			isa = PBXGroup;
+			children = (
+				F00CB16ECC39B54B76618055 /* Assets.xcassets */,
+				40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */,
+				F8F0CDC508AEE8AFC633F134 /* Models */,
+				AE46139D93F98B35F2D30A69 /* Services */,
+				F4853A188FF0CAB77AE93E2A /* ViewModels */,
+				26BD4B7733C8F3F7E6E21627 /* Views */,
+			);
+			path = Basaltemperatur;
+			sourceTree = "<group>";
+		};
+		AE46139D93F98B35F2D30A69 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				9906C41250972C7A055CE766 /* OvulationCalculator.swift */,
+				DBAAC47E185425F6C662C1DA /* SupabaseService.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		CBFBC435078C099C4DC6C687 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		F4853A188FF0CAB77AE93E2A /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */,
+				7FA494043BCA32921358F17D /* DashboardViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		F8F0CDC508AEE8AFC633F134 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				E3FADDEFF146AE8D8DE70787 /* TemperatureEntry.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		EA0693198E8FC83FB76AE549 /* Basaltemperatur */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AC98E4368A9F38AB5BDFA2E6 /* Build configuration list for PBXNativeTarget "Basaltemperatur" */;
+			buildPhases = (
+				3F00409A2E15D7B70167D7CD /* Sources */,
+				48CD74DF6C5F22A56BE53940 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Basaltemperatur;
+			packageProductDependencies = (
+			);
+			productName = Basaltemperatur;
+			productReference = A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		40B4AE2E1AD7A46C03AE5E64 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2620;
+			};
+			buildConfigurationList = 0BFBA631E2C8D421C118E159 /* Build configuration list for PBXProject "Basaltemperatur" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 65239FC825AF45EA9469618C;
+			minimizedProjectReferenceProxies = 1;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				EA0693198E8FC83FB76AE549 /* Basaltemperatur */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		48CD74DF6C5F22A56BE53940 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9758D971A77890C5497453E5 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		3F00409A2E15D7B70167D7CD /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				02A4829BBF17E5CFFFAC5AB7 /* AuthViewModel.swift in Sources */,
+				C1CB455A0B179481E5EB46E3 /* BasaltemperaturApp.swift in Sources */,
+				D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */,
+				D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */,
+				0C806CD68B27C01B674C5346 /* DashboardViewModel.swift in Sources */,
+				48DDF8AD2F4119E900FC4FCD /* StatisticsView.swift in Sources */,
+				C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */,
+				A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */,
+				714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */,
+				7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */,
+				4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */,
+				1E77E4EA998723AA8410B532 /* SettingsView.swift in Sources */,
+				DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */,
+				6AC72E3B2CB32BA456FD98D5 /* TemperatureEntry.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		18E28E609B38C63026380BB2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		81DBCDC89545EE593900935C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = 1;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MARKETING_VERSION = 1.0.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+		B99A64E9CC1713C336960582 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = W9V62XQNWZ;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = basaltemperatur;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		C944ED7E85BAB71DD0210142 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				CODE_SIGN_STYLE = Manual;
+				DEVELOPMENT_TEAM = "";
+				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = W9V62XQNWZ;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = basaltemperatur;
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0BFBA631E2C8D421C118E159 /* Build configuration list for PBXProject "Basaltemperatur" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				18E28E609B38C63026380BB2 /* Debug */,
+				81DBCDC89545EE593900935C /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AC98E4368A9F38AB5BDFA2E6 /* Build configuration list for PBXNativeTarget "Basaltemperatur" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B99A64E9CC1713C336960582 /* Debug */,
+				C944ED7E85BAB71DD0210142 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 40B4AE2E1AD7A46C03AE5E64 /* Project object */;
+}
