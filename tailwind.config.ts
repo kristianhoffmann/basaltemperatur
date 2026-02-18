@@ -41,31 +41,46 @@ const config: Config = {
             },
             borderRadius: {
                 '2xl': '16px',
-                '3xl': '24px',
+                '3xl': '20px',
+                '4xl': '28px',
             },
             boxShadow: {
                 soft: '0 2px 8px rgba(0, 0, 0, 0.04)',
-                card: '0 2px 16px rgba(0, 0, 0, 0.06)',
+                card: '0 1px 3px rgba(0, 0, 0, 0.04), 0 4px 16px rgba(0, 0, 0, 0.03)',
                 glow: '0 4px 20px rgba(232, 120, 138, 0.25)',
-                strong: '0 8px 32px rgba(232, 120, 138, 0.15)',
+                strong: '0 8px 40px rgba(232, 120, 138, 0.18)',
+            },
+            backdropBlur: {
+                card: '20px',
+                nav: '24px',
             },
             animation: {
-                'fade-in': 'fadeIn 0.3s ease-out',
-                'slide-up': 'slideUp 0.4s ease-out',
+                'fade-in': 'fadeIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both',
+                'slide-up': 'slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) both',
                 'pulse-soft': 'pulseSoft 2s ease-in-out infinite',
+                'float': 'float 4s ease-in-out infinite',
+                'glow': 'glowPulse 3s ease-in-out infinite',
             },
             keyframes: {
                 fadeIn: {
-                    from: { opacity: '0' },
-                    to: { opacity: '1' },
+                    from: { opacity: '0', transform: 'translateY(8px)' },
+                    to: { opacity: '1', transform: 'translateY(0)' },
                 },
                 slideUp: {
-                    from: { opacity: '0', transform: 'translateY(12px)' },
-                    to: { opacity: '1', transform: 'translateY(0)' },
+                    from: { opacity: '0', transform: 'translateY(20px) scale(0.98)' },
+                    to: { opacity: '1', transform: 'translateY(0) scale(1)' },
                 },
                 pulseSoft: {
                     '0%, 100%': { opacity: '1', transform: 'scale(1)' },
                     '50%': { opacity: '0.85', transform: 'scale(1.03)' },
+                },
+                float: {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-6px)' },
+                },
+                glowPulse: {
+                    '0%, 100%': { boxShadow: '0 4px 20px rgba(232, 120, 138, 0.25)' },
+                    '50%': { boxShadow: '0 8px 40px rgba(232, 120, 138, 0.35)' },
                 },
             },
         },

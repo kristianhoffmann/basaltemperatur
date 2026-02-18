@@ -1,35 +1,13 @@
 // app/(dashboard)/layout.tsx
-// Dashboard Layout – Premium mit Bottom Nav
+// Dashboard Layout – Premium 2026 with Dark Sidebar
 
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
-import {
-  LayoutDashboard,
-  CalendarDays,
-  PlusCircle,
-  Settings,
-  BarChart3,
-  GitCompareArrows,
-} from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { NotificationPrompt } from '@/components/features/NotificationPrompt'
-
-const navItems = [
-  { href: '/dashboard', icon: LayoutDashboard, label: 'Übersicht' },
-  { href: '/kalender', icon: CalendarDays, label: 'Kalender' },
-  { href: '/eintrag', icon: PlusCircle, label: 'Eintrag' },
-]
-
-const desktopExtraNav = [
-  { href: '/statistiken', icon: BarChart3, label: 'Statistiken' },
-  { href: '/zyklen', icon: GitCompareArrows, label: 'Zyklen' },
-  { href: '/einstellungen', icon: Settings, label: 'Mehr' },
-]
-
-const mobileNav = [
-  ...navItems,
-  { href: '/einstellungen', icon: Settings, label: 'Mehr' },
-]
+import { SidebarNav } from '@/components/layout/SidebarNav'
+import { MobileNav } from '@/components/layout/MobileNav'
 
 export default async function DashboardLayout({
   children,
@@ -41,51 +19,62 @@ export default async function DashboardLayout({
 
   if (!user) redirect('/login')
 
-  return (
-    <div className="min-h-screen pb-20 lg:pb-0 bg-[var(--bg)]">
-      {/* Desktop Header */}
-      <header className="hidden lg:flex fixed top-0 inset-x-0 z-40 bg-[var(--surface)] border-b border-[var(--border)] backdrop-blur-xl">
-        <div className="max-w-5xl mx-auto w-full px-6 flex items-center justify-between h-14">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-full flex items-center justify-center bg-gradient-to-br from-rose-400 to-rose-500">
-              <span className="text-white text-xs">🌡️</span>
-            </div>
-            <span className="font-semibold text-sm text-[var(--text)]">
-              Basaltemperatur
-            </span>
-          </div>
-          <nav className="flex items-center gap-1">
-            {[...navItems, ...desktopExtraNav].map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium text-[var(--text-secondary)] hover:text-rose-400 transition-colors"
-              >
-                <item.icon className="h-4 w-4" />
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </header>
+  const email = user.email || ''
 
-      {/* Main Content */}
-      <main className="lg:pt-24 pt-2">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+  return (
+    <div className="min-h-screen bg-[var(--bg)]">
+      {/* ── Desktop Sidebar ──────────────────────────────── */}
+      <aside className="sidebar hidden lg:flex">
+        {/* Logo */}
+        <div className="sidebar-logo">
+          <div className="sidebar-logo-icon">🌡️</div>
+          <span className="sidebar-logo-text">Basaltemperatur</span>
+        </div>
+
+        {/* Navigation */}
+        <div className="sidebar-section-label">Menü</div>
+        <nav className="sidebar-nav">
+          <SidebarNav />
+        </nav>
+
+        {/* Settings link */}
+        <div className="px-3 pb-2">
+          <Link
+            href="/einstellungen"
+            className="sidebar-link"
+          >
+            <Settings className="h-[18px] w-[18px]" />
+            Einstellungen
+          </Link>
+        </div>
+
+        {/* User */}
+        <div className="sidebar-footer">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-lg">
+              {email[0]?.toUpperCase() || '?'}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="text-[13px] font-medium text-white/80 truncate">{email}</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      {/* ── Main Content ─────────────────────────────────── */}
+      <main className="lg:ml-[260px] pb-24 lg:pb-8 pt-4 lg:pt-8 min-h-screen relative">
+        {/* Decorative gradient orbs */}
+        <div className="orb orb-rose w-[400px] h-[400px] -top-40 -right-40 opacity-30 hidden lg:block" />
+        <div className="orb orb-violet w-[300px] h-[300px] top-1/2 -left-20 opacity-20 hidden lg:block" />
+
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <NotificationPrompt />
           {children}
         </div>
       </main>
 
-      {/* Mobile Bottom Nav */}
-      <nav className="bottom-nav lg:hidden">
-        {mobileNav.map((item) => (
-          <Link key={item.href} href={item.href} className="bottom-nav-item">
-            <item.icon className="h-5 w-5" />
-            <span>{item.label}</span>
-          </Link>
-        ))}
-      </nav>
+      {/* ── Mobile Bottom Nav ────────────────────────────── */}
+      <MobileNav />
     </div>
   )
 }

@@ -22,6 +22,7 @@ struct DashboardView: View {
                             Text("Hallo! 👋")
                                 .font(.title2)
                                 .fontWeight(.bold)
+                                .tracking(-0.5)
                             Text(Date(), format: .dateTime.weekday(.wide).day().month(.wide))
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -29,11 +30,19 @@ struct DashboardView: View {
                         Spacer()
                         NavigationLink(destination: EntryView()) {
                             Label("Eintrag", systemImage: "plus.circle.fill")
-                                .font(.subheadline.weight(.semibold))
+                                .font(.subheadline.weight(.bold))
                                 .foregroundStyle(.white)
-                                .padding(.horizontal, 16)
-                                .padding(.vertical, 8)
-                                .background(Color("AppPrimary"), in: Capsule())
+                                .padding(.horizontal, 18)
+                                .padding(.vertical, 10)
+                                .background(
+                                    LinearGradient(
+                                        colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.85)],
+                                        startPoint: .topLeading,
+                                        endPoint: .bottomTrailing
+                                    ),
+                                    in: Capsule()
+                                )
+                                .shadow(color: Color("AppPrimary").opacity(0.3), radius: 8, y: 4)
                         }
                     }
                     .padding(.horizontal)
@@ -167,32 +176,41 @@ struct DashboardView: View {
 struct FertilityBanner: View {
     let status: FertilityStatus
     
+    private var accentColor: Color {
+        status == .peak ? Color.orange : Color.green
+    }
+    
     var body: some View {
-        VStack(spacing: 4) {
+        VStack(spacing: 6) {
             Text(status == .peak ? "⚡" : "🔥")
-                .font(.title2)
+                .font(.title)
             Text(status == .peak ? "Höchste Fruchtbarkeit" : "Fruchtbares Fenster")
                 .font(.subheadline)
-                .fontWeight(.semibold)
-                .foregroundStyle(status == .peak ? Color.orange : Color.green)
+                .fontWeight(.bold)
+                .foregroundStyle(accentColor)
             Text(status == .peak ? "Eisprung steht unmittelbar bevor" : "Du befindest dich im fruchtbaren Fenster")
                 .font(.caption)
-                .foregroundStyle(status == .peak ? Color.orange.opacity(0.8) : Color.green.opacity(0.8))
+                .foregroundStyle(accentColor.opacity(0.8))
         }
         .frame(maxWidth: .infinity)
-        .padding()
-        .background(
-            RoundedRectangle(cornerRadius: 16)
-                .fill(status == .peak
-                      ? Color.orange.opacity(0.08)
-                      : Color.green.opacity(0.08))
-                .overlay(
-                    RoundedRectangle(cornerRadius: 16)
-                        .stroke(status == .peak
-                                ? Color.orange.opacity(0.25)
-                                : Color.green.opacity(0.25), lineWidth: 1)
-                )
-        )
+        .padding(.vertical, 16)
+        .padding(.horizontal)
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        LinearGradient(
+                            colors: [accentColor.opacity(0.08), accentColor.opacity(0.02)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(accentColor.opacity(0.15), lineWidth: 1)
+            }
+        }
         .padding(.horizontal)
     }
 }
@@ -201,25 +219,41 @@ struct FertilityBanner: View {
 
 struct QuickEntryPrompt: View {
     var body: some View {
-        VStack(spacing: 12) {
+        VStack(spacing: 14) {
             Image(systemName: "thermometer.medium")
                 .font(.largeTitle)
-                .foregroundStyle(.secondary)
+                .foregroundStyle(Color("AppPrimary").opacity(0.5))
+                .symbolEffect(.pulse, options: .repeating)
             Text("Du hast heute noch keine Temperatur eingetragen.")
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
             NavigationLink(destination: EntryView()) {
-                Label("Jetzt eintragen", systemImage: "plus.circle")
-                    .font(.subheadline.weight(.semibold))
+                Label("Jetzt eintragen", systemImage: "plus.circle.fill")
+                    .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, 10)
-                    .background(Color("AppPrimary"), in: RoundedRectangle(cornerRadius: 12))
+                    .padding(.vertical, 12)
+                    .background(
+                        LinearGradient(
+                            colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.85)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        in: RoundedRectangle(cornerRadius: 14)
+                    )
+                    .shadow(color: Color("AppPrimary").opacity(0.3), radius: 8, y: 4)
             }
         }
         .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(Color("AppPrimary").opacity(0.03))
+            }
+        }
         .padding(.horizontal)
     }
 }
@@ -234,21 +268,25 @@ struct KPICard: View {
     let color: Color
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack(spacing: 8) {
                 Image(systemName: icon)
                     .font(.caption)
                     .foregroundStyle(color)
+                    .padding(6)
+                    .background(color.opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
                 Text(title)
                     .font(.caption)
-                    .fontWeight(.medium)
+                    .fontWeight(.semibold)
                     .foregroundStyle(.secondary)
                     .textCase(.uppercase)
+                    .tracking(0.5)
                     .lineLimit(1)
             }
             Text(value)
                 .font(.title)
                 .fontWeight(.bold)
+                .tracking(-0.5)
                 .foregroundStyle(.primary)
             Text(subtitle)
                 .font(.caption2)
@@ -256,8 +294,23 @@ struct KPICard: View {
                 .lineLimit(1)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding()
-        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .padding(14)
+        .background {
+            ZStack {
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(.ultraThinMaterial)
+                RoundedRectangle(cornerRadius: 20)
+                    .fill(
+                        LinearGradient(
+                            colors: [color.opacity(0.06), color.opacity(0.01)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(color.opacity(0.08), lineWidth: 0.5)
+            }
+        }
     }
 }
 

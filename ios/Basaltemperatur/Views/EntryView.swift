@@ -55,7 +55,7 @@ struct EntryView: View {
                     // Datum
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Datum", systemImage: "calendar")
-                            .font(.subheadline.weight(.medium))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                         if isEditing {
                             Text(date, format: .dateTime.weekday(.wide).day().month(.wide).year())
@@ -71,7 +71,7 @@ struct EntryView: View {
                     // Temperatur
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Basaltemperatur (°C)", systemImage: "thermometer.medium")
-                            .font(.subheadline.weight(.medium))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                         
                         HStack {
@@ -87,13 +87,20 @@ struct EntryView: View {
                                 .foregroundStyle(.secondary)
                         }
                         .padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                        .background {
+                            ZStack {
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(.ultraThinMaterial)
+                                RoundedRectangle(cornerRadius: 20)
+                                    .fill(Color("AppPrimary").opacity(0.04))
+                            }
+                        }
                     }
                     
                     // Periode
                     VStack(alignment: .leading, spacing: 12) {
                         Label("Periodenblutung", systemImage: "drop.fill")
-                            .font(.subheadline.weight(.medium))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                         
                         Button {
@@ -109,13 +116,17 @@ struct EntryView: View {
                                 Spacer()
                             }
                             .padding()
-                            .background(
-                                hasPeriod ? Color("Period").opacity(0.1) : Color(.systemGray6),
-                                in: RoundedRectangle(cornerRadius: 16)
-                            )
+                            .background {
+                                ZStack {
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(.ultraThinMaterial)
+                                    RoundedRectangle(cornerRadius: 16)
+                                        .fill(hasPeriod ? Color("Period").opacity(0.1) : Color.clear)
+                                }
+                            }
                             .overlay(
                                 RoundedRectangle(cornerRadius: 16)
-                                    .stroke(hasPeriod ? Color("Period") : .clear, lineWidth: 2)
+                                    .stroke(hasPeriod ? Color("Period") : Color.clear, lineWidth: 2)
                             )
                         }
                         .buttonStyle(.plain)
@@ -151,14 +162,17 @@ struct EntryView: View {
                     // Notizen
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Notizen (optional)", systemImage: "note.text")
-                            .font(.subheadline.weight(.medium))
+                            .font(.subheadline.weight(.semibold))
                             .foregroundStyle(.secondary)
                         
                         TextField("z.B. schlecht geschlafen, krank...", text: $notes, axis: .vertical)
                             .focused($focusedField, equals: .notes)
                             .lineLimit(2...4)
                             .padding()
-                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                            .background {
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(.ultraThinMaterial)
+                            }
                     }
                     
                     // Fehler
@@ -198,8 +212,16 @@ struct EntryView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .padding()
-                        .background(Color("AppPrimary"), in: RoundedRectangle(cornerRadius: 16))
+                        .background(
+                            LinearGradient(
+                                colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.85)],
+                                startPoint: .topLeading,
+                                endPoint: .bottomTrailing
+                            ),
+                            in: RoundedRectangle(cornerRadius: 16)
+                        )
                         .foregroundStyle(.white)
+                        .shadow(color: Color("AppPrimary").opacity(0.3), radius: 8, y: 4)
                     }
                     .disabled(temperatureText.isEmpty || isSaving)
                     .opacity(temperatureText.isEmpty ? 0.5 : 1)

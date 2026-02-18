@@ -30,7 +30,8 @@ struct SettingsView: View {
                                         endPoint: .bottomTrailing
                                     )
                                 )
-                                .frame(width: 44, height: 44)
+                                .frame(width: 48, height: 48)
+                                .shadow(color: Color("AppPrimary").opacity(0.3), radius: 6, y: 3)
                             
                             Text("🌡️")
                                 .font(.title3)
