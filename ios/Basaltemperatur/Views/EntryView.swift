@@ -29,6 +29,34 @@ struct EntryView: View {
         case temperature, notes
     }
     
+    // Dynamic Color purely based on temperature input
+    var activeColor: Color {
+        let tempStr = temperatureText.replacingOccurrences(of: ",", with: ".")
+        guard let temp = Double(tempStr) else { return Color("AppPrimary") }
+        if temp >= 36.8 {
+            return .red // Warm/High phase
+        } else if temp < 36.5 {
+            return .purple // Cool/Low phase
+        }
+        return Color("AppPrimary") // Normal
+    }
+    
+    // Haptic Feedback Helper
+    private func triggerHaptic(style: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
+        let generator = UIImpactFeedbackGenerator(style: style)
+        generator.impactOccurred()
+    }
+    
+    private func triggerSuccessHaptic() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.success)
+    }
+    
+    private func triggerErrorHaptic() {
+        let generator = UINotificationFeedbackGenerator()
+        generator.notificationOccurred(.error)
+    }
+    
     // New entry (no pre-fill)
     init() {
         self.editDate = nil
@@ -50,8 +78,8 @@ struct EntryView: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-
                 VStack(spacing: 24) {
+                    
                     // Datum
                     VStack(alignment: .leading, spacing: 8) {
                         Label("Datum", systemImage: "calendar")
@@ -70,9 +98,30 @@ struct EntryView: View {
                     
                     // Temperatur
                     VStack(alignment: .leading, spacing: 8) {
-                        Label("Basaltemperatur (°C)", systemImage: "thermometer.medium")
-                            .font(.subheadline.weight(.semibold))
-                            .foregroundStyle(.secondary)
+                        HStack {
+                            Label("Basaltemperatur (°C)", systemImage: "thermometer.medium")
+                                .font(.subheadline.weight(.semibold))
+                                .foregroundStyle(.secondary)
+                            Spacer()
+                            // Small badges just like web version
+                            if let temp = Double(temperatureText.replacingOccurrences(of: ",", with: ".")), temp >= 36.8 {
+                                Text("Hochlage")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(.red)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.red.opacity(0.1), in: Capsule())
+                                    .transition(.scale.combined(with: .opacity))
+                            } else if let temp = Double(temperatureText.replacingOccurrences(of: ",", with: ".")), temp < 36.5 {
+                                Text("Tieflage")
+                                    .font(.caption2.weight(.bold))
+                                    .foregroundStyle(.purple)
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 4)
+                                    .background(Color.purple.opacity(0.1), in: Capsule())
+                                    .transition(.scale.combined(with: .opacity))
+                            }
+                        }
                         
                         HStack {
                             TextField("36.45", text: $temperatureText)
@@ -80,7 +129,10 @@ struct EntryView: View {
                                 .focused($focusedField, equals: .temperature)
                                 .font(.system(size: 36, weight: .bold, design: .rounded))
                                 .multilineTextAlignment(.center)
+                                .foregroundStyle(activeColor)
                                 .frame(maxWidth: .infinity)
+                                // Trigger liquid color animation when typing
+                                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: temperatureText)
                             
                             Text("°C")
                                 .font(.title2)
@@ -92,8 +144,15 @@ struct EntryView: View {
                                 RoundedRectangle(cornerRadius: 20)
                                     .fill(.ultraThinMaterial)
                                 RoundedRectangle(cornerRadius: 20)
-                                    .fill(Color("AppPrimary").opacity(0.04))
+                                    .fill(activeColor.opacity(0.04))
                             }
+                            // Squish effect on typing
+                            .animation(.spring(response: 0.4, dampingFraction: 0.7), value: temperatureText)
+                        }
+                        .overlay {
+                            RoundedRectangle(cornerRadius: 20)
+                                .stroke(activeColor.opacity(!temperatureText.isEmpty ? 0.3 : 0), lineWidth: 2)
+                                .animation(.spring(response: 0.3), value: temperatureText)
                         }
                     }
                     
@@ -104,7 +163,8 @@ struct EntryView: View {
                             .foregroundStyle(.secondary)
                         
                         Button {
-                            withAnimation(.spring(response: 0.3)) {
+                            triggerHaptic(style: .medium)
+                            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                                 hasPeriod.toggle()
                             }
                         } label: {
@@ -114,14 +174,22 @@ struct EntryView: View {
                                 Text(hasPeriod ? "Periode – Ja" : "Periode – Nein")
                                     .fontWeight(.medium)
                                 Spacer()
+                                if hasPeriod {
+                                    Image(systemName: "checkmark.circle.fill")
+                                        .foregroundStyle(Color("Period"))
+                                        .transition(.scale.combined(with: .opacity))
+                                }
                             }
                             .padding()
                             .background {
                                 ZStack {
                                     RoundedRectangle(cornerRadius: 16)
                                         .fill(.ultraThinMaterial)
-                                    RoundedRectangle(cornerRadius: 16)
-                                        .fill(hasPeriod ? Color("Period").opacity(0.1) : Color.clear)
+                                    if hasPeriod {
+                                        RoundedRectangle(cornerRadius: 16)
+                                            .fill(Color("Period").opacity(0.1))
+                                            .shadow(color: Color("Period").opacity(0.1), radius: 5, x: 0, y: 2)
+                                    }
                                 }
                             }
                             .overlay(
@@ -129,14 +197,17 @@ struct EntryView: View {
                                     .stroke(hasPeriod ? Color("Period") : Color.clear, lineWidth: 2)
                             )
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(SquishButtonStyle()) // Custom pressed style
                         
                         // Stärke
                         if hasPeriod {
                             HStack(spacing: 8) {
                                 ForEach(FlowIntensity.allCases, id: \.self) { flow in
                                     Button {
-                                        flowIntensity = flow
+                                        triggerHaptic(style: .light)
+                                        withAnimation(.spring(response: 0.3, dampingFraction: 0.7)) {
+                                            flowIntensity = flow
+                                        }
                                     } label: {
                                         Text(flow.displayName)
                                             .font(.caption.weight(.medium))
@@ -151,11 +222,17 @@ struct EntryView: View {
                                             .foregroundStyle(
                                                 flowIntensity == flow ? .white : Color("Period")
                                             )
+                                            // Add small lift effect if selected
+                                            .shadow(color: flowIntensity == flow ? Color("Period").opacity(0.3) : .clear, radius: 4, y: 2)
+                                            .scaleEffect(flowIntensity == flow ? 1.05 : 1.0)
                                     }
                                     .buttonStyle(.plain)
                                 }
                             }
-                            .transition(.move(edge: .top).combined(with: .opacity))
+                            .transition(.asymmetric(
+                                insertion: .move(edge: .top).combined(with: .opacity).animation(.spring(response: 0.5, dampingFraction: 0.6)),
+                                removal: .move(edge: .top).combined(with: .opacity).animation(.spring(response: 0.3, dampingFraction: 0.8))
+                            ))
                         }
                     }
                     
@@ -178,55 +255,73 @@ struct EntryView: View {
                     // Fehler
                     if let error = errorMessage {
                         Text(error)
-                            .font(.subheadline)
+                            .font(.subheadline.weight(.medium))
                             .foregroundStyle(.red)
                             .padding()
                             .frame(maxWidth: .infinity)
                             .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
-                    }
-                    
-                    // Erfolg
-                    if showSuccess {
-                        Label("Gespeichert!", systemImage: "checkmark.circle.fill")
-                            .font(.subheadline.weight(.medium))
-                            .foregroundStyle(.green)
-                            .padding()
-                            .frame(maxWidth: .infinity)
-                            .background(Color.green.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
                             .transition(.scale.combined(with: .opacity))
                     }
                     
-                    // Speichern Button
-                    Button {
-                        Task { await saveEntry() }
-                    } label: {
-                        HStack {
-                            if isSaving {
-                                ProgressView()
-                                    .tint(.white)
-                            } else {
-                                Image(systemName: "checkmark.circle.fill")
+                    // Morphing Save Button Container
+                    ZStack {
+                        Button {
+                            guard !temperatureText.isEmpty, !isSaving, !showSuccess else { return }
+                            triggerHaptic(style: .medium)
+                            Task { await saveEntry() }
+                        } label: {
+                            ZStack {
+                                if showSuccess {
+                                    Image(systemName: "checkmark")
+                                        .font(.title2.weight(.bold))
+                                        .foregroundStyle(.white)
+                                        .transition(.scale.combined(with: .opacity))
+                                } else if isSaving {
+                                    ProgressView()
+                                        .tint(.white)
+                                        .transition(.scale.combined(with: .opacity))
+                                } else {
+                                    HStack {
+                                        Image(systemName: "checkmark.circle.fill")
+                                        Text("Speichern")
+                                            .fontWeight(.semibold)
+                                    }
+                                    .foregroundStyle(.white)
+                                    .transition(.opacity)
+                                }
                             }
-                            Text(isSaving ? "Speichern..." : "Speichern")
-                                .fontWeight(.semibold)
+                            // The Morphing width
+                            .frame(maxWidth: (isSaving || showSuccess) ? 56 : .infinity)
+                            .frame(height: 56)
+                            // The Morphing background
+                            .background(
+                                ZStack {
+                                    if showSuccess {
+                                        Color.green
+                                    } else {
+                                        LinearGradient(
+                                            colors: [activeColor, activeColor.opacity(0.7)],
+                                            startPoint: .topLeading,
+                                            endPoint: .bottomTrailing
+                                        )
+                                    }
+                                },
+                                in: RoundedRectangle(cornerRadius: (isSaving || showSuccess) ? 28 : 16)
+                            )
+                            .shadow(color: (showSuccess ? Color.green : activeColor).opacity(0.3), radius: 8, y: 4)
                         }
-                        .frame(maxWidth: .infinity)
-                        .padding()
-                        .background(
-                            LinearGradient(
-                                colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.85)],
-                                startPoint: .topLeading,
-                                endPoint: .bottomTrailing
-                            ),
-                            in: RoundedRectangle(cornerRadius: 16)
-                        )
-                        .foregroundStyle(.white)
-                        .shadow(color: Color("AppPrimary").opacity(0.3), radius: 8, y: 4)
+                        .disabled(temperatureText.isEmpty || isSaving || showSuccess)
+                        .opacity(temperatureText.isEmpty ? 0.5 : 1)
+                        // This makes the transition bouncy and physical
+                        .animation(.spring(response: 0.4, dampingFraction: 0.6), value: isSaving)
+                        .animation(.spring(response: 0.5, dampingFraction: 0.5), value: showSuccess)
+                        .buttonStyle(SquishButtonStyle())
                     }
-                    .disabled(temperatureText.isEmpty || isSaving)
-                    .opacity(temperatureText.isEmpty ? 0.5 : 1)
+                    .padding(.top, 8)
+                    
                 }
                 .padding()
+                .animation(.spring(response: 0.4, dampingFraction: 0.7), value: hasPeriod)
             }
             .scrollDismissesKeyboard(.interactively)
             .onTapGesture {
@@ -267,7 +362,10 @@ struct EntryView: View {
         
         let tempStr = temperatureText.replacingOccurrences(of: ",", with: ".")
         guard let temp = Double(tempStr), temp >= 34.0, temp <= 42.0 else {
-            errorMessage = "Bitte gib eine gültige Temperatur ein (34.00 – 42.00 °C)"
+            withAnimation(.spring(response: 0.3)) {
+                errorMessage = "Bitte gib eine gültige Temperatur ein (34.00 – 42.00 °C)"
+            }
+            triggerErrorHaptic()
             return
         }
         
@@ -275,7 +373,7 @@ struct EntryView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         let dateStr = formatter.string(from: date)
         
-        isSaving = true
+        withAnimation { isSaving = true }
         
         do {
             try await supabase.saveTemperatureEntry(
@@ -290,19 +388,36 @@ struct EntryView: View {
                 try await supabase.deletePeriodEntry(date: dateStr)
             }
             
-            withAnimation {
+            triggerSuccessHaptic()
+            withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
+                isSaving = false
                 showSuccess = true
             }
             
-            try? await Task.sleep(nanoseconds: 1_500_000_000)
+            try? await Task.sleep(nanoseconds: 1_200_000_000)
             dismiss()
             
         } catch let error as SupabaseError {
-            errorMessage = error.errorDescription ?? "Fehler beim Speichern."
+            withAnimation {
+                isSaving = false
+                errorMessage = error.errorDescription ?? "Fehler beim Speichern."
+            }
+            triggerErrorHaptic()
         } catch {
-            errorMessage = "Fehler beim Speichern: \(error.localizedDescription)"
+            withAnimation {
+                isSaving = false
+                errorMessage = "Fehler beim Speichern: \(error.localizedDescription)"
+            }
+            triggerErrorHaptic()
         }
-        
-        isSaving = false
+    }
+}
+
+// Bouncy squish effect for buttons (adds to the Premium feel)
+struct SquishButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .scaleEffect(configuration.isPressed ? 0.96 : 1)
+            .animation(.spring(response: 0.3, dampingFraction: 0.6), value: configuration.isPressed)
     }
 }
