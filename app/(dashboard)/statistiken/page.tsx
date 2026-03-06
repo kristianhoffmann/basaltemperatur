@@ -56,6 +56,11 @@ export default async function StatisticsPage() {
     const entries = tempResult.data || []
     const periodEntries = periodResult.data || []
     const profile = profileResult.data as Profile | null
+    const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
+
+    if (!hasLifetimeAccess) {
+        redirect('/dashboard')
+    }
 
     // Calculate cycle starts
     const periodDates = periodEntries.map(p => p.date).sort()

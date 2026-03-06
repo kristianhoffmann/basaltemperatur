@@ -14,6 +14,7 @@ const serverSchema = z.object({
   // Stripe (optional in dev)
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
+  STRIPE_PRICE_ID: z.string().optional(),
   
   // Email (optional)
   RESEND_API_KEY: z.string().optional(),

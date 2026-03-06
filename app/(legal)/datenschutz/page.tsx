@@ -1,28 +1,36 @@
 import { Metadata } from 'next';
+import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
+import {
+  getLegalCompany,
+  getLegalInfrastructure,
+  getMissingCompanyFields,
+  LEGAL_LAST_UPDATED,
+} from '@/app/(legal)/legalConfig';
 
 // ============================================================================
 // DATENSCHUTZERKLÄRUNG
 // DSGVO-konforme Datenschutzerklärung für Basaltemperatur App
 // Besonderheit: Verarbeitung von Gesundheitsdaten (Art. 9 DSGVO)
-// Hosting: Strato VPS (DE) + Supabase (Frankfurt, DE)
+// Infrastrukturangaben werden aus Environment-Variablen gezogen
 // ============================================================================
 
 export const metadata: Metadata = {
   title: 'Datenschutzerklärung – Basaltemperatur',
   description: 'Informationen zum Datenschutz und zur Verarbeitung Ihrer personenbezogenen Daten',
+  alternates: {
+    canonical: '/datenschutz',
+  },
 };
 
 export default function DatenschutzPage() {
-  const company = {
-    name: process.env.NEXT_PUBLIC_COMPANY_NAME || '[Dein vollständiger Name]',
-    street: process.env.NEXT_PUBLIC_COMPANY_STREET || '[Straße Hausnummer]',
-    city: process.env.NEXT_PUBLIC_COMPANY_CITY || '[PLZ Stadt]',
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
-  };
+  const company = getLegalCompany();
+  const infrastructure = getLegalInfrastructure();
+  const missingFields = getMissingCompanyFields(company);
 
   return (
     <>
       <h1>Datenschutzerklärung</h1>
+      <LegalDataWarning missingFields={missingFields} />
 
       <h2>1. Datenschutz auf einen Blick</h2>
 
@@ -47,7 +55,7 @@ export default function DatenschutzPage() {
         Bei der Nutzung dieser App werden insbesondere folgende Daten verarbeitet:
       </p>
       <ul>
-        <li><strong>Registrierungsdaten:</strong> Name, E-Mail-Adresse, Passwort (verschlüsselt)</li>
+        <li><strong>Registrierungsdaten:</strong> Name, E-Mail-Adresse, Passwort-Hash</li>
         <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte, Periodendaten (Datum, Stärke), Zyklusnotizen</li>
         <li><strong>Nutzungsdaten:</strong> Zykluseinstellungen, Profilpräferenzen</li>
         <li><strong>Technische Daten:</strong> IP-Adresse, Browsertyp, Zugriffszeiten (Server-Logs)</li>
@@ -81,11 +89,10 @@ export default function DatenschutzPage() {
 
       <h2>3. Hosting und Datenspeicherung</h2>
 
-      <h3>Webserver (Strato)</h3>
+      <h3>Webhosting</h3>
       <p>
-        Die Web-App wird auf einem VPS-Server der Strato AG, Otto-Ostrowski-Straße 7,
-        10249 Berlin, Deutschland, gehostet. Alle Daten verbleiben auf Servern in
-        <strong> Deutschland</strong>.
+        Die Web-App wird bei <strong>{infrastructure.webProvider}</strong> gehostet.
+        Datenstandort: <strong>{infrastructure.webLocation}</strong>.
       </p>
       <p>
         Beim Zugriff auf die Website werden automatisch technische Daten in Server-Log-Dateien
@@ -93,16 +100,15 @@ export default function DatenschutzPage() {
         Datenquellen zusammengeführt.
       </p>
 
-      <h3>Datenbank (Supabase)</h3>
+      <h3>Datenbank</h3>
       <p>
         Ihre Nutzerdaten (Registrierung, Temperatureinträge, Periodendaten) werden in einer
-        Supabase-Datenbank gespeichert. Der Datenbankserver befindet sich in
-        <strong> Frankfurt am Main, Deutschland</strong> (AWS eu-central-1).
+        Datenbank bei <strong>{infrastructure.dbProvider}</strong> gespeichert.
+        Datenstandort: <strong>{infrastructure.dbLocation}</strong>.
       </p>
       <p>
-        Supabase Inc. (USA) ist der Technologieanbieter. Für die Datenverarbeitung in der
-        EU-Region gelten die EU-Standardvertragsklauseln. Ihre Gesundheitsdaten verlassen
-        zu keinem Zeitpunkt die EU.
+        Sofern ein Anbieter Daten außerhalb der EU/des EWR verarbeitet, erfolgt dies nur
+        auf Basis geeigneter Garantien gemäß Art. 44 ff. DSGVO (z.B. EU-Standardvertragsklauseln).
       </p>
       <p>
         Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) und
@@ -139,7 +145,7 @@ export default function DatenschutzPage() {
       <p>
         Bei der Registrierung erheben wir Ihren Namen, Ihre E-Mail-Adresse und ein
         selbstgewähltes Passwort. Das Passwort wird ausschließlich als kryptografischer
-        Hash gespeichert (bcrypt). Wir haben keinen Zugriff auf Ihr Klartext-Passwort.
+        Hash gespeichert. Wir haben keinen Zugriff auf Ihr Klartext-Passwort.
       </p>
       <p>
         Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
@@ -195,8 +201,8 @@ export default function DatenschutzPage() {
       </p>
 
       <hr className="my-8" />
-      <p className="text-sm text-gray-500">
-        Stand: {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+      <p className="text-sm text-gray-600 dark:text-gray-300">
+        Stand: {LEGAL_LAST_UPDATED}
       </p>
     </>
   );

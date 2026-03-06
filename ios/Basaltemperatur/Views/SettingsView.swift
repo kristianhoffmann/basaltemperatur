@@ -47,7 +47,7 @@ struct SettingsView: View {
                             } else {
                                 Text(authViewModel.userEmail)
                                     .font(.subheadline.weight(.medium))
-                                Text("Lifetime Zugang")
+                                Text("Basaltemperatur Konto")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }

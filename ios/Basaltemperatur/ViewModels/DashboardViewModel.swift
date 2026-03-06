@@ -27,6 +27,7 @@ class DashboardViewModel: ObservableObject {
     @Published var ovulationResults: [OvulationResult] = []
     @Published var isLoading = false
     @Published var errorMessage: String?
+    @Published var hasLifetimeAccess = false
     
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -225,6 +226,12 @@ class DashboardViewModel: ObservableObject {
         
         entries = try await tempEntries
         periodEntries = try await periods
+
+        if let profile = try? await supabase.getUserProfile() {
+            hasLifetimeAccess = profile.hasLifetimeAccess
+        } else {
+            hasLifetimeAccess = false
+        }
         let detected = OvulationCalculator.detectAllOvulations(entries: entries)
         ovulationResults = OvulationCalculator.combineOvulationsWithPredictions(
             detected: detected,

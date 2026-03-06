@@ -294,7 +294,7 @@ struct EntryView: View {
                             .frame(maxWidth: (isSaving || showSuccess) ? 56 : .infinity)
                             .frame(height: 56)
                             // The Morphing background
-                            .background(
+                            .background {
                                 ZStack {
                                     if showSuccess {
                                         Color.green
@@ -305,9 +305,11 @@ struct EntryView: View {
                                             endPoint: .bottomTrailing
                                         )
                                     }
-                                },
-                                in: RoundedRectangle(cornerRadius: (isSaving || showSuccess) ? 28 : 16)
-                            )
+                                }
+                                .clipShape(
+                                    RoundedRectangle(cornerRadius: (isSaving || showSuccess) ? 28 : 16)
+                                )
+                            }
                             .shadow(color: (showSuccess ? Color.green : activeColor).opacity(0.3), radius: 8, y: 4)
                         }
                         .disabled(temperatureText.isEmpty || isSaving || showSuccess)

@@ -27,6 +27,12 @@ export default async function SettingsPage() {
     }
 
     const userName = (user.user_metadata?.owner_name as string) || ''
+    const { data: profile } = await supabase
+        .from('profiles')
+        .select('has_lifetime_access')
+        .eq('id', user.id)
+        .maybeSingle()
+    const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
 
     const quickLinks = [
         { href: '/statistiken', icon: BarChart3, label: 'Statistiken', desc: 'Zyklusdaten & Trends', color: '#E8788A' },
@@ -59,6 +65,7 @@ export default async function SettingsPage() {
                         <div className="flex-1">
                             <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>
                                 {link.label}
+                                {!hasLifetimeAccess && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Premium</span>}
                             </p>
                             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                                 {link.desc}

@@ -268,6 +268,22 @@ class SupabaseService: ObservableObject {
     }
     
     // MARK: - User Profile
+
+    func getUserProfile() async throws -> UserProfile {
+        guard let uid = userId else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseUrl)/rest/v1/profiles?select=*&id=eq.\(uid)&limit=1")!
+        let data = try await authenticatedRequest(url: url)
+        let profiles = try decoder.decode([UserProfile].self, from: data)
+
+        guard let profile = profiles.first else {
+            throw SupabaseError.requestFailed
+        }
+
+        return profile
+    }
     
     func updateUserName(_ name: String) async throws {
         let url = URL(string: "\(supabaseUrl)/auth/v1/user")!

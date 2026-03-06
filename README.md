@@ -87,8 +87,8 @@ Redirect URLs:
 2. **Products → Preise erstellen** (siehe CONFIG.md für Preise)
 3. **WICHTIG:** Tax Collection deaktivieren (Kleinunternehmer)
 4. **Webhooks → Endpoint hinzufügen:**
-   - URL: `https://{{APP_DOMAIN}}/api/webhooks/stripe`
-   - Events: `checkout.session.completed`, `customer.subscription.*`, `invoice.*`
+   - URL: `https://{{APP_DOMAIN}}/api/stripe-webhook`
+   - Events: `checkout.session.completed`
 
 ### 5. Edge Functions deployen
 

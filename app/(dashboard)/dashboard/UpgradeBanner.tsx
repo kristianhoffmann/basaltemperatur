@@ -42,10 +42,10 @@ export function UpgradeBanner() {
                 </div>
                 <div className="flex-1 min-w-0">
                     <p className="text-sm font-semibold text-[var(--text)]">
-                        Lifetime-Zugang freischalten
+                        Analyse freischalten
                     </p>
                     <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                        Einmalig 9,99 € – alle Features, für immer, kein Abo.
+                        Einmalig 9,99 € – Prognosen, Statistiken, Vergleich & Export.
                     </p>
                 </div>
                 <button

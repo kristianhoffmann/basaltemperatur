@@ -1,4 +1,6 @@
 import { Metadata } from 'next';
+import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
+import { getLegalCompany, getMissingCompanyFields, LEGAL_LAST_UPDATED } from '@/app/(legal)/legalConfig';
 
 // ============================================================================
 // WIDERRUFSBELEHRUNG
@@ -9,19 +11,19 @@ import { Metadata } from 'next';
 export const metadata: Metadata = {
     title: 'Widerrufsbelehrung – Basaltemperatur',
     description: 'Widerrufsbelehrung und Muster-Widerrufsformular',
+    alternates: {
+        canonical: '/widerruf',
+    },
 };
 
 export default function WiderrufPage() {
-    const company = {
-        name: process.env.NEXT_PUBLIC_COMPANY_NAME || '[Dein vollständiger Name]',
-        street: process.env.NEXT_PUBLIC_COMPANY_STREET || '[Straße Hausnummer]',
-        city: process.env.NEXT_PUBLIC_COMPANY_CITY || '[PLZ Stadt]',
-        email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
-    };
+    const company = getLegalCompany();
+    const missingFields = getMissingCompanyFields(company);
 
     return (
         <>
             <h1>Widerrufsbelehrung</h1>
+            <LegalDataWarning missingFields={missingFields} />
 
             <h2>Widerrufsrecht</h2>
             <p>
@@ -82,7 +84,7 @@ export default function WiderrufPage() {
             <hr className="my-8" />
 
             <h2>Muster-Widerrufsformular</h2>
-            <p className="text-sm text-gray-500 italic">
+            <p className="text-sm text-gray-600 dark:text-gray-300 italic">
                 (Wenn Sie den Vertrag widerrufen wollen, dann füllen Sie bitte dieses Formular
                 aus und senden Sie es zurück.)
             </p>
@@ -118,12 +120,12 @@ export default function WiderrufPage() {
                 <p>Unterschrift des/der Verbraucher(s) (nur bei Mitteilung auf Papier):</p>
                 <p>_______________________________________________</p>
                 <br />
-                <p className="text-sm text-gray-500">(*) Unzutreffendes streichen.</p>
+                <p className="text-sm text-gray-600 dark:text-gray-300">(*) Unzutreffendes streichen.</p>
             </div>
 
             <hr className="my-8" />
-            <p className="text-sm text-gray-500">
-                Stand: {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+            <p className="text-sm text-gray-600 dark:text-gray-300">
+                Stand: {LEGAL_LAST_UPDATED}
             </p>
         </>
     );

@@ -2,7 +2,7 @@
 // Client-seitige Kalender-Komponente mit Fruchtbarkeitsfenster
 'use client'
 
-import { useState, useMemo } from 'react'
+import { useState, useMemo, type CSSProperties } from 'react'
 import {
     format,
     startOfMonth,
@@ -22,11 +22,20 @@ interface CalendarClientProps {
     periodEntries: { date: string; flow_intensity: string }[]
     fertileDates?: string[]
     peakDates?: string[]
+    predictedPeriodDates?: string[]
+    hasLifetimeAccess?: boolean
 }
 
 const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 
-export function CalendarClient({ entries, periodEntries, fertileDates = [], peakDates = [] }: CalendarClientProps) {
+export function CalendarClient({
+    entries,
+    periodEntries,
+    fertileDates = [],
+    peakDates = [],
+    predictedPeriodDates = [],
+    hasLifetimeAccess = false,
+}: CalendarClientProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date())
 
     const entryMap = useMemo(() => {
@@ -43,6 +52,7 @@ export function CalendarClient({ entries, periodEntries, fertileDates = [], peak
 
     const fertileSet = useMemo(() => new Set(fertileDates), [fertileDates])
     const peakSet = useMemo(() => new Set(peakDates), [peakDates])
+    const predictedPeriodSet = useMemo(() => new Set(predictedPeriodDates), [predictedPeriodDates])
 
     const monthStart = startOfMonth(currentMonth)
     const monthEnd = endOfMonth(currentMonth)
@@ -90,14 +100,34 @@ export function CalendarClient({ entries, periodEntries, fertileDates = [], peak
                     const dateStr = format(day, 'yyyy-MM-dd')
                     const temp = entryMap.get(dateStr)
                     const isPeriod = periodMap.has(dateStr)
-                    const isFertile = fertileSet.has(dateStr)
-                    const isPeak = peakSet.has(dateStr)
+                    const isPredictedPeriod = hasLifetimeAccess && !isPeriod && predictedPeriodSet.has(dateStr)
+                    const isFertile = hasLifetimeAccess && fertileSet.has(dateStr)
+                    const isPeak = hasLifetimeAccess && peakSet.has(dateStr)
                     const today = isToday(day)
 
                     let bgClass = 'hover:bg-gray-50'
-                    if (isPeriod) bgClass = 'bg-period-light'
-                    else if (isPeak) bgClass = ''
-                    else if (isFertile) bgClass = ''
+                    let dayStyle: CSSProperties | undefined
+
+                    if (isPeriod) {
+                        bgClass = ''
+                        dayStyle = {
+                            backgroundColor: '#fbd5dd',
+                            border: '1px solid rgba(184, 77, 101, 0.55)',
+                            boxShadow: 'inset 0 1px 0 rgba(255,255,255,0.65)',
+                        }
+                    } else if (isPredictedPeriod) {
+                        bgClass = ''
+                        dayStyle = {
+                            backgroundColor: '#fff4f7',
+                            border: '1px dashed rgba(212, 99, 122, 0.7)',
+                        }
+                    } else if (isPeak) {
+                        bgClass = ''
+                        dayStyle = { backgroundColor: '#fef3c720', border: '1px solid #f59e0b40' }
+                    } else if (isFertile) {
+                        bgClass = ''
+                        dayStyle = { backgroundColor: '#d1fae520', border: '1px solid #10b98130' }
+                    }
                     else if (temp !== undefined) bgClass = 'bg-primary-50'
 
                     return (
@@ -109,16 +139,11 @@ export function CalendarClient({ entries, periodEntries, fertileDates = [], peak
                                 ${today ? 'ring-2 ring-primary' : ''}
                                 ${bgClass}
                             `}
-                            style={
-                                isPeak
-                                    ? { backgroundColor: '#fef3c720', border: '1px solid #f59e0b40' }
-                                    : isFertile && !isPeriod
-                                        ? { backgroundColor: '#d1fae520', border: '1px solid #10b98130' }
-                                        : undefined
-                            }
+                            style={dayStyle}
                         >
                             <span className={`text-sm font-medium ${today ? 'text-primary' :
                                     isPeriod ? 'text-period' :
+                                        isPredictedPeriod ? 'text-rose-500' :
                                         isPeak ? 'text-amber-600' :
                                             isFertile ? 'text-emerald-600' :
                                                 'text-gray-700'
@@ -127,20 +152,29 @@ export function CalendarClient({ entries, periodEntries, fertileDates = [], peak
                             </span>
 
                             {temp !== undefined && (
-                                <span className="text-[10px] text-gray-500 leading-none mt-0.5">
+                                <span className={`text-[10px] leading-none mt-0.5 ${isPeriod
+                                    ? 'text-rose-700'
+                                    : isPredictedPeriod
+                                        ? 'text-rose-500'
+                                        : 'text-gray-500'
+                                    }`}>
                                     {temp.toFixed(1)}°
                                 </span>
                             )}
 
                             {isPeriod && (
-                                <Droplets className="h-2.5 w-2.5 text-period absolute bottom-1" />
+                                <Droplets className="h-3.5 w-3.5 text-rose-700 absolute bottom-1" />
                             )}
 
-                            {isPeak && !isPeriod && (
+                            {isPredictedPeriod && (
+                                <Droplets className="h-3 w-3 text-rose-400 absolute bottom-1" />
+                            )}
+
+                            {isPeak && !isPeriod && !isPredictedPeriod && (
                                 <span className="absolute bottom-0.5 text-[8px]">⚡</span>
                             )}
 
-                            {isFertile && !isPeak && !isPeriod && (
+                            {isFertile && !isPeak && !isPeriod && !isPredictedPeriod && (
                                 <span className="absolute bottom-0.5 text-[8px]">🌱</span>
                             )}
                         </Link>
@@ -155,22 +189,36 @@ export function CalendarClient({ entries, periodEntries, fertileDates = [], peak
                     Temperatur
                 </span>
                 <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded bg-period-light border border-period" />
+                    <span className="w-3 h-3 rounded" style={{ backgroundColor: '#fbd5dd', border: '1px solid rgba(184, 77, 101, 0.55)' }} />
                     Periode
                 </span>
-                <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#d1fae520', borderColor: '#10b98140' }} />
-                    Fruchtbar
-                </span>
-                <span className="flex items-center gap-1.5">
-                    <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#fef3c720', borderColor: '#f59e0b40' }} />
-                    Peak ⚡
-                </span>
+                {hasLifetimeAccess && (
+                    <>
+                        <span className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded" style={{ backgroundColor: '#fff4f7', border: '1px dashed rgba(212, 99, 122, 0.7)' }} />
+                            Periode (Prognose)
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#d1fae520', borderColor: '#10b98140' }} />
+                            Fruchtbar
+                        </span>
+                        <span className="flex items-center gap-1.5">
+                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#fef3c720', borderColor: '#f59e0b40' }} />
+                            Peak ⚡
+                        </span>
+                    </>
+                )}
                 <span className="flex items-center gap-1.5">
                     <span className="w-3 h-3 rounded ring-2 ring-primary" />
                     Heute
                 </span>
             </div>
+
+            {!hasLifetimeAccess && (
+                <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
+                    Prognosen (Fruchtbar, Peak, vorhergesagte Periode) sind im Vollzugang enthalten.
+                </div>
+            )}
         </div>
     )
 }

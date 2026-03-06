@@ -1,8 +1,22 @@
 // app/(auth)/layout.tsx
 // Auth Layout – Zentriertes Layout mit Premium-Design
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Logo } from '@/components/shared/Logo'
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+}
 
 export default function AuthLayout({
   children,

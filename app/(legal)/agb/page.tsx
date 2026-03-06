@@ -1,5 +1,12 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
+import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
+import {
+  getLegalCompany,
+  getLegalInfrastructure,
+  getMissingCompanyFields,
+  LEGAL_LAST_UPDATED,
+} from '@/app/(legal)/legalConfig';
 
 // ============================================================================
 // ALLGEMEINE GESCHÄFTSBEDINGUNGEN
@@ -10,17 +17,20 @@ import Link from 'next/link';
 export const metadata: Metadata = {
   title: 'AGB – Basaltemperatur',
   description: 'Allgemeine Geschäftsbedingungen für die Basaltemperatur App',
+  alternates: {
+    canonical: '/agb',
+  },
 };
 
 export default function AGBPage() {
-  const company = {
-    name: process.env.NEXT_PUBLIC_COMPANY_NAME || '[Dein vollständiger Name]',
-    email: process.env.NEXT_PUBLIC_COMPANY_EMAIL || '[kontakt@basaltemperatur.online]',
-  };
+  const company = getLegalCompany();
+  const infrastructure = getLegalInfrastructure();
+  const missingFields = getMissingCompanyFields(company);
 
   return (
     <>
       <h1>Allgemeine Geschäftsbedingungen</h1>
+      <LegalDataWarning missingFields={missingFields} />
 
       <h2>§ 1 Geltungsbereich</h2>
       <p>
@@ -66,7 +76,7 @@ export default function AGBPage() {
       </p>
       <p>
         (2) Mit der Registrierung bestätigt der Kunde, dass er die AGB und die{' '}
-        <Link href="/datenschutz" className="text-primary-600 hover:underline">
+        <Link href="/datenschutz">
           Datenschutzerklärung
         </Link>{' '}
         gelesen hat und diesen zustimmt.
@@ -98,7 +108,7 @@ export default function AGBPage() {
       <h2>§ 5 Vergütung</h2>
       <p>
         (1) Die Nutzung der App erfordert eine <strong>einmalige Zahlung von 9,99 €</strong>{' '}
-        (inkl. gesetzl. MwSt.). Es handelt sich um eine Einmalzahlung – es entstehen
+        (inklusive ggf. anfallender gesetzlicher Umsatzsteuer). Es handelt sich um eine Einmalzahlung – es entstehen
         keine wiederkehrenden Kosten oder Abonnements.
       </p>
       <p>
@@ -121,7 +131,7 @@ export default function AGBPage() {
         <a href={`mailto:${company.email}`}>{company.email}</a>) mittels einer eindeutigen
         Erklärung (z.B. per E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen,
         informieren. Sie können dafür das{' '}
-        <Link href="/widerruf" className="text-primary-600 hover:underline">
+        <Link href="/widerruf">
           Muster-Widerrufsformular
         </Link>{' '}
         verwenden.
@@ -161,14 +171,15 @@ export default function AGBPage() {
       <p>
         (1) Der Anbieter verarbeitet personenbezogene Daten des Kunden gemäß den
         gesetzlichen Bestimmungen und der{' '}
-        <Link href="/datenschutz" className="text-primary-600 hover:underline">
+        <Link href="/datenschutz">
           Datenschutzerklärung
         </Link>.
       </p>
       <p>
-        (2) Die bei der Nutzung der App eingegebenen Gesundheitsdaten werden auf Servern
-        in <strong>Deutschland</strong> gespeichert (Strato VPS, Berlin; Supabase,
-        Frankfurt am Main).
+        (2) Die bei der Nutzung der App eingegebenen Gesundheitsdaten werden entsprechend
+        der aktuellen Infrastruktur gespeichert (derzeit: {infrastructure.webProvider} /
+        {infrastructure.dbProvider}; Datenstandort: {infrastructure.webLocation} bzw.
+        {infrastructure.dbLocation}).
       </p>
       <p>
         (3) Der Kunde bleibt für die Richtigkeit der von ihm eingegebenen Daten
@@ -229,15 +240,9 @@ export default function AGBPage() {
         dies nicht die Wirksamkeit der übrigen Bestimmungen.
       </p>
       <p>
-        (3) Die EU-Kommission stellt eine Plattform für außergerichtliche Streitbeilegung
-        bereit:{' '}
-        <a
-          href="https://ec.europa.eu/consumers/odr/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          https://ec.europa.eu/consumers/odr/
-        </a>
+        (3) Die frühere EU-Plattform zur Online-Streitbeilegung (OS-Plattform) wurde zum
+        <strong> 20. Juli 2025</strong> eingestellt (Verordnung (EU) 2024/3228). Eine
+        Streitbeilegung über diese Plattform ist nicht mehr möglich.
       </p>
       <p>
         Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
@@ -245,8 +250,8 @@ export default function AGBPage() {
       </p>
 
       <hr className="my-8" />
-      <p className="text-sm text-gray-500">
-        Stand: {new Date().toLocaleDateString('de-DE', { month: 'long', year: 'numeric' })}
+      <p className="text-sm text-gray-600 dark:text-gray-300">
+        Stand: {LEGAL_LAST_UPDATED}
       </p>
     </>
   );

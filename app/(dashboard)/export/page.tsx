@@ -49,6 +49,12 @@ export default async function ExportPage() {
     const entries = tempResult.data || []
     const periodEntries = periodResult.data || []
     const profile = profileResult.data as Profile | null
+    const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
+
+    if (!hasLifetimeAccess) {
+        redirect('/dashboard')
+    }
+
     const ovulations = detectAllOvulations(entries as any)
 
     return (

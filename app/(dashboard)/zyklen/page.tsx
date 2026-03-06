@@ -25,7 +25,7 @@ export default async function CycleComparisonPage() {
     startDate.setDate(startDate.getDate() - 365)
     const startDateStr = format(startDate, 'yyyy-MM-dd')
 
-    const [tempResult, periodResult] = await Promise.all([
+    const [tempResult, periodResult, profileResult] = await Promise.all([
         supabase
             .from('temperature_entries')
             .select('date, temperature')
@@ -38,10 +38,20 @@ export default async function CycleComparisonPage() {
             .eq('user_id', user.id)
             .gte('date', startDateStr)
             .order('date', { ascending: true }),
+        supabase
+            .from('profiles')
+            .select('has_lifetime_access')
+            .eq('id', user.id)
+            .maybeSingle(),
     ])
 
     const entries = tempResult.data || []
     const periodEntries = periodResult.data || []
+    const hasLifetimeAccess = Boolean(profileResult.data?.has_lifetime_access)
+
+    if (!hasLifetimeAccess) {
+        redirect('/dashboard')
+    }
 
     // Finde Zyklusstarts (erste Tage der Periode nach einer Pause)
     const periodDates = periodEntries.map(p => p.date).sort()

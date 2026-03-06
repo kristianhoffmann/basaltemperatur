@@ -1,6 +1,7 @@
 // app/(dashboard)/layout.tsx
 // Dashboard Layout – Premium 2026 with Dark Sidebar
 
+import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import Link from 'next/link'
@@ -8,6 +9,19 @@ import { Settings } from 'lucide-react'
 import { NotificationPrompt } from '@/components/features/NotificationPrompt'
 import { SidebarNav } from '@/components/layout/SidebarNav'
 import { MobileNav } from '@/components/layout/MobileNav'
+
+export const metadata: Metadata = {
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+    },
+  },
+}
 
 export default async function DashboardLayout({
   children,

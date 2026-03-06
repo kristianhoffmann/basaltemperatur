@@ -11,11 +11,6 @@ struct DashboardView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Fertility Status Banner
-                    if viewModel.fertilityStatus != .infertile {
-                        FertilityBanner(status: viewModel.fertilityStatus)
-                    }
-                    
                     // Greeting
                     HStack {
                         VStack(alignment: .leading, spacing: 4) {
@@ -47,115 +42,128 @@ struct DashboardView: View {
                     }
                     .padding(.horizontal)
                     
-                    // KPI Cards
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 12) {
-                        KPICard(
-                            title: "Zyklustag",
-                            value: viewModel.cycleDay.map { "Tag \($0)" } ?? "–",
-                            subtitle: viewModel.cycleDay != nil ? "von ~\(viewModel.cycleLength)" : "Keine Periode markiert",
-                            icon: "calendar.badge.clock",
-                            color: Color("AppPrimary")
-                        )
+                    if viewModel.hasLifetimeAccess {
+                        // Fertility Status Banner
+                        if viewModel.fertilityStatus != .infertile {
+                            FertilityBanner(status: viewModel.fertilityStatus)
+                        }
                         
-                        KPICard(
-                            title: "Letzte Temp.",
-                            value: viewModel.lastEntry?.formattedTemperature ?? "–",
-                            subtitle: viewModel.lastEntryFormattedDate ?? "Noch kein Eintrag",
-                            icon: "thermometer.medium",
-                            color: Color("AppPrimary")
-                        )
+                        // KPI Cards
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 12) {
+                            KPICard(
+                                title: "Zyklustag",
+                                value: viewModel.cycleDay.map { "Tag \($0)" } ?? "–",
+                                subtitle: viewModel.cycleDay != nil ? "von ~\(viewModel.cycleLength)" : "Keine Periode markiert",
+                                icon: "calendar.badge.clock",
+                                color: Color("AppPrimary")
+                            )
+                            
+                            KPICard(
+                                title: "Letzte Temp.",
+                                value: viewModel.lastEntry?.formattedTemperature ?? "–",
+                                subtitle: viewModel.lastEntryFormattedDate ?? "Noch kein Eintrag",
+                                icon: "thermometer.medium",
+                                color: Color("AppPrimary")
+                            )
+                            
+                            KPICard(
+                                title: "Eisprung",
+                                value: {
+                                    if viewModel.isOvulationConfirmed {
+                                        return "Erkannt ✓"
+                                    } else if let days = viewModel.daysUntilOvulation {
+                                        return "~\(days)d"
+                                    }
+                                    return "–"
+                                }(),
+                                subtitle: {
+                                    if viewModel.isOvulationConfirmed {
+                                        return "Bestätigt (3-über-6)"
+                                    } else if let ov = viewModel.currentOvulation, let ovDate = ov.ovulationDate {
+                                        let f = DateFormatter()
+                                        f.dateFormat = "yyyy-MM-dd"
+                                        if let d = f.date(from: ovDate) {
+                                            let display = DateFormatter()
+                                            display.dateFormat = "d. MMM"
+                                            display.locale = Locale(identifier: "de_DE")
+                                            return display.string(from: d)
+                                        }
+                                        return "Voraussichtlich"
+                                    } else if let nextOv = viewModel.nextOvulationDate, viewModel.daysUntilOvulation != nil {
+                                        let f = DateFormatter()
+                                        f.dateFormat = "yyyy-MM-dd"
+                                        if let d = f.date(from: nextOv) {
+                                            let display = DateFormatter()
+                                            display.dateFormat = "d. MMM"
+                                            display.locale = Locale(identifier: "de_DE")
+                                            return display.string(from: d)
+                                        }
+                                        return "voraussichtlich"
+                                    }
+                                    return "Nicht genug Daten"
+                                }(),
+                                icon: "sparkles",
+                                color: Color("Ovulation")
+                            )
+                            
+                            KPICard(
+                                title: "Nächste Periode",
+                                value: viewModel.daysUntilPeriod.map { "~\($0)d" } ?? "–",
+                                subtitle: {
+                                    if let next = viewModel.nextPeriodDate, viewModel.daysUntilPeriod != nil {
+                                        let f = DateFormatter()
+                                        f.dateFormat = "yyyy-MM-dd"
+                                        if let d = f.date(from: next) {
+                                            let display = DateFormatter()
+                                            display.dateFormat = "d. MMM"
+                                            display.locale = Locale(identifier: "de_DE")
+                                            return display.string(from: d)
+                                        }
+                                    }
+                                    return "Nicht genug Daten"
+                                }(),
+                                icon: "arrow.forward.circle",
+                                color: Color("Period")
+                            )
+                        }
+                        .padding(.horizontal)
                         
-                        KPICard(
-                            title: "Eisprung",
-                            value: {
-                                if viewModel.isOvulationConfirmed {
-                                    return "Erkannt ✓"
-                                } else if let days = viewModel.daysUntilOvulation {
-                                    return "~\(days)d"
-                                }
-                                return "–"
-                            }(),
-                            subtitle: {
-                                if viewModel.isOvulationConfirmed {
-                                    return "Bestätigt (3-über-6)"
-                                } else if let ov = viewModel.currentOvulation, let ovDate = ov.ovulationDate {
-                                    let f = DateFormatter()
-                                    f.dateFormat = "yyyy-MM-dd"
-                                    if let d = f.date(from: ovDate) {
-                                        let display = DateFormatter()
-                                        display.dateFormat = "d. MMM"
-                                        display.locale = Locale(identifier: "de_DE")
-                                        return display.string(from: d)
-                                    }
-                                    return "Voraussichtlich"
-                                } else if let nextOv = viewModel.nextOvulationDate, viewModel.daysUntilOvulation != nil {
-                                    let f = DateFormatter()
-                                    f.dateFormat = "yyyy-MM-dd"
-                                    if let d = f.date(from: nextOv) {
-                                        let display = DateFormatter()
-                                        display.dateFormat = "d. MMM"
-                                        display.locale = Locale(identifier: "de_DE")
-                                        return display.string(from: d)
-                                    }
-                                    return "voraussichtlich"
-                                }
-                                return "Nicht genug Daten"
-                            }(),
-                            icon: "sparkles",
-                            color: Color("Ovulation")
-                        )
+                        // Temperature Chart
+                        if !viewModel.entries.isEmpty {
+                            TemperatureChartView(
+                                allEntries: viewModel.entries,
+                                allPeriodEntries: viewModel.periodEntries,
+                                ovulations: viewModel.ovulationResults,
+                                selectedRange: $viewModel.selectedRange
+                            )
+                            .padding(.horizontal)
+                        } else {
+                            EmptyChartView()
+                                .padding(.horizontal)
+                        }
                         
-                        KPICard(
-                            title: "Nächste Periode",
-                            value: viewModel.daysUntilPeriod.map { "~\($0)d" } ?? "–",
-                            subtitle: {
-                                if let next = viewModel.nextPeriodDate, viewModel.daysUntilPeriod != nil {
-                                    let f = DateFormatter()
-                                    f.dateFormat = "yyyy-MM-dd"
-                                    if let d = f.date(from: next) {
-                                        let display = DateFormatter()
-                                        display.dateFormat = "d. MMM"
-                                        display.locale = Locale(identifier: "de_DE")
-                                        return display.string(from: d)
-                                    }
-                                }
-                                return "Nicht genug Daten"
-                            }(),
-                            icon: "arrow.forward.circle",
-                            color: Color("Period")
-                        )
-                    }
-                    .padding(.horizontal)
-                    
-                    // Temperature Chart
-                    if !viewModel.entries.isEmpty {
-                        TemperatureChartView(
-                            allEntries: viewModel.entries,
-                            allPeriodEntries: viewModel.periodEntries,
-                            ovulations: viewModel.ovulationResults,
-                            selectedRange: $viewModel.selectedRange
+                        // Disclaimer
+                        Text("Hinweis: Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben. Es handelt sich um Schätzungen. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
+                            .font(.caption2)
+                            .foregroundStyle(.secondary)
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                            .padding(.bottom, 20)
+                    } else {
+                        PremiumPaywallView(
+                            title: "Analyse ist im Vollzugang enthalten",
+                            message: "Einträge und Kalender sind kostenlos. Prognosen, Statistik und Kurvenanalyse kannst du einmalig für 9,99 € freischalten."
                         )
                         .padding(.horizontal)
-                    } else {
-                        EmptyChartView()
-                            .padding(.horizontal)
                     }
                     
                     // Quick Entry Prompt
                     if !viewModel.todayHasEntry {
                         QuickEntryPrompt()
                     }
-                    
-                    // Disclaimer
-                    Text("Hinweis: Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben. Es handelt sich um Schätzungen. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
-                        .font(.caption2)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, 32)
-                        .padding(.bottom, 20)
                 }
                 .padding(.vertical)
             }

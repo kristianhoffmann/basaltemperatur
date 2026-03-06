@@ -6,6 +6,7 @@ export const dynamic = 'force-dynamic'
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TemperatureChart } from '@/components/features/TemperatureChart'
+import { UpgradeBanner } from './UpgradeBanner'
 import { detectOvulation, predictNextPeriod, predictNextOvulation, getFertilityWindow, getFertilityStatus } from '@/lib/ovulation'
 import { format, differenceInDays, parseISO, startOfDay } from 'date-fns'
 import { de } from 'date-fns/locale'
@@ -52,6 +53,7 @@ export default async function DashboardPage() {
   const entries = (tempResult.data || []) as { date: string; temperature: number; notes: string | null }[]
   const periodEntries = (periodResult.data || []) as { date: string; flow_intensity: 'light' | 'medium' | 'heavy' | 'spotting' }[]
   const profile = profileResult.data as Profile | null
+  const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
   const cycleLength = profile?.cycle_length_default || 28
 
   const periodDates = periodEntries.map(p => p.date).sort()
@@ -132,33 +134,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-5 pb-8 pt-4">
-      {/* Fertility Status Banner */}
-      {fertilityStatus !== 'infertile' && (
-        <div
-          className="card animate-fade-in"
-          style={{
-            background: fertilityStatus === 'peak'
-              ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03))'
-              : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.03))',
-            border: `1px solid ${fertilityStatus === 'peak' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-          }}
-        >
-          <div className="text-center">
-            <span className="text-2xl">
-              {fertilityStatus === 'peak' ? '⚡' : '🔥'}
-            </span>
-            <p className="font-bold text-sm mt-1.5" style={{ color: fertilityStatus === 'peak' ? '#b45309' : '#047857' }}>
-              {fertilityStatus === 'peak' ? 'Höchste Fruchtbarkeit' : 'Fruchtbares Fenster'}
-            </p>
-            <p className="text-xs mt-0.5" style={{ color: fertilityStatus === 'peak' ? '#92400e' : '#065f46' }}>
-              {fertilityStatus === 'peak'
-                ? 'Eisprung steht unmittelbar bevor'
-                : 'Du befindest dich im fruchtbaren Fenster'}
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Header */}
       <div className="flex items-center justify-between animate-fade-in animate-stagger-1">
         <div>
@@ -177,30 +152,94 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        {kpiCards.map((kpi, i) => (
-          <div key={kpi.label} className={`kpi-card animate-fade-in animate-stagger-${i + 2}`}>
-            <div className={`kpi-icon ${kpi.iconClass}`}>
-              <kpi.icon className="h-5 w-5" />
-            </div>
-            <div className="kpi-value">
-              {kpi.value}
-            </div>
-            <p className="kpi-label mt-3">
-              {kpi.label}
+      {!hasLifetimeAccess ? (
+        <>
+          <div className="card animate-fade-in animate-stagger-2">
+            <p className="text-sm text-[var(--text-secondary)]">
+              Einträge und Kalender bleiben kostenlos. Analyse-Funktionen wie Prognosen, Statistiken,
+              Zyklusvergleich und Export sind im Vollzugang enthalten.
             </p>
-            <p className="kpi-subtitle">
-              {kpi.subtitle}
+            <div className="mt-4 flex flex-wrap gap-2">
+              <Link href="/eintrag">
+                <button className="btn btn-sm">
+                  <PlusCircle className="h-4 w-4" />
+                  Eintrag öffnen
+                </button>
+              </Link>
+              <Link href="/kalender">
+                <button className="btn btn-sm btn-secondary">
+                  <CalendarHeart className="h-4 w-4" />
+                  Kalender öffnen
+                </button>
+              </Link>
+            </div>
+          </div>
+          <UpgradeBanner />
+        </>
+      ) : (
+        <>
+          {/* Fertility Status Banner */}
+          {fertilityStatus !== 'infertile' && (
+            <div
+              className="card animate-fade-in"
+              style={{
+                background: fertilityStatus === 'peak'
+                  ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03))'
+                  : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.03))',
+                border: `1px solid ${fertilityStatus === 'peak' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
+              }}
+            >
+              <div className="text-center">
+                <span className="text-2xl">
+                  {fertilityStatus === 'peak' ? '⚡' : '🔥'}
+                </span>
+                <p className="font-bold text-sm mt-1.5" style={{ color: fertilityStatus === 'peak' ? '#b45309' : '#047857' }}>
+                  {fertilityStatus === 'peak' ? 'Höchste Fruchtbarkeit' : 'Fruchtbares Fenster'}
+                </p>
+                <p className="text-xs mt-0.5" style={{ color: fertilityStatus === 'peak' ? '#92400e' : '#065f46' }}>
+                  {fertilityStatus === 'peak'
+                    ? 'Eisprung steht unmittelbar bevor'
+                    : 'Du befindest dich im fruchtbaren Fenster'}
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* KPI Cards */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            {kpiCards.map((kpi, i) => (
+              <div key={kpi.label} className={`kpi-card animate-fade-in animate-stagger-${i + 2}`}>
+                <div className={`kpi-icon ${kpi.iconClass}`}>
+                  <kpi.icon className="h-5 w-5" />
+                </div>
+                <div className="kpi-value">
+                  {kpi.value}
+                </div>
+                <p className="kpi-label mt-3">
+                  {kpi.label}
+                </p>
+                <p className="kpi-subtitle">
+                  {kpi.subtitle}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Temperature Chart */}
+          <div className="animate-fade-in animate-stagger-5">
+            <TemperatureChart entries={entries} periodEntries={periodEntries} />
+          </div>
+
+          {/* Disclaimer */}
+          <div className="text-center pb-2 pt-2 px-4">
+            <p className="text-xs text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
+              <strong>Hinweis:</strong> Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben.
+              Es handelt sich um Schätzungen, die von deinem tatsächlichen Zyklus abweichen können.
+              Diese App dient <u>nicht</u> zur Verhütung und ersetzt keinen ärztlichen Rat.
             </p>
           </div>
-        ))}
-      </div>
-
-      {/* Temperature Chart */}
-      <div className="animate-fade-in animate-stagger-5">
-        <TemperatureChart entries={entries} periodEntries={periodEntries} />
-      </div>
+        </>
+      )}
 
       {/* Quick Entry Prompt */}
       {!entries.find(e => e.date === format(new Date(), 'yyyy-MM-dd')) && (
@@ -219,15 +258,6 @@ export default async function DashboardPage() {
           </Link>
         </div>
       )}
-
-      {/* Disclaimer */}
-      <div className="text-center pb-8 pt-4 px-4">
-        <p className="text-xs text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
-          <strong>Hinweis:</strong> Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben.
-          Es handelt sich um Schätzungen, die von deinem tatsächlichen Zyklus abweichen können.
-          Diese App dient <u>nicht</u> zur Verhütung und ersetzt keinen ärztlichen Rat.
-        </p>
-      </div>
     </div>
   )
 }

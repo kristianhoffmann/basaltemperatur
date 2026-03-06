@@ -17,11 +17,12 @@
 		7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3951E1BA4E043DD771249C92 /* MainTabView.swift */; };
 		9758D971A77890C5497453E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00CB16ECC39B54B76618055 /* Assets.xcassets */; };
 		C1CB455A0B179481E5EB46E3 /* BasaltemperaturApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */; };
-		C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778563E83BB92BF4FB2CA1CC /* EntryView.swift */; };
-		A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */; };
-		D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */; };
-		D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C57EA5BDC2515F0649AA542 /* DashboardView.swift */; };
-		DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBAAC47E185425F6C662C1DA /* SupabaseService.swift */; };
+			C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778563E83BB92BF4FB2CA1CC /* EntryView.swift */; };
+			A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */; };
+			B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */; };
+			D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */; };
+			D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C57EA5BDC2515F0649AA542 /* DashboardView.swift */; };
+			DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBAAC47E185425F6C662C1DA /* SupabaseService.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,11 +31,12 @@
 		48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
 		69D899FF58E516C4A2A92792 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-		778563E83BB92BF4FB2CA1CC /* EntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
-		F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportView.swift; sourceTree = "<group>"; };
-		7FA494043BCA32921358F17D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
-		82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTabView.swift; sourceTree = "<group>"; };
-		917BC58216F5A55926C02139 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+			778563E83BB92BF4FB2CA1CC /* EntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
+			F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportView.swift; sourceTree = "<group>"; };
+			B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumPaywallView.swift; sourceTree = "<group>"; };
+			7FA494043BCA32921358F17D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+			82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTabView.swift; sourceTree = "<group>"; };
+			917BC58216F5A55926C02139 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
 		9906C41250972C7A055CE766 /* OvulationCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvulationCalculator.swift; sourceTree = "<group>"; };
 		9C57EA5BDC2515F0649AA542 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
 		A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Basaltemperatur.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -50,12 +52,13 @@
 				48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */,
 				82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */,
 				9C57EA5BDC2515F0649AA542 /* DashboardView.swift */,
-				778563E83BB92BF4FB2CA1CC /* EntryView.swift */,
-				F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */,
-				917BC58216F5A55926C02139 /* LoginView.swift */,
-				3951E1BA4E043DD771249C92 /* MainTabView.swift */,
-				69D899FF58E516C4A2A92792 /* SettingsView.swift */,
-			);
+					778563E83BB92BF4FB2CA1CC /* EntryView.swift */,
+					F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */,
+					B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */,
+					917BC58216F5A55926C02139 /* LoginView.swift */,
+					3951E1BA4E043DD771249C92 /* MainTabView.swift */,
+					69D899FF58E516C4A2A92792 /* SettingsView.swift */,
+				);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -184,11 +187,12 @@
 				D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */,
 				0C806CD68B27C01B674C5346 /* DashboardViewModel.swift in Sources */,
 				48DDF8AD2F4119E900FC4FCD /* StatisticsView.swift in Sources */,
-				C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */,
-				A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */,
-				714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */,
-				7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */,
-				4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */,
+					C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */,
+					A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */,
+					B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */,
+					714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */,
+					7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */,
+					4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */,
 				1E77E4EA998723AA8410B532 /* SettingsView.swift in Sources */,
 				DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */,
 				6AC72E3B2CB32BA456FD98D5 /* TemperatureEntry.swift in Sources */,

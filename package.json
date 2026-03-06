@@ -6,7 +6,7 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "db:types": "npx supabase gen types typescript --project-id YOUR_PROJECT_ID > types/database.ts"
   },
   "dependencies": {

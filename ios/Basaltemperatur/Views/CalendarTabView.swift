@@ -24,7 +24,7 @@ struct CalendarTabView: View {
                         selectedDate: $selectedDate,
                         entries: viewModel.entries,
                         periodEntries: viewModel.periodEntries,
-                        fertilityWindows: viewModel.fertilityWindows
+                        fertilityWindows: viewModel.hasLifetimeAccess ? viewModel.fertilityWindows : []
                     )
                     
                     // Zusammenfassung für den gewählten Tag
@@ -33,7 +33,7 @@ struct CalendarTabView: View {
                     let period = viewModel.periodEntries.first { $0.date == dateStr }
                     let dayFertilityStatus = OvulationCalculator.getFertilityStatus(
                         dateStr: dateStr,
-                        windows: viewModel.fertilityWindows
+                        windows: viewModel.hasLifetimeAccess ? viewModel.fertilityWindows : []
                     )
                     
                     VStack(alignment: .leading, spacing: 12) {
@@ -41,7 +41,7 @@ struct CalendarTabView: View {
                             .font(.headline)
                         
                         // Fertility indicator for selected day
-                        if dayFertilityStatus != .infertile {
+                        if viewModel.hasLifetimeAccess && dayFertilityStatus != .infertile {
                             HStack(spacing: 6) {
                                 Text(dayFertilityStatus == .peak ? "⚡" : "🌱")
                                 Text(dayFertilityStatus == .peak ? "Höchste Fruchtbarkeit" : "Fruchtbar")
@@ -99,12 +99,21 @@ struct CalendarTabView: View {
                     HStack(spacing: 16) {
                         CalendarLegendItem(color: Color("AppPrimary").opacity(0.15), label: "Temperatur")
                         CalendarLegendItem(color: Color("Period").opacity(0.15), label: "Periode")
-                        CalendarLegendItem(color: .green.opacity(0.1), label: "Fruchtbar")
-                        CalendarLegendItem(color: .orange.opacity(0.1), label: "Peak ⚡")
+                        if viewModel.hasLifetimeAccess {
+                            CalendarLegendItem(color: .green.opacity(0.1), label: "Fruchtbar")
+                            CalendarLegendItem(color: .orange.opacity(0.1), label: "Peak ⚡")
+                        }
                     }
                     .font(.caption)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
+
+                    if !viewModel.hasLifetimeAccess {
+                        PremiumPaywallView(
+                            title: "Kalender-Prognosen sind Premium",
+                            message: "Einträge im Kalender bleiben kostenlos. Fruchtbarkeits- und Peak-Prognosen sind im Vollzugang enthalten."
+                        )
+                    }
                 }
                 .padding()
             }

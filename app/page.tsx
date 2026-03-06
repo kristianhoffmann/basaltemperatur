@@ -1,6 +1,7 @@
 // app/page.tsx
 // Landing Page – Basaltemperatur App – 2026 Premium Dark Hero Design
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
   CheckCircle,
@@ -15,66 +16,104 @@ import {
   Quote,
   Lock,
   Zap,
+  FileDown,
 } from 'lucide-react'
+
+const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
+
+export const metadata: Metadata = {
+  title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+  description: 'Basaltemperatur App für natürliches Zyklustracking: Temperatur und Periode kostenlos eintragen, komplette Analyse einmalig für 9,99 € freischalten.',
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+    description: 'Temperatur & Periode kostenlos eintragen. Analyse, Prognosen und Export einmalig für 9,99 € freischalten.',
+    url: '/',
+    type: 'website',
+    images: [
+      {
+        url: '/opengraph-image',
+        width: 1200,
+        height: 630,
+        alt: 'Basaltemperatur App',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Basaltemperatur App',
+    description: 'Zyklustracking mit Basaltemperatur, Periodenkalender und Analyse.',
+    images: ['/twitter-image'],
+  },
+}
 
 const features = [
   {
     icon: Thermometer,
     title: 'Temperatur erfassen',
     description: 'Trage täglich deine Basaltemperatur ein – schnell und unkompliziert.',
+    tier: 'Kostenlos',
     accent: 'from-rose-400 to-pink-500',
     iconBg: 'bg-rose-400/10',
     iconColor: 'text-rose-500',
   },
   {
-    icon: TrendingUp,
-    title: 'Temperaturkurve',
-    description: 'Deine Temperaturwerte als übersichtliche Kurve. Muster auf einen Blick.',
-    accent: 'from-blue-400 to-indigo-500',
-    iconBg: 'bg-blue-400/10',
-    iconColor: 'text-blue-500',
-  },
-  {
     icon: CalendarHeart,
     title: 'Periode markieren',
     description: 'Markiere deine Periodentage. Sie werden farblich hervorgehoben.',
+    tier: 'Kostenlos',
     accent: 'from-pink-400 to-rose-500',
     iconBg: 'bg-pink-400/10',
     iconColor: 'text-pink-500',
   },
   {
+    icon: TrendingUp,
+    title: 'Analyse-Dashboard',
+    description: 'Temperaturkurve, Trends und Zyklus-KPIs auf einen Blick.',
+    tier: 'Premium Analyse',
+    accent: 'from-blue-400 to-indigo-500',
+    iconBg: 'bg-blue-400/10',
+    iconColor: 'text-blue-500',
+  },
+  {
     icon: Sparkles,
-    title: 'Eisprung erkennen',
-    description: 'Basierend auf der 3-über-6-Regel wird dein Eisprung automatisch erkannt.',
+    title: 'Prognosen & Eisprung',
+    description: 'Eisprung-, Fruchtbarkeits- und Periodenprognosen basierend auf deinem Verlauf.',
+    tier: 'Premium Analyse',
     accent: 'from-violet-400 to-purple-500',
     iconBg: 'bg-violet-400/10',
     iconColor: 'text-violet-500',
   },
   {
-    icon: Shield,
-    title: 'Daten in Deutschland',
-    description: 'Deine Gesundheitsdaten werden DSGVO-konform in Deutschland gespeichert.',
-    accent: 'from-emerald-400 to-teal-500',
-    iconBg: 'bg-emerald-400/10',
-    iconColor: 'text-emerald-500',
-  },
-  {
     icon: Heart,
-    title: 'Für Kinderwunsch & NFP',
-    description: 'Ideal für natürliche Familienplanung. Verstehe deinen Körper besser.',
+    title: 'Statistiken & Vergleich',
+    description: 'Analysiere Zyklusverläufe über mehrere Monate und vergleiche Zyklen.',
+    tier: 'Premium Analyse',
     accent: 'from-amber-400 to-orange-500',
     iconBg: 'bg-amber-400/10',
     iconColor: 'text-amber-500',
   },
+  {
+    icon: FileDown,
+    title: 'PDF-Export',
+    description: 'Exportiere deine Kurve als PDF für Arztgespräche und Dokumentation.',
+    tier: 'Premium Analyse',
+    accent: 'from-emerald-400 to-teal-500',
+    iconBg: 'bg-emerald-400/10',
+    iconColor: 'text-emerald-500',
+  },
 ]
 
 const lifetimeFeatures = [
-  'Unbegrenzte Temperatureinträge',
-  'Temperaturkurve mit Periodenansicht',
-  'Automatische Eisprung-Erkennung',
-  'Zyklushistorie & Statistiken',
+  'Analyse-Dashboard mit Zyklus-KPIs',
+  'Temperaturkurve mit Mustererkennung',
+  'Eisprung-, Fruchtbarkeits- und Periodenprognosen',
+  'Zyklusstatistiken und Verlaufstrends',
+  'Zyklusvergleich mehrerer Zyklen',
   'PDF-Export für den Frauenarzt',
-  'Web-App + iOS-App',
+  'Web-App + iOS Analyse',
   'Alle zukünftigen Updates',
   'Kein Abo – einmalig zahlen',
 ]
@@ -100,9 +139,79 @@ const testimonials = [
   },
 ]
 
+const faqItems = [
+  {
+    question: 'Ist Basaltemperatur kostenlos?',
+    answer:
+      'Ja. Das Eintragen von Temperatur und Periodentagen ist kostenlos. Die komplette Analyse kann einmalig für 9,99 € freigeschaltet werden.',
+  },
+  {
+    question: 'Ist Basaltemperatur ein Abo?',
+    answer:
+      'Nein. Es gibt kein Abonnement. Der Analyse-Zugang ist eine einmalige Zahlung.',
+  },
+  {
+    question: 'Sind meine Daten sicher?',
+    answer:
+      'Die App ist DSGVO-konform aufgebaut. Gesundheitsdaten werden ausschließlich zur Bereitstellung der Funktionen verarbeitet.',
+  },
+  {
+    question: 'Kann ich Basaltemperatur auf iOS und Web nutzen?',
+    answer:
+      'Ja. Du kannst deine Daten auf Web und iOS nutzen und die Analyse plattformübergreifend verwenden.',
+  },
+]
+
 export default function LandingPage() {
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Organization',
+        name: 'Basaltemperatur',
+        url: siteUrl,
+      },
+      {
+        '@type': 'WebSite',
+        name: 'Basaltemperatur',
+        url: siteUrl,
+        inLanguage: 'de-DE',
+      },
+      {
+        '@type': 'SoftwareApplication',
+        name: 'Basaltemperatur',
+        applicationCategory: 'HealthApplication',
+        operatingSystem: 'Web, iOS',
+        inLanguage: 'de-DE',
+        description:
+          'Zyklustracking mit Basaltemperatur, Periodentagen, Prognosen und Auswertungen.',
+        offers: {
+          '@type': 'Offer',
+          price: '9.99',
+          priceCurrency: 'EUR',
+          availability: 'https://schema.org/InStock',
+        },
+      },
+      {
+        '@type': 'FAQPage',
+        mainEntity: faqItems.map((item) => ({
+          '@type': 'Question',
+          name: item.question,
+          acceptedAnswer: {
+            '@type': 'Answer',
+            text: item.answer,
+          },
+        })),
+      },
+    ],
+  }
+
   return (
     <div className="min-h-screen">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
+      />
 
       {/* ═══════════════════════════════════════════════════
           HERO — Dark Gradient with Floating Orbs
@@ -125,17 +234,18 @@ export default function LandingPage() {
             </div>
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm text-white/50 hover:text-white transition-colors">Features</a>
+              <a href="#faq" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</a>
               <a href="#testimonials" className="text-sm text-white/50 hover:text-white transition-colors">Erfahrungen</a>
               <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Preis</a>
               <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Anmelden</Link>
               <Link href="/registrieren">
-                <button className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">Jetzt starten</button>
+                <button className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">Kostenlos starten</button>
               </Link>
             </div>
             <div className="md:hidden flex items-center gap-3">
               <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
               <Link href="/registrieren">
-                <button className="btn btn-sm text-white border border-white/15 bg-white/5">Start</button>
+                <button className="btn btn-sm text-white border border-white/15 bg-white/5">Kostenlos starten</button>
               </Link>
             </div>
           </div>
@@ -158,15 +268,15 @@ export default function LandingPage() {
 
           {/* Subheadline */}
           <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-white/55 max-w-2xl mx-auto leading-relaxed animate-fade-in animate-stagger-2">
-            Trage deine Basaltemperatur ein, erkenne deinen Eisprung und behalte
-            deinen Zyklus im Blick – einfach, sicher und privat.
+            Trage kostenlos deine Einträge ein und schalte bei Bedarf die komplette
+            Zyklusanalyse frei – einfach, sicher und privat.
           </p>
 
           {/* CTA Buttons */}
           <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in animate-stagger-3">
             <Link href="/registrieren">
               <button className="btn btn-glow btn-xl animate-glow">
-                Jetzt starten
+                Kostenlos starten
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
@@ -178,7 +288,7 @@ export default function LandingPage() {
           </div>
 
           <p className="mt-5 text-sm text-white/35 animate-fade-in animate-stagger-4">
-            Einmalig 9,99 € · Kein Abo · Lebenslanger Zugang
+            Einträge kostenlos · Analyse einmalig 9,99 € · Kein Abo
           </p>
 
           {/* Floating Glass Chart Preview */}
@@ -276,7 +386,7 @@ export default function LandingPage() {
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Alles für deinen Zyklus</h2>
-            <p className="mt-4 text-lg text-[var(--text-secondary)]">Einfach. Übersichtlich. Wissenschaftlich fundiert.</p>
+            <p className="mt-4 text-lg text-[var(--text-secondary)]">Kostenlos eintragen. Analyse bei Bedarf freischalten.</p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {features.map((f, i) => (
@@ -284,6 +394,13 @@ export default function LandingPage() {
                 <div className={`flex h-12 w-12 items-center justify-center rounded-2xl mb-5 transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${f.iconBg} ${f.iconColor}`}>
                   <f.icon className="h-6 w-6" />
                 </div>
+                <span className={`inline-flex text-[10px] font-semibold px-2 py-1 rounded-full mb-3 ${
+                  f.tier === 'Kostenlos'
+                    ? 'bg-emerald-100 text-emerald-700'
+                    : 'bg-rose-100 text-rose-700'
+                }`}>
+                  {f.tier}
+                </span>
                 <h3 className="text-lg font-bold mb-2 text-[var(--text)] tracking-tight">{f.title}</h3>
                 <p className="leading-relaxed text-sm text-[var(--text-secondary)]">{f.description}</p>
               </div>
@@ -312,6 +429,26 @@ export default function LandingPage() {
                 </div>
                 <h3 className="text-lg font-bold mb-2 text-[var(--text)] tracking-tight">{item.title}</h3>
                 <p className="text-[var(--text-secondary)]">{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══════════════════════════════════════════════════
+          FAQ
+          ═══════════════════════════════════════════════════ */}
+      <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Häufige Fragen</h2>
+            <p className="mt-4 text-lg text-[var(--text-secondary)]">Kurz und transparent beantwortet.</p>
+          </div>
+          <div className="space-y-4">
+            {faqItems.map((item, i) => (
+              <div key={item.question} className={`card animate-fade-in animate-stagger-${i + 1}`}>
+                <h3 className="text-lg font-bold text-[var(--text)] tracking-tight">{item.question}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{item.answer}</p>
               </div>
             ))}
           </div>
@@ -364,7 +501,7 @@ export default function LandingPage() {
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Ein Preis. Für immer.</h2>
-            <p className="mt-4 text-lg text-[var(--text-secondary)]">Kein Abo. Keine versteckten Kosten.</p>
+            <p className="mt-4 text-lg text-[var(--text-secondary)]">Einträge bleiben kostenlos. Kein Abo. Keine versteckten Kosten.</p>
           </div>
 
           <div className="shimmer-border rounded-[24px]">
@@ -457,6 +594,7 @@ export default function LandingPage() {
               <h4 className="font-bold mb-4 text-sm text-[var(--text)]">Produkt</h4>
               <ul className="space-y-2.5 text-sm text-[var(--text-secondary)]">
                 <li><a href="#features" className="hover:text-[var(--rose)] transition-colors">Features</a></li>
+                <li><a href="#faq" className="hover:text-[var(--rose)] transition-colors">FAQ</a></li>
                 <li><a href="#pricing" className="hover:text-[var(--rose)] transition-colors">Preis</a></li>
                 <li><a href="#testimonials" className="hover:text-[var(--rose)] transition-colors">Erfahrungen</a></li>
               </ul>
@@ -474,8 +612,8 @@ export default function LandingPage() {
               <h4 className="font-bold mb-4 text-sm text-[var(--text)]">Kontakt</h4>
               <ul className="space-y-2.5 text-sm text-[var(--text-secondary)]">
                 <li>
-                  <a href="mailto:info@basaltemperatur.online" className="hover:text-[var(--rose)] transition-colors">
-                    info@basaltemperatur.online
+                  <a href="mailto:info@kristianhoffmann.de" className="hover:text-[var(--rose)] transition-colors">
+                    info@kristianhoffmann.de
                   </a>
                 </li>
               </ul>

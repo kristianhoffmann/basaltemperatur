@@ -46,87 +46,95 @@ struct PDFExportView: View {
                 }
                 .padding(.top, 12)
                 
-                // Stats Preview
-                if !recentEntries.isEmpty {
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                        GridItem(.flexible()),
-                    ], spacing: 12) {
-                        PDFStatCard(label: "Einträge", value: "\(recentEntries.count)")
-                        PDFStatCard(label: "Periode-Tage", value: "\(recentPeriods.count)")
+                if !viewModel.hasLifetimeAccess {
+                    PremiumPaywallView(
+                        title: "PDF-Export ist Premium",
+                        message: "Einträge bleiben kostenlos. PDF-Export und Analyse-Funktionen sind im Vollzugang enthalten."
+                    )
+                    .padding(.horizontal)
+                } else {
+                    // Stats Preview
+                    if !recentEntries.isEmpty {
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                            GridItem(.flexible()),
+                        ], spacing: 12) {
+                            PDFStatCard(label: "Einträge", value: "\(recentEntries.count)")
+                            PDFStatCard(label: "Periode-Tage", value: "\(recentPeriods.count)")
+                            
+                            let temps = recentEntries.map { $0.temperature }
+                            let avg = temps.reduce(0, +) / Double(temps.count)
+                            PDFStatCard(label: "⌀ Temp", value: String(format: "%.2f°", avg))
+                        }
+                        .padding(.horizontal)
                         
-                        let temps = recentEntries.map { $0.temperature }
-                        let avg = temps.reduce(0, +) / Double(temps.count)
-                        PDFStatCard(label: "⌀ Temp", value: String(format: "%.2f°", avg))
+                        // Date Range
+                        if let first = recentEntries.first, let last = recentEntries.last {
+                            HStack(spacing: 6) {
+                                Image(systemName: "calendar")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                                Text("\(formatDateGerman(first.date)) – \(formatDateGerman(last.date))")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                        
+                        Text("Letzte 90 Tage")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
                     }
+                    
+                    // Error
+                    if let error = errorMessage {
+                        Text(error)
+                            .font(.subheadline)
+                            .foregroundStyle(.red)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
+                    }
+                    
+                    // Export Button
+                    Button {
+                        Task { await generatePDF() }
+                    } label: {
+                        HStack(spacing: 8) {
+                            if isGenerating {
+                                ProgressView()
+                                    .tint(.white)
+                            } else {
+                                Image(systemName: "square.and.arrow.up")
+                            }
+                            Text(isGenerating ? "PDF wird erstellt..." : "PDF erstellen & teilen")
+                                .fontWeight(.semibold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding()
+                        .background(
+                            LinearGradient(
+                                colors: [Color("AppPrimary"), Color("AppPrimaryLight")],
+                                startPoint: .leading,
+                                endPoint: .trailing
+                            ),
+                            in: RoundedRectangle(cornerRadius: 16)
+                        )
+                        .foregroundStyle(.white)
+                    }
+                    .disabled(recentEntries.isEmpty || isGenerating)
+                    .opacity(recentEntries.isEmpty ? 0.5 : 1)
                     .padding(.horizontal)
                     
-                    // Date Range
-                    if let first = recentEntries.first, let last = recentEntries.last {
-                        HStack(spacing: 6) {
-                            Image(systemName: "calendar")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                            Text("\(formatDateGerman(first.date)) – \(formatDateGerman(last.date))")
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    }
-                    
-                    Text("Letzte 90 Tage")
+                    // Disclaimer
+                    Text("Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 32)
+                        .padding(.bottom, 20)
                 }
-                
-                // Error
-                if let error = errorMessage {
-                    Text(error)
-                        .font(.subheadline)
-                        .foregroundStyle(.red)
-                        .padding()
-                        .frame(maxWidth: .infinity)
-                        .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
-                        .padding(.horizontal)
-                }
-                
-                // Export Button
-                Button {
-                    Task { await generatePDF() }
-                } label: {
-                    HStack(spacing: 8) {
-                        if isGenerating {
-                            ProgressView()
-                                .tint(.white)
-                        } else {
-                            Image(systemName: "square.and.arrow.up")
-                        }
-                        Text(isGenerating ? "PDF wird erstellt..." : "PDF erstellen & teilen")
-                            .fontWeight(.semibold)
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        LinearGradient(
-                            colors: [Color("AppPrimary"), Color("AppPrimaryLight")],
-                            startPoint: .leading,
-                            endPoint: .trailing
-                        ),
-                        in: RoundedRectangle(cornerRadius: 16)
-                    )
-                    .foregroundStyle(.white)
-                }
-                .disabled(recentEntries.isEmpty || isGenerating)
-                .opacity(recentEntries.isEmpty ? 0.5 : 1)
-                .padding(.horizontal)
-                
-                // Disclaimer
-                Text("Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.")
-                    .font(.caption2)
-                    .foregroundStyle(.tertiary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-                    .padding(.bottom, 20)
             }
         }
         .navigationTitle("PDF-Export")

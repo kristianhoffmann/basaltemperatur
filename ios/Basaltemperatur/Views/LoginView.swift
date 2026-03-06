@@ -97,7 +97,7 @@ struct LoginView: View {
             
             Spacer()
             
-            Text("Einmalig 9,99 € · Lebenslanger Zugang")
+            Text("Einträge kostenlos · Analyse einmalig 9,99 €")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }

@@ -23,150 +23,158 @@ struct StatisticsView: View {
                     }
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal)
-                    
-                    // Stat Cards
-                    LazyVGrid(columns: [
-                        GridItem(.flexible()),
-                        GridItem(.flexible())
-                    ], spacing: 12) {
-                        StatCard(
-                            title: "Ø Zykluslänge",
-                            value: "\(viewModel.cycleLength) Tage",
-                            icon: "calendar.badge.clock",
-                            color: Color("AppPrimary")
+
+                    if !viewModel.hasLifetimeAccess {
+                        PremiumPaywallView(
+                            title: "Statistiken sind Premium",
+                            message: "Zyklusanalyse, Trends und Verlaufsauswertung sind im Vollzugang enthalten."
                         )
-                        
-                        StatCard(
-                            title: "Ø Temperatur",
-                            value: viewModel.averageTemperature.map { String(format: "%.2f°C", $0) } ?? "–",
-                            icon: "thermometer.medium",
-                            color: Color("AppPrimary")
-                        )
-                        
-                        StatCard(
-                            title: "Tracking-Streak",
-                            value: viewModel.trackingStreak > 0 ? "\(viewModel.trackingStreak) Tage" : "–",
-                            icon: "flame",
-                            color: .green
-                        )
-                        
-                        StatCard(
-                            title: "Einträge",
-                            value: "\(viewModel.entries.count)",
-                            icon: "chart.bar",
-                            color: Color("AccentColor")
-                        )
-                    }
-                    .padding(.horizontal)
-                    
-                    // Temperature Range
-                    if let minT = viewModel.minTemperature, let maxT = viewModel.maxTemperature, let avgT = viewModel.averageTemperature {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "arrow.up.arrow.down")
-                                    .font(.caption)
-                                    .foregroundStyle(Color("AppPrimary"))
-                                Text("Temperaturbereich")
-                                    .font(.headline)
-                            }
-                            
-                            HStack(spacing: 0) {
-                                TempRangeItem(label: "Minimum", value: String(format: "%.2f°", minT), color: .blue)
-                                TempRangeItem(label: "Durchschnitt", value: String(format: "%.2f°", avgT), color: .primary)
-                                TempRangeItem(label: "Maximum", value: String(format: "%.2f°", maxT), color: Color("AppPrimary"))
-                            }
-                        }
-                        .padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                         .padding(.horizontal)
-                    }
-                    
-                    // Cycle Length Chart
-                    if cycleDetails.count >= 2 {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "chart.bar")
-                                    .font(.caption)
-                                    .foregroundStyle(Color("AppPrimary"))
-                                Text("Zykluslängen")
-                                    .font(.headline)
-                            }
+                    } else {
+                        // Stat Cards
+                        LazyVGrid(columns: [
+                            GridItem(.flexible()),
+                            GridItem(.flexible())
+                        ], spacing: 12) {
+                            StatCard(
+                                title: "Ø Zykluslänge",
+                                value: "\(viewModel.cycleLength) Tage",
+                                icon: "calendar.badge.clock",
+                                color: Color("AppPrimary")
+                            )
                             
-                            let chartDetails = Array(cycleDetails.reversed().dropLast()) // chronological, without ongoing
-                            Chart {
-                                ForEach(Array(chartDetails.enumerated()), id: \.offset) { index, cycle in
-                                    BarMark(
-                                        x: .value("Zyklus", "\(index + 1)"),
-                                        y: .value("Tage", cycle.length)
-                                    )
-                                    .foregroundStyle(
-                                        .linearGradient(
-                                            colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.6)],
-                                            startPoint: .top,
-                                            endPoint: .bottom
-                                        )
-                                    )
-                                    .cornerRadius(6)
-                                    .annotation(position: .top) {
-                                        Text("\(cycle.length)d")
-                                            .font(.caption2)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                }
-                            }
-                            .chartYAxis {
-                                AxisMarks(values: .automatic) { value in
-                                    AxisGridLine()
-                                    AxisValueLabel()
-                                }
-                            }
-                            .chartXAxis {
-                                AxisMarks { value in
-                                    AxisValueLabel()
-                                        .font(.system(size: 8))
-                                }
-                            }
-                            .frame(height: 200)
+                            StatCard(
+                                title: "Ø Temperatur",
+                                value: viewModel.averageTemperature.map { String(format: "%.2f°C", $0) } ?? "–",
+                                icon: "thermometer.medium",
+                                color: Color("AppPrimary")
+                            )
+                            
+                            StatCard(
+                                title: "Tracking-Streak",
+                                value: viewModel.trackingStreak > 0 ? "\(viewModel.trackingStreak) Tage" : "–",
+                                icon: "flame",
+                                color: .green
+                            )
+                            
+                            StatCard(
+                                title: "Einträge",
+                                value: "\(viewModel.entries.count)",
+                                icon: "chart.bar",
+                                color: Color("AccentColor")
+                            )
                         }
-                        .padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                         .padding(.horizontal)
-                    }
-                    
-                    // Zyklushistorie
-                    if !cycleDetails.isEmpty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack(spacing: 6) {
-                                Image(systemName: "list.bullet.rectangle")
-                                    .font(.caption)
-                                    .foregroundStyle(Color("AppPrimary"))
-                                Text("Zyklushistorie")
-                                    .font(.headline)
-                            }
-                            
-                            ForEach(Array(cycleDetails.enumerated()), id: \.offset) { index, cycle in
-                                HStack {
-                                    VStack(alignment: .leading, spacing: 2) {
-                                        Text("Zyklus \(cycleDetails.count - index)")
-                                            .font(.subheadline.weight(.medium))
-                                        Text("\(cycle.startFormatted) – \(cycle.endFormatted)")
-                                            .font(.caption)
-                                            .foregroundStyle(.secondary)
-                                    }
-                                    Spacer()
-                                    Text("\(cycle.length) Tage")
-                                        .font(.subheadline.weight(.semibold))
+                        
+                        // Temperature Range
+                        if let minT = viewModel.minTemperature, let maxT = viewModel.maxTemperature, let avgT = viewModel.averageTemperature {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "arrow.up.arrow.down")
+                                        .font(.caption)
                                         .foregroundStyle(Color("AppPrimary"))
+                                    Text("Temperaturbereich")
+                                        .font(.headline)
                                 }
-                                .padding(.vertical, 6)
-                                if index < cycleDetails.count - 1 {
-                                    Divider()
+                                
+                                HStack(spacing: 0) {
+                                    TempRangeItem(label: "Minimum", value: String(format: "%.2f°", minT), color: .blue)
+                                    TempRangeItem(label: "Durchschnitt", value: String(format: "%.2f°", avgT), color: .primary)
+                                    TempRangeItem(label: "Maximum", value: String(format: "%.2f°", maxT), color: Color("AppPrimary"))
                                 }
                             }
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                            .padding(.horizontal)
                         }
-                        .padding()
-                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-                        .padding(.horizontal)
+                        
+                        // Cycle Length Chart
+                        if cycleDetails.count >= 2 {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "chart.bar")
+                                        .font(.caption)
+                                        .foregroundStyle(Color("AppPrimary"))
+                                    Text("Zykluslängen")
+                                        .font(.headline)
+                                }
+                                
+                                let chartDetails = Array(cycleDetails.reversed().dropLast()) // chronological, without ongoing
+                                Chart {
+                                    ForEach(Array(chartDetails.enumerated()), id: \.offset) { index, cycle in
+                                        BarMark(
+                                            x: .value("Zyklus", "\(index + 1)"),
+                                            y: .value("Tage", cycle.length)
+                                        )
+                                        .foregroundStyle(
+                                            .linearGradient(
+                                                colors: [Color("AppPrimary"), Color("AppPrimary").opacity(0.6)],
+                                                startPoint: .top,
+                                                endPoint: .bottom
+                                            )
+                                        )
+                                        .cornerRadius(6)
+                                        .annotation(position: .top) {
+                                            Text("\(cycle.length)d")
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                    }
+                                }
+                                .chartYAxis {
+                                    AxisMarks(values: .automatic) { value in
+                                        AxisGridLine()
+                                        AxisValueLabel()
+                                    }
+                                }
+                                .chartXAxis {
+                                    AxisMarks { value in
+                                        AxisValueLabel()
+                                            .font(.system(size: 8))
+                                    }
+                                }
+                                .frame(height: 200)
+                            }
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                            .padding(.horizontal)
+                        }
+                        
+                        // Zyklushistorie
+                        if !cycleDetails.isEmpty {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "list.bullet.rectangle")
+                                        .font(.caption)
+                                        .foregroundStyle(Color("AppPrimary"))
+                                    Text("Zyklushistorie")
+                                        .font(.headline)
+                                }
+                                
+                                ForEach(Array(cycleDetails.enumerated()), id: \.offset) { index, cycle in
+                                    HStack {
+                                        VStack(alignment: .leading, spacing: 2) {
+                                            Text("Zyklus \(cycleDetails.count - index)")
+                                                .font(.subheadline.weight(.medium))
+                                            Text("\(cycle.startFormatted) – \(cycle.endFormatted)")
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                        }
+                                        Spacer()
+                                        Text("\(cycle.length) Tage")
+                                            .font(.subheadline.weight(.semibold))
+                                            .foregroundStyle(Color("AppPrimary"))
+                                    }
+                                    .padding(.vertical, 6)
+                                    if index < cycleDetails.count - 1 {
+                                        Divider()
+                                    }
+                                }
+                            }
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                            .padding(.horizontal)
+                        }
                     }
                 }
                 .padding(.vertical)
