@@ -41,6 +41,7 @@ struct BasaltemperaturApp: App {
                         .environmentObject(supabaseService)
                 }
             }
+            .preferredColorScheme(.dark)
             .task {
                 await authViewModel.checkSession(supabase: supabaseService)
             }

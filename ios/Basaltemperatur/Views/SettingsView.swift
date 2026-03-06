@@ -16,6 +16,9 @@ struct SettingsView: View {
     @State private var deleteError: String?
     @State private var hasLifetimeAccess = false
     
+    @AppStorage("cycleLength") private var cycleLength = 28
+    @AppStorage("temperatureUnit") private var temperatureUnit = "celsius"
+    
     var body: some View {
         NavigationStack {
             List {
@@ -178,15 +181,33 @@ struct SettingsView: View {
                     }
                     
                     NavigationLink {
-                        Text("Zykluslänge einstellen") // Placeholder
+                        CycleLengthSettingView(cycleLength: $cycleLength)
                     } label: {
-                        Label("Zykluslänge", systemImage: "calendar.badge.clock")
+                        Label {
+                            HStack {
+                                Text("Zykluslänge")
+                                Spacer()
+                                Text("\(cycleLength) Tage")
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "calendar.badge.clock")
+                        }
                     }
                     
                     NavigationLink {
-                        Text("Temperatureinheit") // Placeholder
+                        TemperatureUnitSettingView(temperatureUnit: $temperatureUnit)
                     } label: {
-                        Label("Einheiten", systemImage: "thermometer")
+                        Label {
+                            HStack {
+                                Text("Einheiten")
+                                Spacer()
+                                Text(temperatureUnit == "celsius" ? "°C" : "°F")
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "thermometer")
+                        }
                     }
                 } header: {
                     Text("Einstellungen")
@@ -293,6 +314,110 @@ struct SettingsView: View {
                 }
             }
         }
+    }
+}
+
+// MARK: - Zykluslänge einstellen
+
+struct CycleLengthSettingView: View {
+    @Binding var cycleLength: Int
+    
+    var body: some View {
+        List {
+            Section {
+                Picker("Zykluslänge", selection: $cycleLength) {
+                    ForEach(20...45, id: \.self) { days in
+                        Text("\(days) Tage").tag(days)
+                    }
+                }
+                .pickerStyle(.wheel)
+                .frame(height: 150)
+            } header: {
+                Text("Standard-Zykluslänge")
+            } footer: {
+                Text("Die Zykluslänge wird für Prognosen verwendet, wenn nicht genügend historische Daten vorhanden sind. Standardwert: 28 Tage.")
+            }
+            
+            Section {
+                HStack {
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(Color("AppPrimary"))
+                    Text("Die App berechnet deine individuelle Zykluslänge automatisch, sobald mindestens zwei Periodeneinträge vorhanden sind.")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                }
+            }
+        }
+        .navigationTitle("Zykluslänge")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+// MARK: - Temperatureinheit
+
+struct TemperatureUnitSettingView: View {
+    @Binding var temperatureUnit: String
+    
+    var body: some View {
+        List {
+            Section {
+                HStack {
+                    Button {
+                        temperatureUnit = "celsius"
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Celsius (°C)")
+                                    .font(.body.weight(.medium))
+                                Text("Standard in Deutschland")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            if temperatureUnit == "celsius" {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color("AppPrimary"))
+                                    .font(.title3)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.vertical, 4)
+                
+                HStack {
+                    Button {
+                        temperatureUnit = "fahrenheit"
+                    } label: {
+                        HStack {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text("Fahrenheit (°F)")
+                                    .font(.body.weight(.medium))
+                                Text("Üblich in den USA")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                            Spacer()
+                            if temperatureUnit == "fahrenheit" {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .foregroundStyle(Color("AppPrimary"))
+                                    .font(.title3)
+                            }
+                        }
+                        .contentShape(Rectangle())
+                    }
+                    .buttonStyle(.plain)
+                }
+                .padding(.vertical, 4)
+            } header: {
+                Text("Temperatureinheit")
+            } footer: {
+                Text("Die Einheit wird für die Anzeige in der App und im PDF-Export verwendet.")
+            }
+        }
+        .navigationTitle("Einheiten")
+        .navigationBarTitleDisplayMode(.inline)
     }
 }
 
