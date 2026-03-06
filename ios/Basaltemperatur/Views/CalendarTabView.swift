@@ -24,6 +24,7 @@ struct CalendarTabView: View {
                         selectedDate: $selectedDate,
                         entries: viewModel.entries,
                         periodEntries: viewModel.periodEntries,
+                        predictedPeriodDates: viewModel.hasLifetimeAccess ? viewModel.predictedPeriodDates : [],
                         fertilityWindows: viewModel.hasLifetimeAccess ? viewModel.fertilityWindows : []
                     )
                     
@@ -31,6 +32,9 @@ struct CalendarTabView: View {
                     let dateStr = dateFormatter.string(from: selectedDate)
                     let entry = viewModel.entries.first { $0.date == dateStr }
                     let period = viewModel.periodEntries.first { $0.date == dateStr }
+                    let isPredictedPeriod = viewModel.hasLifetimeAccess
+                        && period == nil
+                        && viewModel.predictedPeriodDates.contains(dateStr)
                     let dayFertilityStatus = OvulationCalculator.getFertilityStatus(
                         dateStr: dateStr,
                         windows: viewModel.hasLifetimeAccess ? viewModel.fertilityWindows : []
@@ -74,8 +78,18 @@ struct CalendarTabView: View {
                                     .fontWeight(.medium)
                             }
                         }
+
+                        if isPredictedPeriod {
+                            HStack {
+                                Image(systemName: "drop")
+                                    .foregroundStyle(Color("Period"))
+                                Text("Voraussichtliche Periode")
+                                    .fontWeight(.medium)
+                                    .foregroundStyle(Color("Period"))
+                            }
+                        }
                         
-                        if entry == nil && period == nil && dayFertilityStatus == .infertile {
+                        if entry == nil && period == nil && !isPredictedPeriod && dayFertilityStatus == .infertile {
                             Text("Kein Eintrag für diesen Tag")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
@@ -100,6 +114,13 @@ struct CalendarTabView: View {
                         CalendarLegendItem(color: Color("AppPrimary").opacity(0.15), label: "Temperatur")
                         CalendarLegendItem(color: Color("Period").opacity(0.15), label: "Periode")
                         if viewModel.hasLifetimeAccess {
+                            CalendarLegendItem(
+                                color: Color("Period").opacity(0.06),
+                                label: "Periode (Prognose)",
+                                borderColor: Color("Period").opacity(0.55),
+                                hasBorder: true,
+                                dashed: true
+                            )
                             CalendarLegendItem(color: .green.opacity(0.1), label: "Fruchtbar")
                             CalendarLegendItem(color: .orange.opacity(0.1), label: "Peak ⚡")
                         }
@@ -111,7 +132,7 @@ struct CalendarTabView: View {
                     if !viewModel.hasLifetimeAccess {
                         PremiumPaywallView(
                             title: "Kalender-Prognosen sind Premium",
-                            message: "Einträge im Kalender bleiben kostenlos. Fruchtbarkeits- und Peak-Prognosen sind im Vollzugang enthalten."
+                            message: "Einträge im Kalender bleiben kostenlos. Perioden-, Fruchtbarkeits- und Peak-Prognosen sind im Vollzugang enthalten."
                         )
                     }
                 }
@@ -156,6 +177,7 @@ struct CalendarGridView: View {
     @Binding var selectedDate: Date
     let entries: [TemperatureEntry]
     let periodEntries: [PeriodEntry]
+    let predictedPeriodDates: Set<String>
     let fertilityWindows: [FertilityWindow]
     
     @State private var displayedMonth = Date()
@@ -235,6 +257,7 @@ struct CalendarGridView: View {
                     let dateStr = dateFormatter.string(from: day)
                     let hasEntry = entryDates.contains(dateStr)
                     let isPeriod = periodDates.contains(dateStr)
+                    let isPredictedPeriod = !isPeriod && predictedPeriodDates.contains(dateStr)
                     let temp = entryMap[dateStr]
                     let isToday = Calendar.current.isDateInToday(day)
                     let isSelected = Calendar.current.isDate(day, inSameDayAs: selectedDate)
@@ -250,6 +273,7 @@ struct CalendarGridView: View {
                                 .foregroundStyle(
                                     isSelected ? .white :
                                     isPeriod ? Color("Period") :
+                                    isPredictedPeriod ? Color("Period").opacity(0.85) :
                                     dayFertility == .peak ? .orange :
                                     dayFertility == .fertile ? .green :
                                     .primary
@@ -265,6 +289,10 @@ struct CalendarGridView: View {
                                 Image(systemName: "drop.fill")
                                     .font(.system(size: 6))
                                     .foregroundStyle(isSelected ? .white : Color("Period"))
+                            } else if isPredictedPeriod {
+                                Image(systemName: "drop")
+                                    .font(.system(size: 6))
+                                    .foregroundStyle(isSelected ? .white : Color("Period").opacity(0.85))
                             } else if dayFertility == .peak {
                                 Text("⚡")
                                     .font(.system(size: 6))
@@ -279,7 +307,8 @@ struct CalendarGridView: View {
                             RoundedRectangle(cornerRadius: 10)
                                 .fill(
                                     isSelected ? Color("AppPrimary") :
-                                    isPeriod ? Color("Period").opacity(0.1) :
+                                    isPeriod ? Color("Period").opacity(0.18) :
+                                    isPredictedPeriod ? Color("Period").opacity(0.06) :
                                     dayFertility == .peak ? Color.orange.opacity(0.08) :
                                     dayFertility == .fertile ? Color.green.opacity(0.08) :
                                     hasEntry ? Color("AppPrimary").opacity(0.06) :
@@ -287,8 +316,19 @@ struct CalendarGridView: View {
                                 )
                         )
                         .overlay(
-                            RoundedRectangle(cornerRadius: 10)
-                                .stroke(isToday && !isSelected ? Color("AppPrimary") : Color.clear, lineWidth: 2)
+                            ZStack {
+                                if isPredictedPeriod && !isSelected {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(
+                                            Color("Period").opacity(0.55),
+                                            style: StrokeStyle(lineWidth: 1.2, dash: [4, 3])
+                                        )
+                                }
+                                if isToday && !isSelected {
+                                    RoundedRectangle(cornerRadius: 10)
+                                        .stroke(Color("AppPrimary"), lineWidth: 2)
+                                }
+                            }
                         )
                     }
                 }
@@ -322,12 +362,22 @@ struct CalendarGridView: View {
 struct CalendarLegendItem: View {
     let color: Color
     let label: String
+    var borderColor: Color = .clear
+    var hasBorder: Bool = false
+    var dashed: Bool = false
     
     var body: some View {
         HStack(spacing: 4) {
             RoundedRectangle(cornerRadius: 3)
                 .fill(color)
                 .frame(width: 12, height: 12)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 3)
+                        .stroke(
+                            hasBorder ? borderColor : .clear,
+                            style: StrokeStyle(lineWidth: hasBorder ? 1 : 0, dash: dashed ? [3, 2] : [])
+                        )
+                )
             Text(label)
         }
     }

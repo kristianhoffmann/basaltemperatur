@@ -81,6 +81,7 @@ export default async function SettingsPage() {
                 email={user.email || ''}
                 initialName={userName}
                 userId={user.id}
+                hasLifetimeAccess={hasLifetimeAccess}
             />
 
             {/* Erscheinungsbild */}

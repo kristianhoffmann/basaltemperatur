@@ -14,6 +14,7 @@ struct SettingsView: View {
     @State private var deleteConfirmText = ""
     @State private var isDeleting = false
     @State private var deleteError: String?
+    @State private var hasLifetimeAccess = false
     
     var body: some View {
         NavigationStack {
@@ -51,6 +52,25 @@ struct SettingsView: View {
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
+
+                            HStack(spacing: 6) {
+                                Text("Bestätigt")
+                                    .font(.caption2.weight(.semibold))
+                                    .padding(.horizontal, 8)
+                                    .padding(.vertical, 2)
+                                    .background(Color.green.opacity(0.15), in: Capsule())
+                                    .foregroundStyle(.green)
+
+                                if hasLifetimeAccess {
+                                    Label("Lifetime", systemImage: "sparkles")
+                                        .font(.caption2.weight(.semibold))
+                                        .padding(.horizontal, 8)
+                                        .padding(.vertical, 2)
+                                        .background(Color.orange.opacity(0.15), in: Capsule())
+                                        .foregroundStyle(.orange)
+                                }
+                            }
+                            .padding(.top, 2)
                         }
                     }
                     .padding(.vertical, 4)
@@ -235,6 +255,11 @@ struct SettingsView: View {
             }
             .task {
                 await authViewModel.loadUserMetadata(supabase: supabase)
+                if let profile = try? await supabase.getUserProfile() {
+                    hasLifetimeAccess = profile.hasLifetimeAccess
+                } else {
+                    hasLifetimeAccess = false
+                }
             }
         }
     }

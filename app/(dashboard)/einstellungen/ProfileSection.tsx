@@ -1,16 +1,17 @@
 'use client'
 
 import { useState, useActionState } from 'react'
-import { User, Pencil, Check, X } from 'lucide-react'
+import { User, Pencil, Check, X, Sparkles } from 'lucide-react'
 import { updateProfile } from '@/lib/actions/auth'
 
 interface ProfileSectionProps {
     email: string
     initialName: string
     userId: string
+    hasLifetimeAccess: boolean
 }
 
-export function ProfileSection({ email, initialName, userId }: ProfileSectionProps) {
+export function ProfileSection({ email, initialName, userId, hasLifetimeAccess }: ProfileSectionProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [name, setName] = useState(initialName)
     const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
@@ -36,9 +37,17 @@ export function ProfileSection({ email, initialName, userId }: ProfileSectionPro
                     <p className="font-medium" style={{ color: 'var(--text)' }}>
                         {email}
                     </p>
-                    <p className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-block mt-1">
-                        Bestätigt
-                    </p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                        <p className="text-xs px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 inline-block">
+                            Bestätigt
+                        </p>
+                        {hasLifetimeAccess && (
+                            <p className="text-xs px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 inline-flex items-center gap-1">
+                                <Sparkles className="h-3 w-3" />
+                                Lifetime
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
 

@@ -92,12 +92,65 @@ class DashboardViewModel: ObservableObject {
         guard !lengths.isEmpty else { return 28 }
         return Int((Double(lengths.reduce(0, +)) / Double(lengths.count)).rounded())
     }
+
+    /// Durchschnittliche Blutungsdauer aus vorhandenen Periodenblöcken (Fallback: 5 Tage)
+    var averagePeriodLength: Int {
+        let sortedDates = periodEntries.map { $0.date }.sorted()
+        guard !sortedDates.isEmpty else { return 5 }
+
+        var periodLengths: [Int] = []
+        var currentLength = 1
+
+        for i in 1..<sortedDates.count {
+            guard let current = dateFormatter.date(from: sortedDates[i]),
+                  let previous = dateFormatter.date(from: sortedDates[i - 1]) else { continue }
+            let diff = Calendar.current.dateComponents([.day], from: previous, to: current).day ?? 0
+            if diff <= 1 {
+                currentLength += 1
+            } else {
+                periodLengths.append(currentLength)
+                currentLength = 1
+            }
+        }
+        periodLengths.append(currentLength)
+
+        let validLengths = periodLengths.filter { $0 >= 2 && $0 <= 8 }
+        guard !validLengths.isEmpty else { return 5 }
+
+        return Int((Double(validLengths.reduce(0, +)) / Double(validLengths.count)).rounded())
+    }
     
     // MARK: - Predictions
     
     var nextPeriodDate: String? {
         guard let lastStart = lastPeriodStart else { return nil }
         return OvulationCalculator.predictNextPeriod(lastPeriodStart: lastStart, cycleLength: cycleLength)
+    }
+
+    /// Prognostizierte Periodentage für die kommenden Zyklen
+    var predictedPeriodDates: Set<String> {
+        guard let lastStart = lastPeriodStart,
+              let lastStartDate = dateFormatter.date(from: lastStart) else { return [] }
+
+        let forecastUntil = Calendar.current.date(byAdding: .day, value: 180, to: Date()) ?? Date()
+        var predictedDates: Set<String> = []
+
+        for cycleIndex in 1...8 {
+            guard let predictedStart = Calendar.current.date(
+                byAdding: .day,
+                value: cycleLength * cycleIndex,
+                to: lastStartDate
+            ) else { continue }
+
+            if predictedStart > forecastUntil { break }
+
+            for offset in 0..<averagePeriodLength {
+                guard let day = Calendar.current.date(byAdding: .day, value: offset, to: predictedStart) else { continue }
+                predictedDates.insert(dateFormatter.string(from: day))
+            }
+        }
+
+        return predictedDates
     }
     
     var daysUntilPeriod: Int? {
