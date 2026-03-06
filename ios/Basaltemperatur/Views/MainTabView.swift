@@ -4,6 +4,8 @@ import SwiftUI
 
 struct MainTabView: View {
     @State private var selectedTab = 0
+    @State private var showGuideSheet = false
+    @AppStorage("hasSeenGuide") private var hasSeenGuide = false
     
     var body: some View {
         TabView(selection: $selectedTab) {
@@ -21,17 +23,17 @@ struct MainTabView: View {
                 }
                 .tag(1)
             
+            AppGuideView()
+                .tabItem {
+                    Image(systemName: "book.closed")
+                    Text("Anleitung")
+                }
+                .tag(2)
+
             EntryView()
                 .tabItem {
                     Image(systemName: "plus.circle.fill")
                     Text("Eintrag")
-                }
-                .tag(2)
-            
-            StatisticsView()
-                .tabItem {
-                    Image(systemName: "chart.bar")
-                    Text("Statistiken")
                 }
                 .tag(3)
             
@@ -43,5 +45,25 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(Color("AppPrimary"))
+        .onAppear {
+            if !hasSeenGuide {
+                showGuideSheet = true
+            }
+        }
+        .sheet(isPresented: $showGuideSheet, onDismiss: {
+            hasSeenGuide = true
+        }) {
+            NavigationStack {
+                AppGuideView()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarTrailing) {
+                            Button("Fertig") {
+                                showGuideSheet = false
+                                hasSeenGuide = true
+                            }
+                        }
+                    }
+            }
+        }
     }
 }

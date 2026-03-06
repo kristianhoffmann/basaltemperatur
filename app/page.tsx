@@ -17,9 +17,12 @@ import {
   Lock,
   Zap,
   FileDown,
+  Smartphone,
+  ExternalLink,
 } from 'lucide-react'
 
 const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
+const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
 export const metadata: Metadata = {
   title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
@@ -237,63 +240,106 @@ export default function LandingPage() {
               <a href="#faq" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</a>
               <a href="#testimonials" className="text-sm text-white/50 hover:text-white transition-colors">Erfahrungen</a>
               <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Preis</a>
+              <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">App Store (bald)</a>
               <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Anmelden</Link>
               <Link href="/registrieren">
                 <button className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">Kostenlos starten</button>
               </Link>
             </div>
-            <div className="md:hidden flex items-center gap-3">
-              <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
-              <Link href="/registrieren">
-                <button className="btn btn-sm text-white border border-white/15 bg-white/5">Kostenlos starten</button>
-              </Link>
+            <div className="md:hidden flex flex-col items-end gap-2">
+              <div className="flex items-center gap-3">
+                <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
+                <Link href="/registrieren">
+                  <button className="btn btn-sm text-white border border-white/15 bg-white/5">Kostenlos starten</button>
+                </Link>
+              </div>
+              <a
+                href={appStoreInfoUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70"
+              >
+                <Smartphone className="h-3.5 w-3.5" />
+                App Store bald verfügbar
+              </a>
             </div>
           </div>
         </nav>
 
         {/* Hero Content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 pt-16 sm:pt-24 pb-20 sm:pb-32">
+        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-24 pb-16 sm:pb-32">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 px-4 py-1.5 text-sm text-white/80 font-medium mb-8 animate-fade-in">
+          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 px-4 py-1.5 text-xs sm:text-sm text-white/80 font-medium mb-6 sm:mb-8 animate-fade-in">
             <Heart className="h-4 w-4 text-rose-400" />
             Natürliches Zyklustracking
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] animate-fade-in animate-stagger-1">
+          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] animate-fade-in animate-stagger-1">
             Verstehe deinen Zyklus.
             <br />
             <span className="text-gradient-hero">Natürlich.</span>
           </h1>
 
           {/* Subheadline */}
-          <p className="mt-6 sm:mt-8 text-base sm:text-lg lg:text-xl text-white/55 max-w-2xl mx-auto leading-relaxed animate-fade-in animate-stagger-2">
+          <p className="mt-5 sm:mt-8 text-[15px] sm:text-lg lg:text-xl text-white/55 max-w-2xl mx-auto leading-relaxed animate-fade-in animate-stagger-2">
             Trage kostenlos deine Einträge ein und schalte bei Bedarf die komplette
             Zyklusanalyse frei – einfach, sicher und privat.
           </p>
 
           {/* CTA Buttons */}
-          <div className="mt-10 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-4 animate-fade-in animate-stagger-3">
-            <Link href="/registrieren">
-              <button className="btn btn-glow btn-xl animate-glow">
+          <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in animate-stagger-3">
+            <Link href="/registrieren" className="w-full sm:w-auto">
+              <button className="btn btn-glow btn-xl animate-glow w-full sm:w-auto">
                 Kostenlos starten
                 <ArrowRight className="h-5 w-5" />
               </button>
             </Link>
-            <a href="#features">
-              <button className="btn btn-lg text-white/70 border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">
+            <a href="#features" className="w-full sm:w-auto">
+              <button className="btn btn-lg text-white/70 border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all w-full sm:w-auto">
                 Mehr erfahren
               </button>
             </a>
           </div>
 
-          <p className="mt-5 text-sm text-white/35 animate-fade-in animate-stagger-4">
+          <p className="mt-4 text-xs sm:text-sm text-white/35 animate-fade-in animate-stagger-4">
             Einträge kostenlos · Analyse einmalig 9,99 € · Kein Abo
+          </p>
+          <p className="mt-3 text-xs sm:text-sm text-white/45 animate-fade-in animate-stagger-4">
+            iOS-App folgt:
+            {' '}
+            <a
+              href={appStoreInfoUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-white/80 hover:text-white underline underline-offset-2"
+            >
+              App Store Link
+              <ExternalLink className="h-3.5 w-3.5" />
+            </a>
           </p>
 
           {/* Floating Glass Chart Preview */}
-          <div className="mt-16 sm:mt-20 max-w-3xl mx-auto animate-slide-up animate-stagger-5 animate-float">
-            <div className="glass-dark p-6 sm:p-8 rounded-[28px]">
+          <div className="mt-10 sm:mt-20 max-w-3xl mx-auto animate-slide-up animate-stagger-5 animate-float">
+            <div className="sm:hidden glass-dark p-4 rounded-3xl text-left">
+              <p className="text-xs uppercase tracking-[0.08em] text-white/45 font-semibold">Web-App jetzt verfügbar</p>
+              <ul className="mt-3 space-y-2 text-sm text-white/80">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                  Temperatur und Periode kostenlos eintragen
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                  Analyse optional einmalig freischalten
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
+                  iOS-App folgt im App Store
+                </li>
+              </ul>
+            </div>
+
+            <div className="hidden sm:block glass-dark p-6 sm:p-8 rounded-[28px]">
               <svg viewBox="0 0 800 260" className="w-full" aria-label="Beispiel Temperaturkurve">
                 <defs>
                   <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
@@ -356,9 +402,9 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           TRUST BADGES
           ═══════════════════════════════════════════════════ */}
-      <section className="py-10 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+      <section className="py-8 sm:py-10 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
         <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
             {[
               { icon: Lock, label: 'DSGVO-konform', sublabel: 'Daten in Deutschland', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
               { icon: Shield, label: 'Made in Germany', sublabel: 'Entwickelt in Hannover', color: 'text-blue-500', bg: 'bg-blue-500/10' },
@@ -366,13 +412,17 @@ export default function LandingPage() {
             ].map((badge, i) => (
               <div
                 key={badge.label}
-                className={`card card-hover flex flex-col items-center text-center p-4 sm:p-6 animate-fade-in animate-stagger-${i + 1}`}
+                className={`card card-hover flex items-center sm:items-center text-left sm:text-center p-4 sm:p-6 animate-fade-in animate-stagger-${i + 1}`}
               >
-                <div className={`p-3 rounded-2xl ${badge.bg} ${badge.color} mb-3`}>
-                  <badge.icon className="h-5 w-5" />
+                <div className="flex items-center gap-3 sm:flex-col sm:gap-0">
+                  <div className={`p-3 rounded-2xl ${badge.bg} ${badge.color} sm:mb-3`}>
+                    <badge.icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-[var(--text)]">{badge.label}</p>
+                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{badge.sublabel}</p>
+                  </div>
                 </div>
-                <p className="text-sm font-bold text-[var(--text)]">{badge.label}</p>
-                <p className="text-xs text-[var(--text-muted)] mt-0.5">{badge.sublabel}</p>
               </div>
             ))}
           </div>
@@ -382,7 +432,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           FEATURES
           ═══════════════════════════════════════════════════ */}
-      <section id="features" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
         <div className="max-w-6xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Alles für deinen Zyklus</h2>
@@ -412,7 +462,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           HOW IT WORKS
           ═══════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-secondary)]">
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-secondary)]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">So einfach geht&apos;s</h2>
@@ -438,7 +488,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           FAQ
           ═══════════════════════════════════════════════════ */}
-      <section id="faq" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Häufige Fragen</h2>
@@ -458,7 +508,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           TESTIMONIALS — Dark Section
           ═══════════════════════════════════════════════════ */}
-      <section id="testimonials" className="relative py-24 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 100%)' }}>
+      <section id="testimonials" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 100%)' }}>
         <div className="orb orb-rose w-[350px] h-[350px] -top-20 -right-20 opacity-30" />
         <div className="orb orb-violet w-[250px] h-[250px] bottom-0 left-0 opacity-20" />
 
@@ -497,7 +547,7 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           PRICING — Shimmer Border
           ═══════════════════════════════════════════════════ */}
-      <section id="pricing" className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
         <div className="max-w-lg mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Ein Preis. Für immer.</h2>
@@ -548,8 +598,8 @@ export default function LandingPage() {
       {/* ═══════════════════════════════════════════════════
           CTA — Gradient Banner
           ═══════════════════════════════════════════════════ */}
-      <section className="py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-4xl mx-auto text-center rounded-[28px] p-12 sm:p-16 relative overflow-hidden" style={{
+      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
+        <div className="max-w-4xl mx-auto text-center rounded-[28px] p-8 sm:p-16 relative overflow-hidden" style={{
           background: 'linear-gradient(135deg, var(--rose) 0%, var(--violet) 100%)',
         }}>
           {/* Decorative orb inside */}
@@ -559,7 +609,7 @@ export default function LandingPage() {
           <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.04em] relative z-10">
             Bereit, deinen Zyklus zu verstehen?
           </h2>
-          <p className="mt-4 text-lg text-white/70 relative z-10">
+          <p className="mt-4 text-base sm:text-lg text-white/70 relative z-10">
             Starte jetzt und behalte deine Basaltemperatur im Blick.
           </p>
           <div className="mt-8 relative z-10">
@@ -597,6 +647,12 @@ export default function LandingPage() {
                 <li><a href="#faq" className="hover:text-[var(--rose)] transition-colors">FAQ</a></li>
                 <li><a href="#pricing" className="hover:text-[var(--rose)] transition-colors">Preis</a></li>
                 <li><a href="#testimonials" className="hover:text-[var(--rose)] transition-colors">Erfahrungen</a></li>
+                <li>
+                  <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-[var(--rose)] transition-colors">
+                    App Store (bald)
+                    <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                </li>
               </ul>
             </div>
             <div>

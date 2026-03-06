@@ -11,10 +11,12 @@ import {
     BarChart3,
     GitCompareArrows,
     FileDown,
+    BookOpenText,
 } from 'lucide-react'
 
 const navItems = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Übersicht' },
+    { href: '/anleitung', icon: BookOpenText, label: 'Anleitung' },
     { href: '/eintrag', icon: PlusCircle, label: 'Neuer Eintrag' },
     { href: '/kalender', icon: CalendarDays, label: 'Kalender' },
     { href: '/statistiken', icon: BarChart3, label: 'Statistiken' },

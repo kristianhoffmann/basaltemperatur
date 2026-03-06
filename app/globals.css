@@ -500,17 +500,17 @@
   /* ── Bottom Nav (Mobile) ───────────────────────────────── */
 
   .bottom-nav {
-    @apply fixed bottom-0 left-0 right-0 flex items-center justify-around z-50;
+    @apply fixed bottom-0 left-0 right-0 flex items-center justify-between z-50;
     background: rgba(255, 255, 255, 0.82);
     border-top: 1px solid rgba(0, 0, 0, 0.06);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    padding: 8px 16px;
+    padding: 8px 10px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
   }
 
   .bottom-nav-item {
-    @apply flex flex-col items-center gap-1 py-2 px-4 text-[10px] font-semibold no-underline relative;
+    @apply flex flex-col items-center gap-1 py-2 px-2 text-[10px] font-semibold no-underline relative;
     color: var(--text-muted);
     transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   }

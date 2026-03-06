@@ -8,6 +8,7 @@ import {
     BarChart3,
     GitCompareArrows,
     FileDown,
+    BookOpenCheck,
     ChevronRight,
 } from 'lucide-react'
 import { ProfileSection } from './ProfileSection'
@@ -35,9 +36,10 @@ export default async function SettingsPage() {
     const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
 
     const quickLinks = [
-        { href: '/statistiken', icon: BarChart3, label: 'Statistiken', desc: 'Zyklusdaten & Trends', color: '#E8788A' },
-        { href: '/zyklen', icon: GitCompareArrows, label: 'Zyklusvergleich', desc: 'Mehrere Zyklen vergleichen', color: '#8B5CF6' },
-        { href: '/export', icon: FileDown, label: 'PDF-Export', desc: 'Kurve für den Arzt', color: '#3B82F6' },
+        { href: '/anleitung', icon: BookOpenCheck, label: 'Anleitung', desc: 'Schritt-für-Schritt erklärt', color: '#F97316', premium: false },
+        { href: '/statistiken', icon: BarChart3, label: 'Statistiken', desc: 'Zyklusdaten & Trends', color: '#E8788A', premium: true },
+        { href: '/zyklen', icon: GitCompareArrows, label: 'Zyklusvergleich', desc: 'Mehrere Zyklen vergleichen', color: '#8B5CF6', premium: true },
+        { href: '/export', icon: FileDown, label: 'PDF-Export', desc: 'Kurve für den Arzt', color: '#3B82F6', premium: true },
     ]
 
     return (
@@ -65,7 +67,9 @@ export default async function SettingsPage() {
                         <div className="flex-1">
                             <p className="font-medium text-sm" style={{ color: 'var(--text)' }}>
                                 {link.label}
-                                {!hasLifetimeAccess && <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Premium</span>}
+                                {!hasLifetimeAccess && link.premium && (
+                                    <span className="ml-2 text-[10px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700">Premium</span>
+                                )}
                             </p>
                             <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                                 {link.desc}
@@ -122,6 +126,10 @@ export default async function SettingsPage() {
                     <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Datenschutz</span>
                         <a href="/datenschutz" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</a>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Anleitung</span>
+                        <a href="/anleitung" className="text-sm font-medium text-rose-400 hover:underline">Öffnen</a>
                     </div>
                     <div className="flex justify-between items-center py-2">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Impressum</span>

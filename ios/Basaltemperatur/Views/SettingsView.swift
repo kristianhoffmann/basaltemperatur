@@ -131,6 +131,37 @@ struct SettingsView: View {
                 // Einstellungen
                 Section {
                     NavigationLink {
+                        AppGuideView()
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Anleitung")
+                                Text("Schritt-für-Schritt erklärt")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "book.closed")
+                        }
+                    }
+
+                    NavigationLink {
+                        StatisticsView()
+                            .environmentObject(supabase)
+                    } label: {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Statistiken")
+                                Text("Trends und Zyklusverlauf")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "chart.bar")
+                        }
+                    }
+
+                    NavigationLink {
                         PDFExportView()
                             .environmentObject(supabase)
                     } label: {
@@ -261,6 +292,132 @@ struct SettingsView: View {
                     hasLifetimeAccess = false
                 }
             }
+        }
+    }
+}
+
+struct AppGuideView: View {
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 16) {
+                GuideInfoCard(
+                    icon: "sparkles",
+                    title: "Schnellstart",
+                    text: "Trage täglich deine Temperatur ein, markiere deine Periode und bleib regelmäßig dran. So werden Prognosen deutlich genauer."
+                )
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("So gehst du vor")
+                        .font(.headline)
+
+                    GuideStepRow(
+                        title: "1. Morgens messen",
+                        text: "Direkt nach dem Aufwachen messen, möglichst immer zur gleichen Uhrzeit."
+                    )
+                    GuideStepRow(
+                        title: "2. Eintrag speichern",
+                        text: "Temperatur täglich eintragen und bei Bedarf Notizen ergänzen."
+                    )
+                    GuideStepRow(
+                        title: "3. Periode markieren",
+                        text: "Blutungstage im Kalender markieren, damit Zyklusphasen korrekt erkannt werden."
+                    )
+                    GuideStepRow(
+                        title: "4. Verlauf beobachten",
+                        text: "Nach einigen Zyklen werden Eisprung- und Periodenprognosen stabiler."
+                    )
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("Kalender-Legende")
+                        .font(.headline)
+
+                    GuideLegendRow(color: Color("Period"), text: "Periode")
+                    GuideLegendRow(color: Color("Ovulation"), text: "Fruchtbar / Eisprungnah")
+                    GuideLegendRow(color: Color("AppPrimary"), text: "Heute / ausgewählter Tag")
+                }
+                .padding()
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+
+                GuideInfoCard(
+                    icon: "crown.fill",
+                    title: "Analyse (Lifetime)",
+                    text: "Analyse, Prognosen, Zyklusvergleich und PDF-Export sind im Lifetime-Zugang enthalten."
+                )
+
+                Text("Hinweis: Prognosen sind Schätzungen und ersetzen keine medizinische Beratung.")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 4)
+            }
+            .padding()
+        }
+        .navigationTitle("Anleitung")
+        .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+private struct GuideInfoCard: View {
+    let icon: String
+    let title: String
+    let text: String
+
+    var body: some View {
+        HStack(alignment: .top, spacing: 12) {
+            Image(systemName: icon)
+                .font(.headline)
+                .foregroundStyle(Color("AppPrimary"))
+                .frame(width: 34, height: 34)
+                .background(Color("AppPrimary").opacity(0.12), in: RoundedRectangle(cornerRadius: 10))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text(title)
+                    .font(.headline)
+                Text(text)
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .padding()
+        .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+    }
+}
+
+private struct GuideStepRow: View {
+    let title: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.subheadline.weight(.semibold))
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .fixedSize(horizontal: false, vertical: true)
+        }
+    }
+}
+
+private struct GuideLegendRow: View {
+    let color: Color
+    let text: String
+
+    var body: some View {
+        HStack(spacing: 10) {
+            RoundedRectangle(cornerRadius: 6)
+                .fill(color.opacity(0.18))
+                .frame(width: 28, height: 18)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 6)
+                        .stroke(color.opacity(0.35), lineWidth: 1)
+                )
+            Text(text)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
         }
     }
 }

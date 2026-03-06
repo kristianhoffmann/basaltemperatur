@@ -7,6 +7,7 @@ import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard,
     CalendarDays,
+    BookOpenText,
     PlusCircle,
     Settings,
 } from 'lucide-react'
@@ -14,6 +15,7 @@ import {
 const mobileNav = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Übersicht' },
     { href: '/kalender', icon: CalendarDays, label: 'Kalender' },
+    { href: '/anleitung', icon: BookOpenText, label: 'Anleitung' },
     { href: '/eintrag', icon: PlusCircle, label: 'Eintrag' },
     { href: '/einstellungen', icon: Settings, label: 'Mehr' },
 ]

@@ -16,6 +16,7 @@ import {
   Sparkles,
   TrendingUp,
   PlusCircle,
+  BookOpenCheck,
 } from 'lucide-react'
 import Link from 'next/link'
 import type { Profile } from '@/types/database'
@@ -152,9 +153,26 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
+      <div className="card animate-fade-in animate-stagger-2">
+        <div className="flex items-start gap-3">
+          <div className="p-2.5 rounded-xl bg-orange-100 text-orange-500">
+            <BookOpenCheck className="h-5 w-5" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-[var(--text)]">Neu hier? Anleitung öffnen</p>
+            <p className="text-xs text-[var(--text-muted)] mt-0.5">
+              Kurze Schritt-für-Schritt Einführung für Einträge, Kalender, Prognosen und Premium-Funktionen.
+            </p>
+          </div>
+          <Link href="/anleitung" className="shrink-0">
+            <button className="btn btn-sm btn-secondary">Anleitung</button>
+          </Link>
+        </div>
+      </div>
+
       {!hasLifetimeAccess ? (
         <>
-          <div className="card animate-fade-in animate-stagger-2">
+          <div className="card animate-fade-in animate-stagger-3">
             <p className="text-sm text-[var(--text-secondary)]">
               Einträge und Kalender bleiben kostenlos. Analyse-Funktionen wie Prognosen, Statistiken,
               Zyklusvergleich und Export sind im Vollzugang enthalten.
@@ -170,6 +188,12 @@ export default async function DashboardPage() {
                 <button className="btn btn-sm btn-secondary">
                   <CalendarHeart className="h-4 w-4" />
                   Kalender öffnen
+                </button>
+              </Link>
+              <Link href="/anleitung">
+                <button className="btn btn-sm btn-secondary">
+                  <BookOpenCheck className="h-4 w-4" />
+                  Anleitung lesen
                 </button>
               </Link>
             </div>
