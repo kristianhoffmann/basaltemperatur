@@ -643,7 +643,7 @@ struct TemperatureChartView: View {
             }
         }
         .clipped()
-        .frame(height: height)
+        .frame(height: max(1, height))
         .onChange(of: selectedRange) { _, _ in
             zoomScale = 1.0
             lastZoomScale = 1.0
@@ -763,7 +763,7 @@ struct TemperatureChartFullscreenView: View {
                     .padding(.top, 8)
                     
                     // Full chart
-                    fullscreenChart(height: geo.size.height - 80)
+                    fullscreenChart(height: max(1, geo.size.height - 80))
                         .padding(.horizontal, 8)
                 }
             }
@@ -776,13 +776,20 @@ struct TemperatureChartFullscreenView: View {
             }
             .onAppear {
                 OrientationManager.shared.allowLandscape = true
+                if #available(iOS 16.0, *) {
+                    DispatchQueue.main.async {
+                        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+                        windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+                        windowScene?.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+                    }
+                }
             }
             .onDisappear {
                 OrientationManager.shared.allowLandscape = false
-                // Force back to portrait
                 if #available(iOS 16.0, *) {
                     let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
                     windowScene?.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+                    windowScene?.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
                 }
             }
         }
@@ -951,7 +958,7 @@ struct TemperatureChartFullscreenView: View {
                 }
             }
         }
-        .frame(height: height)
+        .frame(height: max(1, height))
         .onChange(of: selectedRange) { _, _ in
             zoomScale = 1.0
             lastZoomScale = 1.0
