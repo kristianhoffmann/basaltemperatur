@@ -457,17 +457,15 @@ struct TemperatureChartView: View {
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .background(
-            LandscapeCoverPresenter(isPresented: $showFullscreen) {
-                TemperatureChartFullscreenView(
-                    entries: allEntries,
-                    periodEntries: allPeriodEntries,
-                    ovulations: ovulations,
-                    cycleDayFor: cycleDayFor,
-                    formattedDate: formattedDate
-                )
-            }
-        )
+        .fullScreenCover(isPresented: $showFullscreen) {
+            TemperatureChartFullscreenView(
+                entries: allEntries,
+                periodEntries: allPeriodEntries,
+                ovulations: ovulations,
+                cycleDayFor: cycleDayFor,
+                formattedDate: formattedDate
+            )
+        }
     }
     
     func chartContent(height: CGFloat, scrollable: Bool = false) -> some View {
@@ -776,6 +774,23 @@ struct TemperatureChartFullscreenView: View {
                     Button("Fertig") { dismiss() }
                 }
             }
+            .onAppear {
+                OrientationManager.shared.allowLandscape = true
+                DispatchQueue.main.async {
+                    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+                    scene.requestGeometryUpdate(.iOS(interfaceOrientations: .landscape))
+                    // Must call on the topmost presented VC (our hosting controller), not root
+                    var topVC = scene.keyWindow?.rootViewController
+                    while let p = topVC?.presentedViewController { topVC = p }
+                    topVC?.setNeedsUpdateOfSupportedInterfaceOrientations()
+                }
+            }
+            .onDisappear {
+                OrientationManager.shared.allowLandscape = false
+                guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+                scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+                scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+            }
         }
     }
     
@@ -1002,59 +1017,6 @@ struct LegendItem: View {
             }
             Text(label)
         }
-    }
-}
-
-// MARK: - Landscape Cover Presenter
-// Presents a view using LandscapeHostingController so that supportedInterfaceOrientations
-// is explicitly .landscape — needed for iOS 16+ where fullScreenCover's UIHostingController
-// no longer automatically delegates orientation to the AppDelegate.
-
-private struct LandscapeCoverPresenter<Content: View>: UIViewControllerRepresentable {
-    @Binding var isPresented: Bool
-    @ViewBuilder let content: () -> Content
-
-    func makeCoordinator() -> Coordinator { Coordinator(self) }
-
-    func makeUIViewController(context: Context) -> UIViewController {
-        UIViewController()
-    }
-
-    func updateUIViewController(_ uiVC: UIViewController, context: Context) {
-        let coordinator = context.coordinator
-        if isPresented, uiVC.presentedViewController == nil, !coordinator.isPresenting {
-            coordinator.isPresenting = true
-            let vc = LandscapeHostingController(rootView: content())
-            vc.modalPresentationStyle = .fullScreen
-            vc.onDismiss = {
-                coordinator.isPresenting = false
-                coordinator.parent.isPresented = false
-                OrientationManager.shared.allowLandscape = false
-                DispatchQueue.main.async {
-                    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-                    scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-                    scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
-                }
-            }
-            uiVC.present(vc, animated: true)
-        } else if !isPresented, let presented = uiVC.presentedViewController, !coordinator.isDismissing {
-            coordinator.isDismissing = true
-            presented.dismiss(animated: true) {
-                coordinator.isDismissing = false
-                coordinator.isPresenting = false
-                OrientationManager.shared.allowLandscape = false
-                guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
-                scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
-                scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
-            }
-        }
-    }
-
-    class Coordinator {
-        var parent: LandscapeCoverPresenter
-        var isDismissing = false
-        var isPresenting = false
-        init(_ parent: LandscapeCoverPresenter) { self.parent = parent }
     }
 }
 
