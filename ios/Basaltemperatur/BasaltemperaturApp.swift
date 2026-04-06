@@ -22,9 +22,26 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+// UIHostingController subclass that explicitly declares landscape support.
+// Needed for iOS 16+ where fullScreenCover's hosting controller no longer
+// automatically delegates supportedInterfaceOrientations to the AppDelegate.
+final class LandscapeHostingController<Content: View>: UIHostingController<Content> {
+    var onDismiss: (() -> Void)?
+
+    override var supportedInterfaceOrientations: UIInterfaceOrientationMask { .landscape }
+    override var preferredInterfaceOrientationForPresentation: UIInterfaceOrientation { .landscapeRight }
+    override var shouldAutorotate: Bool { true }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        if isBeingDismissed { onDismiss?() }
+    }
+}
+
 @main
 struct BasaltemperaturApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var delegate
+    @Environment(\.scenePhase) private var scenePhase
     @StateObject private var authViewModel = AuthViewModel()
     @StateObject private var supabaseService = SupabaseService()
     
@@ -44,6 +61,12 @@ struct BasaltemperaturApp: App {
             .preferredColorScheme(.dark)
             .task {
                 await authViewModel.checkSession(supabase: supabaseService)
+            }
+            .onChange(of: scenePhase) { _, newPhase in
+                guard newPhase == .active else { return }
+                Task {
+                    await authViewModel.checkSession(supabase: supabaseService)
+                }
             }
         }
     }
