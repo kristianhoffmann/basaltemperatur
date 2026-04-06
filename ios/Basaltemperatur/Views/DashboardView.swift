@@ -331,7 +331,6 @@ struct TemperatureChartView: View {
     @Binding var selectedRange: DashboardViewModel.ChartRange
     
     @State private var selectedEntry: TemperatureEntry?
-    @State private var showFullscreen = false
     @State private var zoomScale: CGFloat = 1.0
     @State private var lastZoomScale: CGFloat = 1.0
     @State private var panOffset: TimeInterval = 0
@@ -424,7 +423,7 @@ struct TemperatureChartView: View {
                 Spacer()
                 
                 Button {
-                    showFullscreen = true
+                    presentLandscapeChart(entries: allEntries, periodEntries: allPeriodEntries, ovulations: ovulations, cycleDayFor: cycleDayFor, formattedDate: formattedDate)
                 } label: {
                     Image(systemName: "arrow.up.left.and.arrow.down.right")
                         .font(.subheadline)
@@ -457,15 +456,6 @@ struct TemperatureChartView: View {
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
-        .fullScreenCover(isPresented: $showFullscreen) {
-            TemperatureChartFullscreenView(
-                entries: allEntries,
-                periodEntries: allPeriodEntries,
-                ovulations: ovulations,
-                cycleDayFor: cycleDayFor,
-                formattedDate: formattedDate
-            )
-        }
     }
     
     func chartContent(height: CGFloat, scrollable: Bool = false) -> some View {
@@ -995,6 +985,44 @@ struct TemperatureChartFullscreenView: View {
         .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
         .shadow(color: .black.opacity(0.1), radius: 4, y: 2)
     }
+}
+
+// MARK: - Landscape Presentation Helper
+// Bypasses SwiftUI's fullScreenCover entirely. UIHostingController created by
+// fullScreenCover does not reliably allow device rotation in iOS 16+/26 because
+// supportedInterfaceOrientations and shouldAutorotate cannot be overridden from
+// SwiftUI. We present LandscapeHostingController directly via UIKit instead.
+
+private func presentLandscapeChart(
+    entries: [TemperatureEntry],
+    periodEntries: [PeriodEntry],
+    ovulations: [OvulationResult],
+    cycleDayFor: @escaping (String) -> Int?,
+    formattedDate: @escaping (String) -> String
+) {
+    guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+          let window = scene.keyWindow else { return }
+    var presenter: UIViewController? = window.rootViewController
+    while let p = presenter?.presentedViewController { presenter = p }
+    guard let presenter else { return }
+
+    let content = TemperatureChartFullscreenView(
+        entries: entries,
+        periodEntries: periodEntries,
+        ovulations: ovulations,
+        cycleDayFor: cycleDayFor,
+        formattedDate: formattedDate
+    )
+    let vc = LandscapeHostingController(rootView: content)
+    vc.modalPresentationStyle = .fullScreen
+    vc.onDismiss = {
+        OrientationManager.shared.allowLandscape = false
+        guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
+        scene.requestGeometryUpdate(.iOS(interfaceOrientations: .portrait))
+        scene.keyWindow?.rootViewController?.setNeedsUpdateOfSupportedInterfaceOrientations()
+    }
+    OrientationManager.shared.allowLandscape = true
+    presenter.present(vc, animated: true)
 }
 
 // MARK: - Legend Item
