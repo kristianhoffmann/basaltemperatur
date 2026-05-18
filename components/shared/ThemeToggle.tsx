@@ -24,56 +24,24 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 // ============================================================================
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('light');
-  const [resolvedTheme, setResolvedTheme] = useState<'light' | 'dark'>('light');
-  const [mounted, setMounted] = useState(false);
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return 'light';
+    const savedTheme = localStorage.getItem('theme');
+    return savedTheme === 'dark' || savedTheme === 'system' || savedTheme === 'light'
+      ? savedTheme
+      : 'light';
+  });
 
-  // Initiales Theme aus localStorage oder System laden
+  const resolvedTheme: 'light' | 'dark' = 'light';
+
   useEffect(() => {
-    setMounted(true);
-    const savedTheme = localStorage.getItem('theme') as Theme | null;
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-      setThemeState(savedTheme);
-    }
-  }, []);
-
-  // Theme anwenden und resolvedTheme berechnen
-  useEffect(() => {
-    if (!mounted) return;
-
-    const root = document.documentElement;
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-
-    const applyTheme = () => {
-      // Immer hell – kein Dark Mode
-      const resolved: 'light' | 'dark' = 'light';
-
-      setResolvedTheme(resolved);
-      root.classList.remove('dark');
-    };
-
-    applyTheme();
-
-    // System-Präferenz-Änderungen beobachten
-    const handleChange = () => {
-      if (theme === 'system') {
-        applyTheme();
-      }
-    };
-
-    mediaQuery.addEventListener('change', handleChange);
-    return () => mediaQuery.removeEventListener('change', handleChange);
-  }, [theme, mounted]);
+    document.documentElement.classList.remove('dark');
+  }, [theme]);
 
   const setTheme = (newTheme: Theme) => {
     setThemeState(newTheme);
     localStorage.setItem('theme', newTheme);
   };
-
-  // Hydration-Fehler vermeiden
-  if (!mounted) {
-    return <>{children}</>;
-  }
 
   return (
     <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme }}>

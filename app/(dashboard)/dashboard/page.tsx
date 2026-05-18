@@ -7,7 +7,14 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { TemperatureChart } from '@/components/features/TemperatureChart'
 import { UpgradeBanner } from './UpgradeBanner'
-import { detectOvulation, predictNextPeriod, predictNextOvulation, getFertilityWindow, getFertilityStatus } from '@/lib/ovulation'
+import {
+  detectOvulation,
+  predictNextPeriod,
+  predictNextOvulation,
+  getFertilityWindow,
+  getFertilityStatus,
+  getPredictionReadiness,
+} from '@/lib/ovulation'
 import { format, differenceInDays, parseISO, startOfDay } from 'date-fns'
 import { de } from 'date-fns/locale'
 import {
@@ -19,7 +26,7 @@ import {
   BookOpenCheck,
 } from 'lucide-react'
 import Link from 'next/link'
-import type { Profile } from '@/types/database'
+import type { CervicalMucusType, Profile } from '@/types/database'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -34,7 +41,7 @@ export default async function DashboardPage() {
   const [tempResult, periodResult, profileResult] = await Promise.all([
     supabase
       .from('temperature_entries')
-      .select('date, temperature, notes')
+      .select('date, temperature, notes, cervical_mucus, disturbed, exclude_from_analysis')
       .eq('user_id', user.id)
       .gte('date', startDateStr)
       .order('date', { ascending: true }),
@@ -51,28 +58,35 @@ export default async function DashboardPage() {
       .maybeSingle(),
   ])
 
-  const entries = (tempResult.data || []) as { date: string; temperature: number; notes: string | null }[]
+  const entries = (tempResult.data || []) as { date: string; temperature: number; notes: string | null; cervical_mucus?: CervicalMucusType | null; disturbed?: boolean; exclude_from_analysis?: boolean }[]
   const periodEntries = (periodResult.data || []) as { date: string; flow_intensity: 'light' | 'medium' | 'heavy' | 'spotting' }[]
   const profile = profileResult.data as Profile | null
   const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
   const cycleLength = profile?.cycle_length_default || 28
+  const lutealPhase = profile?.luteal_phase_default || 14
 
-  const periodDates = periodEntries.map(p => p.date).sort()
+  const cyclePeriodEntries = periodEntries.filter(p => p.flow_intensity !== 'spotting')
+  const periodDates = cyclePeriodEntries.map(p => p.date).sort()
+  const predictionReadiness = getPredictionReadiness(entries, periodEntries)
+  const completedCycleCount = predictionReadiness.completedCycleCount
+  const predictionBaselineReady = predictionReadiness.ready
+  const primaryPredictionReason = predictionReadiness.reasons[0] || 'bereit'
   let lastPeriodStart: string | null = null
   if (periodDates.length > 0) {
-    lastPeriodStart = periodDates[periodDates.length - 1]
-    for (let i = periodDates.length - 2; i >= 0; i--) {
-      const diff = differenceInDays(parseISO(periodDates[i + 1]), parseISO(periodDates[i]))
-      if (diff <= 1) {
-        lastPeriodStart = periodDates[i]
-      } else {
-        break
+    // Find cycle starts (first day after a gap of >3 days, consistent with ovulation.ts)
+    const cycleStarts: string[] = [periodDates[0]]
+    for (let i = 1; i < periodDates.length; i++) {
+      const diff = differenceInDays(parseISO(periodDates[i]), parseISO(periodDates[i - 1]))
+      if (diff > 3) {
+        cycleStarts.push(periodDates[i])
       }
     }
+    lastPeriodStart = cycleStarts[cycleStarts.length - 1]
   }
 
-  const currentCycleEntries = lastPeriodStart
-    ? entries.filter(e => e.date >= lastPeriodStart)
+  const periodStart = lastPeriodStart // local const for type narrowing
+  const currentCycleEntries = periodStart
+    ? entries.filter(e => e.date >= periodStart)
     : entries
   const ovulation = detectOvulation(currentCycleEntries)
 
@@ -83,12 +97,12 @@ export default async function DashboardPage() {
   const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
 
   const nextPeriod = lastPeriodStart ? predictNextPeriod(lastPeriodStart, cycleLength) : null
-  const nextOvulation = lastPeriodStart ? predictNextOvulation(lastPeriodStart, cycleLength) : null
+  const nextOvulation = predictionBaselineReady && lastPeriodStart ? predictNextOvulation(lastPeriodStart, cycleLength, lutealPhase) : null
   const today = startOfDay(new Date())
   const daysUntilPeriod = nextPeriod ? differenceInDays(parseISO(nextPeriod), today) : null
   const daysUntilOvulation = nextOvulation ? differenceInDays(parseISO(nextOvulation), today) : null
 
-  const fertilityWindow = lastPeriodStart ? getFertilityWindow(lastPeriodStart, cycleLength) : null
+  const fertilityWindow = predictionBaselineReady && lastPeriodStart ? getFertilityWindow(lastPeriodStart, cycleLength, lutealPhase) : null
   const todayStr = format(new Date(), 'yyyy-MM-dd')
   const fertilityStatus = getFertilityStatus(todayStr, fertilityWindow)
 
@@ -109,17 +123,17 @@ export default async function DashboardPage() {
     },
     {
       icon: Sparkles,
-      label: 'Eisprung',
+      label: 'Temperaturanstieg',
       value: ovulation.ovulationDate
-        ? 'Erkannt ✓'
-        : daysUntilOvulation !== null && daysUntilOvulation > 0
+        ? 'Bestätigt'
+        : predictionBaselineReady && daysUntilOvulation !== null && daysUntilOvulation > 0
           ? `~${daysUntilOvulation}d`
           : '–',
       subtitle: ovulation.ovulationDate
         ? format(parseISO(ovulation.ovulationDate), 'd. MMM', { locale: de })
-        : daysUntilOvulation !== null && daysUntilOvulation > 0 && nextOvulation
+        : predictionBaselineReady && daysUntilOvulation !== null && daysUntilOvulation > 0 && nextOvulation
           ? format(parseISO(nextOvulation), 'd. MMM', { locale: de })
-          : 'Nicht genug Daten',
+          : primaryPredictionReason,
       iconClass: 'kpi-icon-violet',
     },
     {
@@ -128,7 +142,7 @@ export default async function DashboardPage() {
       value: daysUntilPeriod !== null && daysUntilPeriod > 0 ? `~${daysUntilPeriod}d` : '–',
       subtitle: daysUntilPeriod !== null && daysUntilPeriod > 0 && nextPeriod
         ? format(parseISO(nextPeriod), 'd. MMM', { locale: de })
-        : 'Nicht genug Daten',
+        : primaryPredictionReason,
       iconClass: 'kpi-icon-period',
     },
   ]
@@ -203,7 +217,31 @@ export default async function DashboardPage() {
       ) : (
         <>
           {/* Fertility Status Banner */}
-          {fertilityStatus !== 'infertile' && (
+          {!predictionBaselineReady && (
+            <div className="card animate-fade-in">
+              <p className="text-sm font-semibold text-[var(--text)]">
+                Prognosen bleiben ausgeblendet
+              </p>
+              <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
+                Fruchtbarkeits- und Periodenprognosen erscheinen erst, wenn die Datenbasis belastbar genug ist.
+              </p>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {predictionReadiness.reasons.map((reason) => (
+                  <span
+                    key={reason}
+                    className="rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-[11px] font-medium text-amber-800"
+                  >
+                    {reason}
+                  </span>
+                ))}
+              </div>
+              <p className="text-[11px] text-[var(--text-muted)] mt-3">
+                Auswertbar: {completedCycleCount}/3 Zyklen, {predictionReadiness.usableTemperatureCount} Temperaturwerte.
+              </p>
+            </div>
+          )}
+
+          {predictionBaselineReady && fertilityStatus !== 'infertile' && (
             <div
               className="card animate-fade-in"
               style={{
@@ -218,12 +256,12 @@ export default async function DashboardPage() {
                   {fertilityStatus === 'peak' ? '⚡' : '🔥'}
                 </span>
                 <p className="font-bold text-sm mt-1.5" style={{ color: fertilityStatus === 'peak' ? '#b45309' : '#047857' }}>
-                  {fertilityStatus === 'peak' ? 'Höchste Fruchtbarkeit' : 'Fruchtbares Fenster'}
+                  {fertilityStatus === 'peak' ? 'Peak-Fruchtbarkeit (Prognose)' : 'Fruchtbares Fenster (Prognose)'}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: fertilityStatus === 'peak' ? '#92400e' : '#065f46' }}>
                   {fertilityStatus === 'peak'
-                    ? 'Eisprung steht unmittelbar bevor'
-                    : 'Du befindest dich im fruchtbaren Fenster'}
+                    ? 'Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen'
+                    : 'Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen'}
                 </p>
               </div>
             </div>
@@ -251,14 +289,14 @@ export default async function DashboardPage() {
 
           {/* Temperature Chart */}
           <div className="animate-fade-in animate-stagger-5">
-            <TemperatureChart entries={entries} periodEntries={periodEntries} />
+            <TemperatureChart entries={entries} periodEntries={periodEntries} showPredictions={predictionBaselineReady} />
           </div>
 
           {/* Disclaimer */}
           <div className="text-center pb-2 pt-2 px-4">
             <p className="text-xs text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
-              <strong>Hinweis:</strong> Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben.
-              Es handelt sich um Schätzungen, die von deinem tatsächlichen Zyklus abweichen können.
+              <strong>Hinweis:</strong> Eine temperaturbasierte Auswertung kann einen Anstieg erst rückblickend bestätigen.
+              Prognosen zu fruchtbaren Tagen und Periode sind Schätzungen und können abweichen.
               Diese App dient <u>nicht</u> zur Verhütung und ersetzt keinen ärztlichen Rat.
             </p>
           </div>

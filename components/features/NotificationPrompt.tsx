@@ -2,43 +2,30 @@
 // Push-Benachrichtigung – Erinnerung an Temperaturmessung
 'use client'
 
-import { useState, useEffect } from 'react'
-import { Bell, BellOff, X } from 'lucide-react'
+import { useState, useEffect, useCallback } from 'react'
+import { Bell, X } from 'lucide-react'
 
 export function NotificationPrompt() {
-    const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>('default')
-    const [dismissed, setDismissed] = useState(true)
-    const [reminderTime, setReminderTime] = useState('06:30')
-
-    useEffect(() => {
-        if (!('Notification' in window)) {
-            setPermission('unsupported')
-            return
-        }
-
-        setPermission(Notification.permission)
+    const [permission, setPermission] = useState<NotificationPermission | 'unsupported'>(() => {
+        if (typeof window === 'undefined') return 'default'
+        if (!('Notification' in window)) return 'unsupported'
+        return Notification.permission
+    })
+    const [dismissed, setDismissed] = useState(() => {
+        if (typeof window === 'undefined') return true
+        if (!('Notification' in window)) return true
 
         const wasDismissed = localStorage.getItem('notification-prompt-dismissed')
         const isEnabled = localStorage.getItem('notification-enabled')
 
-        if (!wasDismissed && !isEnabled && Notification.permission === 'default') {
-            setDismissed(false)
-        }
+        return !(!wasDismissed && !isEnabled && Notification.permission === 'default')
+    })
+    const [reminderTime, setReminderTime] = useState(() => {
+        if (typeof window === 'undefined') return '06:30'
+        return localStorage.getItem('notification-time') || '06:30'
+    })
 
-        const savedTime = localStorage.getItem('notification-time')
-        if (savedTime) setReminderTime(savedTime)
-
-        // If enabled, set up check interval
-        if (isEnabled === 'true' && Notification.permission === 'granted') {
-            const checkInterval = setInterval(() => {
-                checkAndNotify(savedTime || '06:30')
-            }, 60000) // Check every minute
-
-            return () => clearInterval(checkInterval)
-        }
-    }, [])
-
-    const checkAndNotify = (time: string) => {
+    const checkAndNotify = useCallback((time: string) => {
         const now = new Date()
         const [hours, minutes] = time.split(':').map(Number)
         const notifiedToday = localStorage.getItem('notified-date')
@@ -51,11 +38,29 @@ export function NotificationPrompt() {
         ) {
             new Notification('🌡️ Basaltemperatur', {
                 body: 'Vergiss nicht, deine Temperatur einzutragen!',
-                icon: '/icons/icon-192.png',
+                icon: '/icons/icon-192x192.png',
             })
             localStorage.setItem('notified-date', todayStr)
         }
-    }
+    }, [])
+
+    useEffect(() => {
+        if (!('Notification' in window)) {
+            return
+        }
+
+        const isEnabled = localStorage.getItem('notification-enabled')
+        const savedTime = localStorage.getItem('notification-time') || reminderTime
+
+        // If enabled, set up check interval
+        if (isEnabled === 'true' && Notification.permission === 'granted') {
+            const checkInterval = setInterval(() => {
+                checkAndNotify(savedTime || '06:30')
+            }, 60000) // Check every minute
+
+            return () => clearInterval(checkInterval)
+        }
+    }, [checkAndNotify, reminderTime])
 
     const requestPermission = async () => {
         if (!('Notification' in window)) return

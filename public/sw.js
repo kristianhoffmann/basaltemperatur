@@ -3,7 +3,7 @@
 // PWA Offline-Support und Caching
 // ============================================================================
 
-const CACHE_NAME = 'saas-app-v2';
+const CACHE_NAME = 'basaltemperatur-v3';
 const OFFLINE_URL = '/offline.html';
 
 // Dateien die beim Install gecacht werden (App Shell)
@@ -152,7 +152,7 @@ self.addEventListener('push', (event) => {
   if (event.data) {
     try {
       data = { ...data, ...event.data.json() };
-    } catch (e) {
+    } catch {
       data.body = event.data.text();
     }
   }

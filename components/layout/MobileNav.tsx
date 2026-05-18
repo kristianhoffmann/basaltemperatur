@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import {
     LayoutDashboard,
     CalendarDays,
-    BookOpenText,
+    BarChart3,
     PlusCircle,
     Settings,
 } from 'lucide-react'
@@ -15,7 +15,7 @@ import {
 const mobileNav = [
     { href: '/dashboard', icon: LayoutDashboard, label: 'Übersicht' },
     { href: '/kalender', icon: CalendarDays, label: 'Kalender' },
-    { href: '/anleitung', icon: BookOpenText, label: 'Anleitung' },
+    { href: '/statistiken', icon: BarChart3, label: 'Statistik' },
     { href: '/eintrag', icon: PlusCircle, label: 'Eintrag' },
     { href: '/einstellungen', icon: Settings, label: 'Mehr' },
 ]

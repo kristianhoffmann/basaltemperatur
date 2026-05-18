@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, type DragEvent, type ChangeEvent } from 'react';
-import { Upload, X, File, Image, FileText, Loader2 } from 'lucide-react';
+import { Upload, X, File, Image as ImageIcon, FileText, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
@@ -87,7 +87,7 @@ export function FileUpload({
       try {
         setIsUploading(true);
         await onUpload(valid);
-      } catch (err) {
+      } catch {
         setUploadError('Fehler beim Hochladen');
       } finally {
         setIsUploading(false);
@@ -193,11 +193,19 @@ interface FilePreviewProps {
   className?: string;
 }
 
-function getFileIcon(type?: string) {
-  if (!type) return File;
-  if (type.startsWith('image/')) return Image;
-  if (type.includes('pdf') || type.includes('document')) return FileText;
-  return File;
+type FileIconType = 'file' | 'image' | 'document';
+
+const FILE_ICON_COMPONENTS = {
+  file: File,
+  image: ImageIcon,
+  document: FileText,
+} as const;
+
+function getFileIconType(type?: string): FileIconType {
+  if (!type) return 'file';
+  if (type.startsWith('image/')) return 'image';
+  if (type.includes('pdf') || type.includes('document')) return 'document';
+  return 'file';
 }
 
 function formatFileSize(bytes: number): string {
@@ -207,7 +215,8 @@ function formatFileSize(bytes: number): string {
 }
 
 export function FilePreview({ file, onRemove, className }: FilePreviewProps) {
-  const Icon = getFileIcon(file.type);
+  const iconType = getFileIconType(file.type);
+  const IconComponent = FILE_ICON_COMPONENTS[iconType];
 
   return (
     <div
@@ -217,6 +226,7 @@ export function FilePreview({ file, onRemove, className }: FilePreviewProps) {
       )}
     >
       {file.url && file.type?.startsWith('image/') ? (
+        // eslint-disable-next-line @next/next/no-img-element
         <img
           src={file.url}
           alt={file.name}
@@ -224,7 +234,7 @@ export function FilePreview({ file, onRemove, className }: FilePreviewProps) {
         />
       ) : (
         <div className="w-10 h-10 flex items-center justify-center bg-gray-200 rounded">
-          <Icon className="w-5 h-5 text-gray-500" />
+          <IconComponent className="w-5 h-5 text-gray-500" />
         </div>
       )}
 

@@ -34,10 +34,10 @@ export default function AGBPage() {
 
       <h2>§ 1 Geltungsbereich</h2>
       <p>
-        (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB") gelten für alle
-        Verträge, die zwischen {company.name} (nachfolgend „Anbieter") und der nutzenden
-        Person (nachfolgend „Kunde") über die Nutzung der Web- und Mobilanwendung
-        „Basaltemperatur" (nachfolgend „App") geschlossen werden.
+        (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB“) gelten für alle
+        Verträge, die zwischen {company.name} (nachfolgend „Anbieter“) und der nutzenden
+        Person (nachfolgend „Kunde“) über die Nutzung der Web- und Mobilanwendung
+        „Basaltemperatur“ (nachfolgend „App“) geschlossen werden.
       </p>
       <p>
         (2) Es gelten ausschließlich diese AGB. Abweichende Bedingungen des Kunden werden
@@ -57,15 +57,15 @@ export default function AGBPage() {
       </p>
       <p>
         (2) Die App ermöglicht die Aufzeichnung von Basaltemperaturwerten, die Dokumentation
-        der Periodenblutung, die algorithmische Erkennung des Eisprungs sowie statistische
-        Zyklusauswertungen.
+        der Periodenblutung, die rückblickende Auswertung von Temperaturanstiegen sowie
+        statistische Zyklusauswertungen.
       </p>
       <p>
         (3) <strong>Medizinischer Haftungsausschluss:</strong> Die App ist ein persönliches
         Zyklustagebuch zur Selbstbeobachtung. Sie ist <strong>kein</strong> Medizinprodukt
         im Sinne der EU-Verordnung 2017/745 (MDR), kein Verhütungsmittel und kein
-        Diagnosewerkzeug. Algorithmische Vorhersagen (Eisprung-Erkennung, Zyklusprognosen)
-        sind Schätzungen und können individuell abweichen. Für medizinische Entscheidungen
+        Diagnosewerkzeug. Algorithmische Vorhersagen zu fruchtbaren Tagen, Zykluslänge
+        und Periodenbeginn sind Schätzungen und können individuell abweichen. Für medizinische Entscheidungen
         ist ärztlicher Rat einzuholen.
       </p>
 
@@ -113,7 +113,7 @@ export default function AGBPage() {
       </p>
       <p>
         (2) Nach erfolgreicher Zahlung erhält der Kunde zeitlich unbegrenzten Zugang zu
-        allen Funktionen der App einschließlich zukünftiger Updates („Lifetime-Zugang").
+        allen Funktionen der App einschließlich zukünftiger Updates („Lifetime-Zugang“).
       </p>
       <p>
         (3) Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Der Kunde wählt bei
@@ -210,8 +210,8 @@ export default function AGBPage() {
         eintretenden Schaden begrenzt.
       </p>
       <p>
-        (3) Eine Haftung für die <strong>Richtigkeit algorithmischer Vorhersagen</strong> (Eisprung,
-        Zykluslänge, Fruchtbarkeitsfenster) ist ausgeschlossen. Diese dienen der
+        (3) Eine Haftung für die <strong>Richtigkeit algorithmischer Vorhersagen</strong> (fruchtbare Tage,
+        Zykluslänge, Periodenbeginn) ist ausgeschlossen. Diese dienen der
         Selbstbeobachtung und ersetzen keine medizinische Beratung.
       </p>
 

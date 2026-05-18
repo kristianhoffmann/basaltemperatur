@@ -31,8 +31,14 @@ interface PWAProviderProps {
 
 export function PWAProvider({ children }: PWAProviderProps) {
   const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-  const [isOnline, setIsOnline] = useState(true);
+  const [isInstalled, setIsInstalled] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia('(display-mode: standalone)').matches;
+  });
+  const [isOnline, setIsOnline] = useState(() => {
+    if (typeof navigator === 'undefined') return true;
+    return navigator.onLine;
+  });
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null);
@@ -66,10 +72,6 @@ export function PWAProvider({ children }: PWAProviderProps) {
         console.error('Service Worker registration failed:', error);
       });
 
-    // Prüfen ob bereits installiert
-    if (window.matchMedia('(display-mode: standalone)').matches) {
-      setIsInstalled(true);
-    }
   }, []);
 
   // Install Prompt Event
@@ -104,8 +106,6 @@ export function PWAProvider({ children }: PWAProviderProps) {
 
   // Online/Offline Status
   useEffect(() => {
-    setIsOnline(navigator.onLine);
-
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 

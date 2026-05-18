@@ -26,7 +26,7 @@ export function ForgotPasswordForm() {
       } else {
         router.push('/passwort-vergessen?success=true')
       }
-    } catch (err) {
+    } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.')
     } finally {
       setIsLoading(false)

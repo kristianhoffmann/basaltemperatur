@@ -1,5 +1,5 @@
 // app/(dashboard)/export/page.tsx
-// PDF-Export – Zykluskurve für den Frauenarzt
+// PDF-Export – Zykluskurve für die persönliche Dokumentation
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +8,7 @@ import { redirect } from 'next/navigation'
 import { ExportClient } from './ExportClient'
 import { detectAllOvulations } from '@/lib/ovulation'
 import { format } from 'date-fns'
-import type { Profile } from '@/types/database'
+import type { Profile, TemperatureEntry } from '@/types/database'
 
 export const metadata = {
     title: 'Export',
@@ -29,7 +29,7 @@ export default async function ExportPage() {
     const [tempResult, periodResult, profileResult] = await Promise.all([
         supabase
             .from('temperature_entries')
-            .select('date, temperature, notes, cervical_mucus')
+            .select('date, temperature, notes, cervical_mucus, measurement_time, sleep_hours, disturbed, disturbance_reason, exclude_from_analysis')
             .eq('user_id', user.id)
             .gte('date', startDateStr)
             .order('date', { ascending: true }),
@@ -55,7 +55,13 @@ export default async function ExportPage() {
         redirect('/dashboard')
     }
 
-    const ovulations = detectAllOvulations(entries as any)
+    const ovulationInput: (Pick<TemperatureEntry, 'date' | 'temperature'> & Partial<Pick<TemperatureEntry, 'disturbed' | 'exclude_from_analysis'>>)[] = entries.map((entry) => ({
+        date: entry.date,
+        temperature: Number(entry.temperature),
+        disturbed: entry.disturbed,
+        exclude_from_analysis: entry.exclude_from_analysis,
+    }))
+    const ovulations = detectAllOvulations(ovulationInput)
 
     return (
         <div className="space-y-6 pb-20 pt-4">
@@ -66,7 +72,6 @@ export default async function ExportPage() {
                     ovulationDate: o.ovulationDate,
                     coverLineTemp: o.coverLineTemp,
                 }))}
-                userEmail={user.email || ''}
             />
         </div>
     )

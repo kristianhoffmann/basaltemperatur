@@ -46,7 +46,7 @@ export default function DatenschutzPage() {
       <p><strong>Wer ist verantwortlich für die Datenerfassung?</strong></p>
       <p>
         Die Datenverarbeitung erfolgt durch den Betreiber der App. Dessen
-        Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle" in dieser
+        Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle“ in dieser
         Datenschutzerklärung entnehmen.
       </p>
 
@@ -64,7 +64,8 @@ export default function DatenschutzPage() {
       <p><strong>Wofür nutzen wir Ihre Daten?</strong></p>
       <p>
         Ihre Daten werden ausschließlich zur Bereitstellung der App-Funktionen verwendet:
-        Temperaturkurve, Eisprung-Erkennung, Zyklusstatistiken und Periodenvorhersagen.
+        Temperaturkurve, rückblickende Auswertung von Temperaturanstiegen, Zyklusstatistiken
+        und Periodenvorhersagen.
         Es erfolgt <strong>keine</strong> Weitergabe an Dritte zu Werbezwecken.
       </p>
 
@@ -78,13 +79,14 @@ export default function DatenschutzPage() {
         <li>Basaltemperaturmessungen</li>
         <li>Periodendaten (Datum und Intensität der Blutung)</li>
         <li>Zyklusbezogene Notizen (z.B. Krankheit, Schlafstörungen)</li>
-        <li>Daraus abgeleitete Informationen (Eisprungdatum, Zyklusphase, Fruchtbarkeitsfenster)</li>
+        <li>Daraus abgeleitete Informationen (Temperaturanstiege, Zyklusphase, statistische Fruchtbarkeitsfenster)</li>
       </ul>
       <p>
         Die Verarbeitung erfolgt ausschließlich auf Grundlage Ihrer <strong>ausdrücklichen
           Einwilligung</strong> gemäß Art. 9 Abs. 2 lit. a DSGVO, die Sie bei der Registrierung
         erteilen. Sie können diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen,
-        indem Sie Ihr Konto löschen oder uns per E-Mail kontaktieren.
+        indem Sie in den Einstellungen die Einwilligung widerrufen, Ihr Konto löschen oder
+        uns per E-Mail kontaktieren.
       </p>
 
       <h2>3. Hosting und Datenspeicherung</h2>
@@ -120,7 +122,7 @@ export default function DatenschutzPage() {
       <ul>
         <li><strong>Auskunftsrecht (Art. 15 DSGVO):</strong> Sie können Auskunft über Ihre gespeicherten Daten verlangen.</li>
         <li><strong>Recht auf Berichtigung (Art. 16 DSGVO):</strong> Sie können die Berichtigung unrichtiger Daten verlangen.</li>
-        <li><strong>Recht auf Löschung (Art. 17 DSGVO):</strong> Sie können die Löschung Ihrer Daten verlangen. Die Konto-Löschung ist direkt in der App unter „Einstellungen" möglich.</li>
+        <li><strong>Recht auf Löschung (Art. 17 DSGVO):</strong> Sie können die Löschung Ihrer Daten verlangen. Die Konto-Löschung ist direkt in der App unter „Einstellungen“ möglich.</li>
         <li><strong>Recht auf Einschränkung (Art. 18 DSGVO):</strong> Sie können die Einschränkung der Verarbeitung verlangen.</li>
         <li><strong>Recht auf Datenübertragbarkeit (Art. 20 DSGVO):</strong> Sie können Ihre Daten in einem maschinenlesbaren Format erhalten.</li>
         <li><strong>Widerspruchsrecht (Art. 21 DSGVO):</strong> Sie können der Verarbeitung Ihrer Daten widersprechen.</li>

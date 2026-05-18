@@ -49,6 +49,11 @@ export default async function EntryPage({ searchParams }: Props) {
                 initialHasPeriod={!!period}
                 initialFlowIntensity={period?.flow_intensity || 'medium'}
                 initialCervicalMucus={temp?.cervical_mucus || null}
+                initialMeasurementTime={temp?.measurement_time || null}
+                initialSleepHours={temp?.sleep_hours ?? null}
+                initialDisturbed={Boolean(temp?.disturbed)}
+                initialDisturbanceReason={temp?.disturbance_reason || null}
+                initialExcludeFromAnalysis={Boolean(temp?.exclude_from_analysis)}
             />
         </div>
     )

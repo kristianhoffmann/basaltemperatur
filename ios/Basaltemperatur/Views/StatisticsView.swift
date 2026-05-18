@@ -58,12 +58,63 @@ struct StatisticsView: View {
                             )
                             
                             StatCard(
-                                title: "Einträge",
-                                value: "\(viewModel.entries.count)",
+                                title: "Auswertbar",
+                                value: "\(usableEntries.count)/\(viewModel.entries.count)",
                                 icon: "chart.bar",
-                                color: Color("AccentColor")
+                                color: affectedRate > 35 ? .orange : .green
+                            )
+
+                            StatCard(
+                                title: "Ø Periode",
+                                value: "\(viewModel.averagePeriodLength) Tage",
+                                icon: "drop",
+                                color: Color("AppPrimary")
+                            )
+
+                            StatCard(
+                                title: "Anstiege",
+                                value: "\(confirmedRiseCount)",
+                                icon: "arrow.up.right",
+                                color: Color("Ovulation")
                             )
                         }
+                        .padding(.horizontal)
+
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack(spacing: 6) {
+                                Image(systemName: predictionReady ? "checkmark.shield" : "exclamationmark.triangle")
+                                    .font(.caption)
+                                    .foregroundStyle(predictionReady ? .green : .orange)
+                                Text("Auswertbarkeit")
+                                    .font(.headline)
+                            }
+
+                            LazyVGrid(columns: [
+                                GridItem(.flexible()),
+                                GridItem(.flexible())
+                            ], spacing: 10) {
+                                QualityMetricView(label: "Zyklen", value: "\(viewModel.completedCycleCount)/3")
+                                QualityMetricView(label: "Temperaturwerte", value: "\(usableEntries.count)")
+                                QualityMetricView(label: "30-Tage-Abdeckung", value: "\(coverageRate)%")
+                                QualityMetricView(label: "Störquote", value: "\(affectedRate)%")
+                            }
+
+                            if !predictionReasons.isEmpty {
+                                VStack(alignment: .leading, spacing: 6) {
+                                    ForEach(predictionReasons, id: \.self) { reason in
+                                        Label(reason, systemImage: "smallcircle.filled.circle")
+                                            .font(.caption)
+                                            .foregroundStyle(.orange)
+                                    }
+                                }
+                            }
+
+                            Text("Die Statistik bewertet nur deine Eingaben. Sie ist keine Diagnose und keine sichere Vorhersage.")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        .padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                         .padding(.horizontal)
                         
                         // Temperature Range
@@ -134,6 +185,35 @@ struct StatisticsView: View {
                                     }
                                 }
                                 .frame(height: 200)
+                            }
+                            .padding()
+                            .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                            .padding(.horizontal)
+                        }
+
+                        if cycleLengths.count >= 2 {
+                            VStack(alignment: .leading, spacing: 12) {
+                                HStack(spacing: 6) {
+                                    Image(systemName: "waveform.path.ecg")
+                                        .font(.caption)
+                                        .foregroundStyle(Color("AppPrimary"))
+                                    Text("Zyklus-Stabilität")
+                                        .font(.headline)
+                                }
+
+                                LazyVGrid(columns: [
+                                    GridItem(.flexible()),
+                                    GridItem(.flexible())
+                                ], spacing: 10) {
+                                    QualityMetricView(label: "Schwankung", value: cycleRegularity.map { String(format: "±%.1fd", $0) } ?? "–")
+                                    QualityMetricView(label: "Kürzester Zyklus", value: shortestCycle.map { "\($0)d" } ?? "–")
+                                    QualityMetricView(label: "Längster Zyklus", value: longestCycle.map { "\($0)d" } ?? "–")
+                                    QualityMetricView(label: "Trend", value: cycleTrendText)
+                                }
+
+                                Text("Kleinere Schwankungen und regelmäßige Einträge machen Prognosen nachvollziehbarer.")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
                             }
                             .padding()
                             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
@@ -256,7 +336,10 @@ struct StatisticsView: View {
     }
     
     private var cycleStarts: [String] {
-        let periodDates = viewModel.periodEntries.map { $0.date }.sorted()
+        let periodDates = viewModel.periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
         var starts: [String] = []
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -290,6 +373,101 @@ struct StatisticsView: View {
             if diff > 0 && diff < 60 { lengths.append(diff) }
         }
         return lengths
+    }
+
+    private var usableEntries: [TemperatureEntry] {
+        viewModel.entries.filter(\.isUsableForAnalysis)
+    }
+
+    private var affectedEntryCount: Int {
+        viewModel.entries.filter { $0.disturbed || $0.excludeFromAnalysis }.count
+    }
+
+    private var affectedRate: Int {
+        guard !viewModel.entries.isEmpty else { return 0 }
+        return Int((Double(affectedEntryCount) / Double(viewModel.entries.count) * 100).rounded())
+    }
+
+    private var coverageRate: Int {
+        let uniqueDates = Set(viewModel.entries.map(\.date))
+        var covered = 0
+        for offset in 0..<30 {
+            guard let date = Calendar.current.date(byAdding: .day, value: -offset, to: Date()) else { continue }
+            if uniqueDates.contains(Self.dateString(date)) {
+                covered += 1
+            }
+        }
+        return Int((Double(covered) / 30.0 * 100).rounded())
+    }
+
+    private var predictionReady: Bool {
+        predictionReasons.isEmpty
+    }
+
+    private var predictionReasons: [String] {
+        var reasons: [String] = []
+        if viewModel.completedCycleCount < 3 {
+            reasons.append("\(3 - viewModel.completedCycleCount) weitere abgeschlossene Zyklen erfassen")
+        }
+        if usableEntries.count < 18 {
+            reasons.append("mehr auswertbare Temperaturwerte eintragen")
+        }
+        if latestEntryAgeDays == nil {
+            reasons.append("erste Temperatur eintragen")
+        } else if let age = latestEntryAgeDays, age > 3 {
+            reasons.append("aktuelle Temperaturwerte ergänzen")
+        }
+        if affectedRate > 35 {
+            reasons.append("Störfaktoren reduzieren oder Werte gezielt ausschließen")
+        }
+        return reasons
+    }
+
+    private var latestEntryAgeDays: Int? {
+        guard let latest = viewModel.entries.map(\.date).sorted().last,
+              let latestDate = Self.inputFormatter.date(from: latest) else { return nil }
+        return Calendar.current.dateComponents([.day], from: Calendar.current.startOfDay(for: latestDate), to: Calendar.current.startOfDay(for: Date())).day
+    }
+
+    private var confirmedRiseCount: Int {
+        viewModel.ovulationResults.filter(\.isConfirmed).count
+    }
+
+    private var cycleRegularity: Double? {
+        guard cycleLengths.count >= 2 else { return nil }
+        let avg = Double(cycleLengths.reduce(0, +)) / Double(cycleLengths.count)
+        let variance = cycleLengths.reduce(0.0) { sum, value in
+            sum + pow(Double(value) - avg, 2)
+        } / Double(cycleLengths.count)
+        return sqrt(variance)
+    }
+
+    private var shortestCycle: Int? {
+        cycleLengths.min()
+    }
+
+    private var longestCycle: Int? {
+        cycleLengths.max()
+    }
+
+    private var cycleTrendText: String {
+        let recent = Array(cycleLengths.suffix(3))
+        let previous = Array(cycleLengths.dropLast(3).suffix(3))
+        guard recent.count == 3, previous.count == 3 else { return "–" }
+        let recentAvg = Double(recent.reduce(0, +)) / Double(recent.count)
+        let previousAvg = Double(previous.reduce(0, +)) / Double(previous.count)
+        let diff = Int((recentAvg - previousAvg).rounded())
+        return "\(diff > 0 ? "+" : "")\(diff)d"
+    }
+
+    private static let inputFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
+
+    private static func dateString(_ date: Date) -> String {
+        inputFormatter.string(from: date)
     }
 }
 
@@ -344,5 +522,24 @@ struct TempRangeItem: View {
                 .foregroundStyle(color)
         }
         .frame(maxWidth: .infinity)
+    }
+}
+
+struct QualityMetricView: View {
+    let label: String
+    let value: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(label)
+                .font(.caption2.weight(.medium))
+                .foregroundStyle(.secondary)
+                .textCase(.uppercase)
+            Text(value)
+                .font(.headline.weight(.bold))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(12)
+        .background(.thinMaterial, in: RoundedRectangle(cornerRadius: 12))
     }
 }

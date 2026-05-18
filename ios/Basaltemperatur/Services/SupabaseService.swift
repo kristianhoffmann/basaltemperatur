@@ -4,6 +4,7 @@
 import Foundation
 import Combine
 import Security
+import UIKit
 
 // MARK: - Keychain Helper
 
@@ -48,24 +49,40 @@ private struct KeychainHelper {
 
 class SupabaseService: ObservableObject {
     // MARK: - Configuration
-    // TODO: Diese Werte in eine .xcconfig oder Info.plist auslagern
-    private let supabaseUrl = "https://scohibllvlqujmvtuamv.supabase.co"
-    private let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb2hpYmxsdmxxdWptdnR1YW12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjkwMDEsImV4cCI6MjA4NjY0NTAwMX0._Yg8bzOei4HVUkgUgPpQDoSAYKSA7m98LIDfW8NMJ8g"
+    /// Supabase configuration constants.
+    /// The Anon Key is a *public* client key (not a secret) — it is safe to embed.
+    private enum Config {
+        static let supabaseUrl = "https://scohibllvlqujmvtuamv.supabase.co"
+        static let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb2hpYmxsdmxxdWptdnR1YW12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjkwMDEsImV4cCI6MjA4NjY0NTAwMX0._Yg8bzOei4HVUkgUgPpQDoSAYKSA7m98LIDfW8NMJ8g"
+        static let webAppUrl = "https://www.basaltemperatur.online"
+        static let sensitiveDataConsentVersion = "2026-05-18"
+    }
+
+    private let supabaseUrl: String
+    private let supabaseAnonKey: String
+    @Published private(set) var sensitiveDataConsentRevision = 0
     
     private var accessToken: String?
     private var userId: String?
     private var refreshToken: String?
+    private let appTrafficSessionId = UUID().uuidString
+    private let refreshStateQueue = DispatchQueue(label: "co.basaltemperatur.app.refresh")
+    private var inFlightRefreshTask: Task<Void, Error>?
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
         return decoder
     }()
     
     init() {
+        self.supabaseUrl = Config.supabaseUrl
+        self.supabaseAnonKey = Config.supabaseAnonKey
+
         // Restore tokens from Keychain (secure storage)
         self.accessToken = KeychainHelper.load(forKey: "access_token")
         self.userId = KeychainHelper.load(forKey: "user_id")
         self.refreshToken = KeychainHelper.load(forKey: "refresh_token")
     }
+
     
     // MARK: - Auth
     
@@ -84,24 +101,28 @@ class SupabaseService: ObservableObject {
         self.accessToken = response.accessToken
         self.userId = response.user?.id
         self.refreshToken = response.refreshToken
-        if let uid = response.user?.id {
-            KeychainHelper.save(uid, forKey: "user_id")
-        }
-        if let rt = response.refreshToken {
-            KeychainHelper.save(rt, forKey: "refresh_token")
-        }
+        persistSession(accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user?.id)
         return response
     }
     
-    func signUp(email: String, password: String) async throws -> AuthResponse {
+    func signUp(email: String, password: String, sensitiveDataConsent: Bool) async throws -> AuthResponse {
         let url = URL(string: "\(supabaseUrl)/auth/v1/signup")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         
-        let body = ["email": email, "password": password]
-        request.httpBody = try JSONEncoder().encode(body)
+        var body: [String: Any] = [
+            "email": email,
+            "password": password,
+        ]
+        if sensitiveDataConsent {
+            body["data"] = [
+                "sensitive_data_consent": true,
+                "sensitive_data_consent_version": Config.sensitiveDataConsentVersion,
+            ]
+        }
+        request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
         let (data, httpResponse) = try await URLSession.shared.data(for: request)
         
@@ -117,6 +138,9 @@ class SupabaseService: ObservableObject {
         let response = try decoder.decode(AuthResponse.self, from: data)
         if let token = response.accessToken {
             self.accessToken = token
+            self.userId = response.user?.id
+            self.refreshToken = response.refreshToken
+            persistSession(accessToken: response.accessToken, refreshToken: response.refreshToken, userId: response.user?.id)
         }
         return response
     }
@@ -125,14 +149,38 @@ class SupabaseService: ObservableObject {
         self.accessToken = nil
         self.refreshToken = nil
         self.userId = nil
-        KeychainHelper.delete(forKey: "access_token")
-        KeychainHelper.delete(forKey: "refresh_token")
-        KeychainHelper.delete(forKey: "user_id")
+        clearPersistedSession()
     }
     
     /// Refresh the access token using the stored refresh token
     func refreshSession() async throws {
+        let refreshTask: Task<Void, Error> = refreshStateQueue.sync {
+            if let existingTask = inFlightRefreshTask {
+                return existingTask
+            }
+
+            let newTask = Task<Void, Error> { [weak self] in
+                guard let self else {
+                    throw SupabaseError.requestFailed
+                }
+                defer {
+                    self.refreshStateQueue.sync {
+                        self.inFlightRefreshTask = nil
+                    }
+                }
+                try await self.performRefreshSession()
+            }
+
+            inFlightRefreshTask = newTask
+            return newTask
+        }
+
+        try await refreshTask.value
+    }
+
+    private func performRefreshSession() async throws {
         guard let rt = refreshToken ?? KeychainHelper.load(forKey: "refresh_token") else {
+            clearPersistedSession()
             throw SupabaseError.notAuthenticated
         }
         
@@ -151,25 +199,20 @@ class SupabaseService: ObservableObject {
             // Refresh failed — clear tokens
             self.accessToken = nil
             self.refreshToken = nil
-            KeychainHelper.delete(forKey: "access_token")
-            KeychainHelper.delete(forKey: "refresh_token")
+            self.userId = nil
+            clearPersistedSession()
             throw SupabaseError.notAuthenticated
         }
         
         let authResponse = try decoder.decode(AuthResponse.self, from: data)
         self.accessToken = authResponse.accessToken
         self.refreshToken = authResponse.refreshToken
-        self.userId = authResponse.user?.id
-        
-        if let token = authResponse.accessToken {
-            KeychainHelper.save(token, forKey: "access_token")
-        }
-        if let newRt = authResponse.refreshToken {
-            KeychainHelper.save(newRt, forKey: "refresh_token")
-        }
-        if let uid = authResponse.user?.id {
-            KeychainHelper.save(uid, forKey: "user_id")
-        }
+        self.userId = authResponse.user?.id ?? self.userId
+        persistSession(
+            accessToken: authResponse.accessToken,
+            refreshToken: authResponse.refreshToken,
+            userId: self.userId
+        )
     }
     
     // MARK: - Temperature Entries
@@ -187,7 +230,17 @@ class SupabaseService: ObservableObject {
         return try decoder.decode([TemperatureEntry].self, from: data)
     }
     
-    func saveTemperatureEntry(date: String, temperature: Double, notes: String?) async throws {
+    func saveTemperatureEntry(
+        date: String,
+        temperature: Double,
+        notes: String?,
+        cervicalMucus: CervicalMucusType?,
+        measurementTime: String?,
+        sleepHours: Double?,
+        disturbed: Bool,
+        disturbanceReason: String?,
+        excludeFromAnalysis: Bool
+    ) async throws {
         let url = URL(string: "\(supabaseUrl)/rest/v1/temperature_entries?on_conflict=user_id,date")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -198,17 +251,33 @@ class SupabaseService: ObservableObject {
         var body: [String: Any] = [
             "date": date,
             "temperature": temperature,
+            "disturbed": disturbed,
+            "exclude_from_analysis": excludeFromAnalysis,
         ]
         if let uid = userId {
             body["user_id"] = uid
         }
-        if let notes = notes, !notes.isEmpty {
-            body["notes"] = notes
+        body["notes"] = (notes?.isEmpty == false) ? notes! : NSNull()
+        body["cervical_mucus"] = cervicalMucus?.rawValue ?? NSNull()
+        if let measurementTime, !measurementTime.isEmpty {
+            body["measurement_time"] = measurementTime
+        } else {
+            body["measurement_time"] = NSNull()
+        }
+        if let sleepHours {
+            body["sleep_hours"] = sleepHours
+        } else {
+            body["sleep_hours"] = NSNull()
+        }
+        if let disturbanceReason, !disturbanceReason.isEmpty {
+            body["disturbance_reason"] = disturbanceReason
+        } else {
+            body["disturbance_reason"] = NSNull()
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode < 300 else {
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
             let responseStr = String(data: data, encoding: .utf8) ?? "no body"
             print("Save temp error: \(responseStr)")
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
@@ -252,19 +321,23 @@ class SupabaseService: ObservableObject {
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode < 300 else {
+        let (_, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
             throw SupabaseError.requestFailed
         }
     }
     
     func deletePeriodEntry(date: String) async throws {
-        let url = URL(string: "\(supabaseUrl)/rest/v1/period_entries?date=eq.\(date)")!
+        guard let uid = userId else { throw SupabaseError.notAuthenticated }
+        let url = URL(string: "\(supabaseUrl)/rest/v1/period_entries?date=eq.\(date)&user_id=eq.\(uid)")!
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
         addAuthHeaders(to: &request)
-        
-        let (_, _) = try await URLSession.shared.data(for: request)
+
+        let (_, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
+            throw SupabaseError.requestFailed
+        }
     }
     
     // MARK: - User Profile
@@ -284,6 +357,84 @@ class SupabaseService: ObservableObject {
 
         return profile
     }
+
+    func updateSensitiveDataConsent(version: String = Config.sensitiveDataConsentVersion) async throws {
+        guard let uid = userId else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseUrl)/rest/v1/profiles?id=eq.\(uid)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        addAuthHeaders(to: &request)
+
+        let now = ISO8601DateFormatter().string(from: Date())
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "sensitive_data_consent_at": now,
+            "sensitive_data_consent_version": version,
+            "intended_use_acknowledged_at": now,
+            "onboarding_completed": true,
+        ])
+
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["message"] as? String {
+                throw SupabaseError.apiError(msg)
+            }
+            throw SupabaseError.requestFailed
+        }
+        await MainActor.run {
+            sensitiveDataConsentRevision += 1
+        }
+    }
+
+    func revokeSensitiveDataConsent() async throws {
+        guard let uid = userId else {
+            throw SupabaseError.notAuthenticated
+        }
+
+        let url = URL(string: "\(supabaseUrl)/rest/v1/profiles?id=eq.\(uid)")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "PATCH"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue("return=minimal", forHTTPHeaderField: "Prefer")
+        addAuthHeaders(to: &request)
+
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "sensitive_data_consent_at": NSNull(),
+            "sensitive_data_consent_version": NSNull(),
+            "intended_use_acknowledged_at": NSNull(),
+            "onboarding_completed": false,
+        ])
+
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["message"] as? String {
+                throw SupabaseError.apiError(msg)
+            }
+            throw SupabaseError.requestFailed
+        }
+
+        let metadataUrl = URL(string: "\(supabaseUrl)/auth/v1/user")!
+        var metadataRequest = URLRequest(url: metadataUrl)
+        metadataRequest.httpMethod = "PUT"
+        metadataRequest.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        metadataRequest.httpBody = try JSONSerialization.data(withJSONObject: [
+            "data": [
+                "sensitive_data_consent": false,
+                "sensitive_data_consent_version": NSNull(),
+            ]
+        ])
+        _ = try? await sendAuthenticatedRequest(metadataRequest)
+
+        await MainActor.run {
+            sensitiveDataConsentRevision += 1
+        }
+    }
     
     func updateUserName(_ name: String) async throws {
         let url = URL(string: "\(supabaseUrl)/auth/v1/user")!
@@ -297,8 +448,8 @@ class SupabaseService: ObservableObject {
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
         
-        let (_, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode < 300 else {
+        let (_, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
             throw SupabaseError.requestFailed
         }
     }
@@ -316,17 +467,12 @@ class SupabaseService: ObservableObject {
     
     /// Calls the Next.js API route to delete the account and all data
     func deleteAccount() async throws {
-        // Use the web app's API route for deletion (uses admin client server-side)
-        let webAppUrl = "https://www.basaltemperatur.online"
+        let webAppUrl = Config.webAppUrl
         let url = URL(string: "\(webAppUrl)/api/delete-account")!
         var request = URLRequest(url: url)
         request.httpMethod = "DELETE"
-        if let token = accessToken {
-            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
-        }
-        
-        let (data, response) = try await URLSession.shared.data(for: request)
-        guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode < 300 else {
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request, includeApiKey: false)
+        guard httpResponse.statusCode < 300 else {
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let msg = json["error"] as? String {
                 throw SupabaseError.apiError(msg)
@@ -334,21 +480,145 @@ class SupabaseService: ObservableObject {
             throw SupabaseError.requestFailed
         }
     }
+
+    // MARK: - App Store Entitlement
+
+    func syncAppStoreEntitlement(signedTransactionInfo: String) async throws {
+        let url = URL(string: "\(Config.webAppUrl)/api/app-store/entitlement")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "signedTransactionInfo": signedTransactionInfo
+        ])
+
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request, includeApiKey: false)
+        guard httpResponse.statusCode < 300 else {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["error"] as? String {
+                throw SupabaseError.apiError(msg)
+            }
+            throw SupabaseError.requestFailed
+        }
+    }
+
+    // MARK: - Traffic Analytics
+
+    func trackTrafficEvent(path: String, title: String, eventType: String = "pageview") async {
+        let url = URL(string: "\(Config.webAppUrl)/api/traffic")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if let token = accessToken {
+            request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        let screenSize = await MainActor.run { UIScreen.main.bounds.size }
+
+        let body: [String: Any] = [
+            "eventType": eventType,
+            "visitorId": appTrafficVisitorId(),
+            "sessionId": appTrafficSessionId,
+            "path": path,
+            "url": "\(Config.webAppUrl)\(path)",
+            "title": title,
+            "language": Locale.current.identifier,
+            "languages": Locale.preferredLanguages,
+            "timezone": TimeZone.current.identifier,
+            "screenWidth": Int(screenSize.width),
+            "screenHeight": Int(screenSize.height),
+            "viewportWidth": Int(screenSize.width),
+            "viewportHeight": Int(screenSize.height),
+            "colorScheme": "light",
+            "connectionType": "ios-app",
+        ]
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: body)
+            _ = try await URLSession.shared.data(for: request)
+        } catch {
+            // Analytics must never block app usage.
+        }
+    }
     
     // MARK: - Helpers
     
     private func authenticatedRequest(url: URL) async throws -> Data {
-        var request = URLRequest(url: url)
-        addAuthHeaders(to: &request)
-        let (data, _) = try await URLSession.shared.data(for: request)
+        let request = URLRequest(url: url)
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request)
+        guard httpResponse.statusCode < 300 else {
+            if httpResponse.statusCode == 401 || httpResponse.statusCode == 403 {
+                throw SupabaseError.notAuthenticated
+            }
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["message"] as? String {
+                throw SupabaseError.apiError(msg)
+            }
+            throw SupabaseError.requestFailed
+        }
         return data
     }
-    
-    private func addAuthHeaders(to request: inout URLRequest) {
-        request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+
+    private func addAuthHeaders(to request: inout URLRequest, includeApiKey: Bool = true) {
+        if includeApiKey {
+            request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
+        }
         if let token = accessToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
+    }
+
+    private func sendAuthenticatedRequest(
+        _ request: URLRequest,
+        includeApiKey: Bool = true,
+        retryOnUnauthorized: Bool = true
+    ) async throws -> (Data, HTTPURLResponse) {
+        var firstRequest = request
+        addAuthHeaders(to: &firstRequest, includeApiKey: includeApiKey)
+        let (data, response) = try await URLSession.shared.data(for: firstRequest)
+        guard let httpResponse = response as? HTTPURLResponse else {
+            throw SupabaseError.requestFailed
+        }
+
+        if retryOnUnauthorized && (httpResponse.statusCode == 401 || httpResponse.statusCode == 403) {
+            try await refreshSession()
+            var retryRequest = request
+            addAuthHeaders(to: &retryRequest, includeApiKey: includeApiKey)
+            let (retryData, retryResponse) = try await URLSession.shared.data(for: retryRequest)
+            guard let retryHttpResponse = retryResponse as? HTTPURLResponse else {
+                throw SupabaseError.requestFailed
+            }
+            return (retryData, retryHttpResponse)
+        }
+
+        return (data, httpResponse)
+    }
+
+    private func persistSession(accessToken: String?, refreshToken: String?, userId: String?) {
+        if let token = accessToken {
+            KeychainHelper.save(token, forKey: "access_token")
+        }
+        if let rt = refreshToken {
+            KeychainHelper.save(rt, forKey: "refresh_token")
+        }
+        if let uid = userId {
+            KeychainHelper.save(uid, forKey: "user_id")
+        }
+    }
+
+    private func clearPersistedSession() {
+        KeychainHelper.delete(forKey: "access_token")
+        KeychainHelper.delete(forKey: "refresh_token")
+        KeychainHelper.delete(forKey: "user_id")
+    }
+
+    private func appTrafficVisitorId() -> String {
+        let key = "traffic_visitor_id"
+        if let existing = UserDefaults.standard.string(forKey: key) {
+            return existing
+        }
+        let value = UUID().uuidString
+        UserDefaults.standard.set(value, forKey: key)
+        return value
     }
 }
 

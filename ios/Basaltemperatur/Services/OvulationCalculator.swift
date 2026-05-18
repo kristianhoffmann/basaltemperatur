@@ -7,12 +7,20 @@ struct OvulationResult {
     let ovulationDate: String?
     let coverLineTemp: Double?
     let phase: CyclePhase
+    let source: OvulationSource
+    let confidence: OvulationConfidence
+    let isConfirmed: Bool
+    let reason: String?
+
+    private static let dateFormatter: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter
+    }()
     
     var ovulationDateObject: Date? {
         guard let date = ovulationDate else { return nil }
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        return formatter.date(from: date)
+        return Self.dateFormatter.date(from: date)
     }
 }
 
@@ -36,6 +44,17 @@ enum CyclePhase: String {
     case unknown
 }
 
+enum OvulationSource: String {
+    case temperature
+    case prediction
+}
+
+enum OvulationConfidence: String {
+    case high
+    case medium
+    case low
+}
+
 class OvulationCalculator {
     
     private static let dateFormatter: DateFormatter = {
@@ -43,6 +62,23 @@ class OvulationCalculator {
         f.dateFormat = "yyyy-MM-dd"
         return f
     }()
+
+    private static func eligibleEntries(_ entries: [TemperatureEntry]) -> [TemperatureEntry] {
+        entries
+            .filter { !$0.disturbed && !$0.excludeFromAnalysis }
+            .sorted { $0.date < $1.date }
+    }
+
+    private static func hasConsecutiveDates(_ entries: [TemperatureEntry]) -> Bool {
+        guard entries.count > 1 else { return true }
+        for i in 1..<entries.count {
+            guard let prev = dateFormatter.date(from: entries[i - 1].date),
+                  let curr = dateFormatter.date(from: entries[i].date) else { return false }
+            let diff = Calendar.current.dateComponents([.day], from: prev, to: curr).day ?? 0
+            if diff != 1 { return false }
+        }
+        return true
+    }
     
     /// Erkennt ALLE Eisprünge im gesamten Zeitraum (Sensiplan-Methode mit Ausnahmeregeln)
     ///
@@ -52,14 +88,21 @@ class OvulationCalculator {
     /// - Ausnahmeregel 1: Ist der 3. Wert < +0.2°C über Hilfslinie → 4. Wert muss über Hilfslinie liegen
     /// - Ausnahmeregel 2: Fällt 1 der 3 Werte auf/unter Hilfslinie → ausgeklammert, 4 Werte nötig
     static func detectAllOvulations(entries: [TemperatureEntry]) -> [OvulationResult] {
-        guard entries.count >= 9 else { return [] }
+        let sorted = eligibleEntries(entries)
+        guard sorted.count >= 9 else { return [] }
         
-        let sorted = entries.sorted { $0.date < $1.date }
         let temps = sorted.map { $0.temperature }
         var results: [OvulationResult] = []
         
         var i = 6
         while i <= temps.count - 3 {
+            let windowEnd = min(i + 4, sorted.count)
+            let windowEntries = Array(sorted[(i - 6)..<windowEnd])
+            if !hasConsecutiveDates(Array(windowEntries.prefix(9))) {
+                i += 1
+                continue
+            }
+
             let previousSix = Array(temps[(i-6)..<i])
             let coverLine = previousSix.max() ?? 0 // Hilfslinie = Maximum der 6 Vorwerte
             
@@ -80,7 +123,7 @@ class OvulationCalculator {
             
             // Ausnahmeregel 1: 3. Wert über coverLine aber < +0.2°C → 4. Wert prüfen
             if !detected && allAbove && first3[2] > coverLine && !thirdHighEnough && available.count >= 4 {
-                if available[3] > coverLine { detected = true }
+                if hasConsecutiveDates(Array(windowEntries.prefix(10))) && available[3] > coverLine { detected = true }
             }
             
             // Ausnahmeregel 2: 1 Wert auf/unter coverLine → 4 Werte nötig
@@ -88,7 +131,7 @@ class OvulationCalculator {
                 let aboveCount = first3.filter { $0 > coverLine }.count
                 if aboveCount == 2 {
                     let valuesAbove = first3.filter { $0 > coverLine } + [available[3]]
-                    if available[3] > coverLine && valuesAbove.contains(where: { ($0 * 100).rounded() >= ((coverLine + 0.2) * 100).rounded() }) {
+                    if hasConsecutiveDates(Array(windowEntries.prefix(10))) && available[3] > coverLine && valuesAbove.contains(where: { ($0 * 100).rounded() >= ((coverLine + 0.2) * 100).rounded() }) {
                         detected = true
                     }
                 }
@@ -101,7 +144,11 @@ class OvulationCalculator {
                 results.append(OvulationResult(
                     ovulationDate: sorted[ovulationIndex].date,
                     coverLineTemp: coverLineValue,
-                    phase: .luteal
+                    phase: .luteal,
+                    source: .temperature,
+                    confidence: .high,
+                    isConfirmed: true,
+                    reason: "Temperaturanstieg nach 3-über-6-Regel bestätigt"
                 ))
                 
                 // Mindestens 20 Tage Pause – ein Zyklus ist mind. ~21 Tage
@@ -116,7 +163,10 @@ class OvulationCalculator {
     
     /// Gruppiert Periodendaten in Zyklusstarts (erster Tag nach >3 Tage Pause)
     private static func findCycleStarts(periodEntries: [PeriodEntry]) -> [String] {
-        let sorted = periodEntries.map { $0.date }.sorted()
+        let sorted = periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
         guard !sorted.isEmpty else { return [] }
         
         var cycleStarts = [sorted[0]]
@@ -129,6 +179,26 @@ class OvulationCalculator {
             }
         }
         return cycleStarts
+    }
+
+    static func completedCycleCount(periodEntries: [PeriodEntry]) -> Int {
+        let cycleStarts = findCycleStarts(periodEntries: periodEntries)
+        guard cycleStarts.count >= 2 else { return 0 }
+
+        var count = 0
+        for i in 0..<(cycleStarts.count - 1) {
+            guard let start = dateFormatter.date(from: cycleStarts[i]),
+                  let end = dateFormatter.date(from: cycleStarts[i + 1]) else { continue }
+            let diff = Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
+            if diff >= 21 && diff <= 45 {
+                count += 1
+            }
+        }
+        return count
+    }
+
+    static func hasReliablePredictionBaseline(periodEntries: [PeriodEntry], minCompletedCycles: Int = 3) -> Bool {
+        completedCycleCount(periodEntries: periodEntries) >= minCompletedCycles
     }
     
     /// Kombiniert erkannte Eisprünge mit berechneten – max 1 pro Zyklus
@@ -190,7 +260,11 @@ class OvulationCalculator {
                 result.append(OvulationResult(
                     ovulationDate: dateFormatter.string(from: predictedDate),
                     coverLineTemp: nil,
-                    phase: .ovulation
+                    phase: .ovulation,
+                    source: .prediction,
+                    confidence: nextCycleStartDate == nil ? .low : .medium,
+                    isConfirmed: false,
+                    reason: nextCycleStartDate == nil ? "Prognose aus durchschnittlicher Zykluslänge" : "Rückrechnung aus nächstem Periodenbeginn"
                 ))
             }
         }

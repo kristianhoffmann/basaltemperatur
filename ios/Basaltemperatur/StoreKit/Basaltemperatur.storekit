@@ -1,0 +1,38 @@
+{
+  "identifier" : "F4D0D359-6E10-4E4A-9AA4-0A2C54618A16",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "9F5B4A91",
+      "localizations" : [
+        {
+          "description" : "Schaltet Prognosen, Statistiken, Zyklusvergleich und PDF-Export dauerhaft frei.",
+          "displayName" : "Basaltemperatur Vollzugang",
+          "locale" : "de_DE"
+        }
+      ],
+      "productID" : "de.basaltemperatur.lifetime",
+      "referenceName" : "Basaltemperatur Vollzugang",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_applicationInternalID" : "6740000000",
+    "_developerTeamID" : "W9V62XQNWZ",
+    "_failTransactionsEnabled" : false,
+    "_lastSynchronizedDate" : 769778400,
+    "_locale" : "de_DE",
+    "_storefront" : "DEU"
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 4,
+    "minor" : 0
+  }
+}

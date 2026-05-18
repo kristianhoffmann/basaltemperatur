@@ -4,3 +4,9 @@ node_modules
 .next/
 .DS_Store
 tsconfig.tsbuildinfo
+.dual-graph/
+.vercel
+ios/.build/
+ios/build/
+ios/**/xcuserdata/
+supabase/.temp/

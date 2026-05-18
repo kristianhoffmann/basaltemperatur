@@ -1,15 +1,16 @@
 // components/features/TemperatureChart.tsx
 'use client'
 
-import { useMemo, useState, useCallback, useRef } from 'react'
+import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import { format, parseISO, subMonths, isAfter } from 'date-fns'
 import { de } from 'date-fns/locale'
 import { detectAllOvulations, combineOvulationsWithPredictions } from '@/lib/ovulation'
 import type { TemperatureEntry, PeriodEntry } from '@/types/database'
 
 interface TemperatureChartProps {
-    entries: Pick<TemperatureEntry, 'date' | 'temperature'>[]
+    entries: (Pick<TemperatureEntry, 'date' | 'temperature'> & Partial<Pick<TemperatureEntry, 'disturbed' | 'exclude_from_analysis'>>)[]
     periodEntries: Pick<PeriodEntry, 'date' | 'flow_intensity'>[]
+    showPredictions?: boolean
     className?: string
 }
 
@@ -19,11 +20,9 @@ const CHART = {
     padding: { top: 24, right: 16, bottom: 36, left: 44 },
 }
 
-const TEMP_RANGE = { min: 35.8, max: 37.5 }
-
-function tempToY(temp: number): number {
+function tempToY(temp: number, range: { min: number; max: number }): number {
     const plotHeight = CHART.height - CHART.padding.top - CHART.padding.bottom
-    const ratio = (temp - TEMP_RANGE.min) / (TEMP_RANGE.max - TEMP_RANGE.min)
+    const ratio = (temp - range.min) / (range.max - range.min)
     return CHART.height - CHART.padding.bottom - (ratio * plotHeight)
 }
 
@@ -35,11 +34,35 @@ function dateToX(index: number, total: number): number {
 
 type ChartRange = '1M' | '3M' | '6M' | 'MAX'
 
-export function TemperatureChart({ entries, periodEntries, className }: TemperatureChartProps) {
+export function TemperatureChart({ entries, periodEntries, showPredictions = false, className }: TemperatureChartProps) {
     const [range, setRange] = useState<ChartRange>('3M')
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
     const [isDragging, setIsDragging] = useState(false)
     const svgRef = useRef<SVGSVGElement>(null)
+    const [svgSize, setSvgSize] = useState({ width: CHART.width, height: CHART.height })
+
+    useEffect(() => {
+        const svg = svgRef.current
+        if (!svg) return
+
+        const updateSize = () => {
+            const rect = svg.getBoundingClientRect()
+            if (rect.width > 0 && rect.height > 0) {
+                setSvgSize({ width: rect.width, height: rect.height })
+            }
+        }
+
+        updateSize()
+
+        const resizeObserver = new ResizeObserver(updateSize)
+        resizeObserver.observe(svg)
+        window.addEventListener('resize', updateSize)
+
+        return () => {
+            resizeObserver.disconnect()
+            window.removeEventListener('resize', updateSize)
+        }
+    }, [])
 
     const allSortedEntries = useMemo(() =>
         [...entries].sort((a, b) => a.date.localeCompare(b.date)),
@@ -52,8 +75,10 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
     )
 
     const ovulations = useMemo(() =>
-        combineOvulationsWithPredictions(detectedOvulations, periodEntries),
-        [detectedOvulations, periodEntries]
+        showPredictions
+            ? combineOvulationsWithPredictions(detectedOvulations, periodEntries)
+            : detectedOvulations,
+        [detectedOvulations, periodEntries, showPredictions]
     )
 
     const sortedEntries = useMemo(() => {
@@ -133,10 +158,21 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
     }
 
     const total = sortedEntries.length
+    const tempRange = (() => {
+        const temps = sortedEntries.map((entry) => Number(entry.temperature))
+        const min = Math.min(...temps)
+        const max = Math.max(...temps)
+        return {
+            min: Math.floor((min - 0.2) * 10) / 10,
+            max: Math.ceil((max + 0.2) * 10) / 10,
+        }
+    })()
+    const confirmedOvulations = ovulations.filter((ov) => ov.isConfirmed)
+    const predictedOvulations = ovulations.filter((ov) => !ov.isConfirmed)
 
     const linePoints = sortedEntries.map((entry, i) => ({
         x: dateToX(i, total),
-        y: tempToY(Number(entry.temperature)),
+        y: tempToY(Number(entry.temperature), tempRange),
     }))
 
     const bottomY = CHART.height - CHART.padding.bottom
@@ -144,7 +180,7 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
     const areaPath = `${linePath} L${linePoints[linePoints.length - 1].x},${bottomY} L${linePoints[0].x},${bottomY} Z`
 
     const yLabels: number[] = []
-    for (let t = TEMP_RANGE.min; t <= TEMP_RANGE.max; t += 0.2) {
+    for (let t = tempRange.min; t <= tempRange.max; t += 0.2) {
         yLabels.push(Math.round(t * 10) / 10)
     }
     const xLabelInterval = Math.max(1, Math.floor(total / 8))
@@ -181,10 +217,16 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                         <span className="w-2 h-2 rounded-full bg-period-400" />
                         Periode
                     </span>
-                    {ovulations.length > 0 && ovulations[ovulations.length - 1].ovulationDate && (
+                    {confirmedOvulations.length > 0 && (
                         <span className="flex items-center gap-1">
                             <span className="w-2 h-2 rounded-full bg-violet-400" />
-                            Eisprung
+                            bestätigt
+                        </span>
+                    )}
+                    {predictedOvulations.length > 0 && (
+                        <span className="flex items-center gap-1">
+                            <span className="w-2 h-2 rounded-full border border-violet-300" />
+                            Prognose
                         </span>
                     )}
                     {ovulations.some(o => o.coverLineTemp) && (
@@ -220,8 +262,8 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                     {/* Grid */}
                     {yLabels.map((t) => (
                         <g key={t}>
-                            <line x1={CHART.padding.left} y1={tempToY(t)} x2={CHART.width - CHART.padding.right} y2={tempToY(t)} stroke="var(--chart-grid)" strokeWidth="1" />
-                            <text x={CHART.padding.left - 8} y={tempToY(t)} textAnchor="end" dominantBaseline="middle" fill="var(--chart-label)" fontSize="10">
+                            <line x1={CHART.padding.left} y1={tempToY(t, tempRange)} x2={CHART.width - CHART.padding.right} y2={tempToY(t, tempRange)} stroke="var(--chart-grid)" strokeWidth="1" />
+                            <text x={CHART.padding.left - 8} y={tempToY(t, tempRange)} textAnchor="end" dominantBaseline="middle" fill="var(--chart-label)" fontSize="10">
                                 {t.toFixed(1)}
                             </text>
                         </g>
@@ -259,7 +301,7 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
 
                         const x1 = dateToX(startIndex, total)
                         const x2 = dateToX(endIndex, total)
-                        const y = tempToY(ov.coverLineTemp)
+                        const y = tempToY(ov.coverLineTemp, tempRange)
 
                         // Don't draw if points are weird
                         if (x2 <= x1) return null
@@ -284,15 +326,23 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                     {/* Dots */}
                     {sortedEntries.map((entry, i) => {
                         const x = dateToX(i, total)
-                        const y = tempToY(Number(entry.temperature))
-                        const isOvulation = ovulations.some(o => o.ovulationDate === entry.date)
+                        const y = tempToY(Number(entry.temperature), tempRange)
+                        const ovulationForEntry = ovulations.find(o => o.ovulationDate === entry.date)
+                        const isOvulation = Boolean(ovulationForEntry)
                         const isSelected = selectedIndex === i
                         return (
                             <g key={entry.date}>
                                 {isOvulation ? (
                                     <>
                                         <circle cx={x} cy={y} r="10" className="chart-ovulation-marker" opacity="0.15" />
-                                        <circle cx={x} cy={y} r={isSelected ? 7 : 5} className="chart-ovulation-marker" />
+                                    <circle
+                                        cx={x}
+                                        cy={y}
+                                        r={isSelected ? 7 : 5}
+                                        className="chart-ovulation-marker"
+                                        fillOpacity={ovulationForEntry?.isConfirmed ? 1 : 0.35}
+                                        strokeDasharray={ovulationForEntry?.isConfirmed ? undefined : '3 2'}
+                                    />
                                     </>
                                 ) : (
                                     <circle cx={x} cy={y} r={isSelected ? 5.5 : 3.5} className="chart-temp-dot" />
@@ -330,7 +380,7 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                     {/* Invisible hit areas for each point (better click targets) */}
                     {sortedEntries.map((entry, i) => {
                         const x = dateToX(i, total)
-                        const y = tempToY(Number(entry.temperature))
+                        const y = tempToY(Number(entry.temperature), tempRange)
                         return (
                             <circle
                                 key={`hit-${entry.date}`}
@@ -349,17 +399,16 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                 </svg>
 
                 {/* Tooltip overlay (HTML, rendered outside SVG for better styling) */}
-                {selectedEntry && selectedPoint && svgRef.current && (() => {
-                    const svgRect = svgRef.current!.getBoundingClientRect()
-                    const scaleX = svgRect.width / CHART.width
-                    const scaleY = svgRect.height / CHART.height
+                {selectedEntry && selectedPoint && svgSize.width > 0 && (() => {
+                    const scaleX = svgSize.width / CHART.width
+                    const scaleY = svgSize.height / CHART.height
                     const tooltipX = selectedPoint.x * scaleX
                     const tooltipY = selectedPoint.y * scaleY
-                    const isOvulation = ovulations.some(o => o.ovulationDate === selectedEntry.date)
+                    const selectedOvulation = ovulations.find(o => o.ovulationDate === selectedEntry.date)
                     const isPeriod = periodDates.has(selectedEntry.date)
 
                     // Keep tooltip in bounds
-                    const clampedX = Math.min(Math.max(tooltipX, 70), svgRect.width - 70)
+                    const clampedX = Math.min(Math.max(tooltipX, 70), svgSize.width - 70)
 
                     return (
                         <div
@@ -380,8 +429,10 @@ export function TemperatureChart({ entries, periodEntries, className }: Temperat
                                 {isPeriod && (
                                     <div className="text-[9px] text-rose-500 font-medium mt-0.5">Periode</div>
                                 )}
-                                {isOvulation && (
-                                    <div className="text-[9px] text-violet-500 font-medium mt-0.5">🥚 Eisprung</div>
+                                {selectedOvulation && (
+                                    <div className="text-[9px] text-violet-500 font-medium mt-0.5">
+                                        {selectedOvulation.isConfirmed ? 'Temperaturanstieg bestätigt' : 'Zyklus-Prognose'}
+                                    </div>
                                 )}
                             </div>
                         </div>

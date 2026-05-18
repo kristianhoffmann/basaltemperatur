@@ -38,7 +38,7 @@ struct PDFExportView: View {
                     Text("Zykluskurve exportieren")
                         .font(.title2.weight(.bold))
                     
-                    Text("Erstelle ein PDF für deinen Frauenarzt mit Temperaturkurve und Perioden.")
+                    Text("Erstelle ein PDF mit Temperaturkurve und Perioden für deine persönliche Dokumentation.")
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
@@ -128,7 +128,7 @@ struct PDFExportView: View {
                     .padding(.horizontal)
                     
                     // Disclaimer
-                    Text("Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.")
+                    Text("Hinweis: Diese Kurve ist eine persönliche Dokumentation und ersetzt keine medizinische Diagnose.")
                         .font(.caption2)
                         .foregroundStyle(.tertiary)
                         .multilineTextAlignment(.center)
@@ -287,10 +287,12 @@ struct PDFHTMLBuilder {
         
         // Ovulation detection
         let ovulations = OvulationCalculator.detectAllOvulations(entries: entries)
-        let ovulationDates = Set(ovulations.compactMap { $0.ovulationDate })
-        let coverLine: Double? = ovulations.last(where: { $0.coverLineTemp != nil })?.coverLineTemp
+        let confirmedOvulations = ovulations.filter { $0.isConfirmed }
+        let ovulationDates = Set(confirmedOvulations.compactMap { $0.ovulationDate })
+        let coverLine: Double? = confirmedOvulations.last(where: { $0.coverLineTemp != nil })?.coverLineTemp
         
-        let temps = entries.map { $0.temperature }
+        let usableEntries = entries.filter(\.isUsableForAnalysis)
+        let temps = (usableEntries.isEmpty ? entries : usableEntries).map { $0.temperature }
         let avgTemp = temps.reduce(0, +) / Double(max(temps.count, 1))
         let minTemp = (temps.min().map { floor($0 * 10) / 10 - 0.1 }) ?? 36.0
         let maxTemp = (temps.max().map { ceil($0 * 10) / 10 + 0.1 }) ?? 37.5
@@ -346,7 +348,7 @@ struct PDFHTMLBuilder {
             guard let d = ov.ovulationDate, let date = df.date(from: d) else { return nil }
             return shortDF.string(from: date)
         }
-        let ovulationLabel = ovulationDates.count == 1 ? "Eisprung erkannt" : "Eisprünge erkannt"
+        let ovulationLabel = ovulationDates.count == 1 ? "Anstieg bestätigt" : "Anstiege bestätigt"
         let ovulationValue = ovulationDateStrs.isEmpty ? "–" : ovulationDateStrs.joined(separator: ", ")
         
         // Build SVG elements
@@ -391,13 +393,14 @@ struct PDFHTMLBuilder {
             let cy = yScale(entry.temperature)
             let isOv = ovulationDates.contains(entry.date)
             let isPeriod = periodSet.contains(entry.date)
+            let isExcluded = !entry.isUsableForAnalysis
             let r: Double = isOv ? 5 : 3
-            let fill = isOv ? "#8B5CF6" : isPeriod ? "#E8788A" : "#fff"
-            let stroke = isOv ? "#8B5CF6" : "#E8788A"
+            let fill = isOv ? "#8B5CF6" : isExcluded ? "#d1d5db" : isPeriod ? "#E8788A" : "#fff"
+            let stroke = isOv ? "#8B5CF6" : isExcluded ? "#9ca3af" : "#E8788A"
             let sw: Double = isOv ? 2 : 1.5
             svgElements += "<circle cx=\"\(cx)\" cy=\"\(cy)\" r=\"\(r)\" fill=\"\(fill)\" stroke=\"\(stroke)\" stroke-width=\"\(sw)\"/>"
             if isOv {
-                svgElements += "<text x=\"\(cx)\" y=\"\(cy - 10)\" text-anchor=\"middle\" font-size=\"8\" fill=\"#8B5CF6\" font-weight=\"600\" font-family=\"system-ui\">Eisprung</text>"
+                svgElements += "<text x=\"\(cx)\" y=\"\(cy - 10)\" text-anchor=\"middle\" font-size=\"8\" fill=\"#8B5CF6\" font-weight=\"600\" font-family=\"system-ui\">bestätigt</text>"
             }
         }
         
@@ -435,7 +438,12 @@ struct PDFHTMLBuilder {
             guard let d = df.date(from: entry.date) else { continue }
             let tempColor = isOv ? "#7c3aed" : "#111827"
             let tempSuffix = isOv ? " ●" : ""
-            let notes = (entry.notes ?? "–").replacingOccurrences(of: "<", with: "&lt;")
+            let quality = !entry.isUsableForAnalysis ? "ausgeschlossen" : (entry.disturbed ? "gestört" : (entry.measurementTime ?? "–"))
+            let notesParts = [entry.disturbanceReason, entry.notes].compactMap { value -> String? in
+                guard let value, !value.isEmpty else { return nil }
+                return value
+            }
+            let notes = (notesParts.isEmpty ? "–" : notesParts.joined(separator: " · ")).replacingOccurrences(of: "<", with: "&lt;")
             
             tableRows += """
             <tr style="border-bottom:1px solid #f3f4f6;background:\(bg)">
@@ -443,6 +451,7 @@ struct PDFHTMLBuilder {
                 <td style="padding:6px 10px;color:#6b7280">\(weekdayDF.string(from: d))</td>
                 <td style="padding:6px 10px;text-align:center;font-weight:600;font-variant-numeric:tabular-nums;color:\(tempColor)">\(String(format: "%.2f", entry.temperature))\(tempSuffix)</td>
                 <td style="padding:6px 10px;text-align:center">\(flowStr)</td>
+                <td style="padding:6px 10px;color:#6b7280">\(quality)</td>
                 <td style="padding:6px 10px;color:#6b7280">\(notes)</td>
             </tr>
             """
@@ -526,7 +535,7 @@ struct PDFHTMLBuilder {
                         \(coverLineLegend)
                         <span style="display:flex;align-items:center;gap:4px">
                             <span style="width:8px;height:8px;border-radius:50%;background:#8B5CF6;display:inline-block"></span>
-                            Eisprung (\(ovulationDates.count))
+                            Bestätigter Anstieg (\(ovulationDates.count))
                         </span>
                         <span style="display:flex;align-items:center;gap:4px">
                             <span style="width:8px;height:8px;border-radius:50%;background:#E8788A;opacity:0.3;display:inline-block"></span>
@@ -543,6 +552,7 @@ struct PDFHTMLBuilder {
                             <th style="padding:8px 10px;font-weight:600;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;text-align:left">Tag</th>
                             <th style="padding:8px 10px;font-weight:600;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;text-align:center">Temp. (°C)</th>
                             <th style="padding:8px 10px;font-weight:600;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;text-align:center">Periode</th>
+                            <th style="padding:8px 10px;font-weight:600;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;text-align:left">Qualität</th>
                             <th style="padding:8px 10px;font-weight:600;color:#6b7280;font-size:10px;text-transform:uppercase;letter-spacing:0.05em;text-align:left">Notizen</th>
                         </tr>
                     </thead>
@@ -555,7 +565,7 @@ struct PDFHTMLBuilder {
             <!-- Footer -->
             <div style="padding:16px 32px;border-top:1px solid #f0f0f0;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:#9ca3af;background:#fafafa">
                 <span>Erstellt am \(todayStr) • basaltemperatur.online</span>
-                <span>Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.</span>
+                <span>Hinweis: Diese Kurve ist eine persönliche Dokumentation und ersetzt keine medizinische Diagnose.</span>
             </div>
         </div>
         </body>

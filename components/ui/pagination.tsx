@@ -90,6 +90,15 @@ export function Pagination({
 
       {/* Page Numbers */}
       <div className="flex items-center gap-1">
+        {showFirstLast && currentPage > 1 && (
+          <button
+            onClick={() => onPageChange(1)}
+            className="min-w-[2.5rem] h-10 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            aria-label="Erste Seite"
+          >
+            1
+          </button>
+        )}
         {pages.map((page, index) =>
           page === 'ellipsis' ? (
             <span
@@ -113,6 +122,15 @@ export function Pagination({
               {page}
             </button>
           )
+        )}
+        {showFirstLast && currentPage < totalPages && (
+          <button
+            onClick={() => onPageChange(totalPages)}
+            className="min-w-[2.5rem] h-10 px-3 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-100 transition-colors"
+            aria-label="Letzte Seite"
+          >
+            {totalPages}
+          </button>
         )}
       </div>
 

@@ -5,27 +5,24 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 
-const stripeSecretKey = process.env.STRIPE_SECRET_KEY
-const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-const expectedPriceId = process.env.STRIPE_PRICE_ID
-
-const stripe = new Stripe(stripeSecretKey || '', {
-    apiVersion: '2023-10-16',
-})
-
-// Use service role to update profiles (webhook has no user session)
-const supabaseAdmin = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!,
-)
-
 export async function POST(request: Request) {
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+    const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
+    const expectedPriceId = process.env.STRIPE_PRICE_ID
+
     if (!stripeSecretKey || !stripeWebhookSecret) {
         return NextResponse.json(
             { error: 'Stripe Webhook nicht vollständig konfiguriert (STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET).' },
             { status: 500 },
         )
     }
+
+    const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' })
+    // Use service role to update profiles (webhook has no user session)
+    const supabaseAdmin = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    )
 
     const body = await request.text()
     const sig = request.headers.get('stripe-signature')
@@ -72,7 +69,11 @@ export async function POST(request: Request) {
 
         const { error } = await supabaseAdmin
             .from('profiles')
-            .update({ has_lifetime_access: true })
+            .update({
+                has_lifetime_access: true,
+                entitlement_source: 'stripe',
+                lifetime_access_granted_at: new Date().toISOString(),
+            })
             .eq('id', userId)
 
         if (error) {

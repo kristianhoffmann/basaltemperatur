@@ -1,16 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { Shield, LogOut, Trash2, AlertTriangle } from 'lucide-react'
-import { signOut, deleteAccount } from '@/lib/actions/auth'
+import { Shield, LogOut, Trash2, AlertTriangle, RotateCcw } from 'lucide-react'
+import { signOut, deleteAccount, withdrawSensitiveDataConsent } from '@/lib/actions/auth'
 
-interface AccountDangerZoneProps {
-    userId: string
-}
-
-export function AccountDangerZone({ userId }: AccountDangerZoneProps) {
+export function AccountDangerZone() {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
     const [confirmation, setConfirmation] = useState('')
+    const [showConsentConfirm, setShowConsentConfirm] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
@@ -52,6 +49,51 @@ export function AccountDangerZone({ userId }: AccountDangerZoneProps) {
                     Abmelden
                 </button>
             </form>
+
+            <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+                {!showConsentConfirm ? (
+                    <button
+                        onClick={() => setShowConsentConfirm(true)}
+                        className="w-full flex items-center justify-center gap-2 p-3 rounded-xl border border-amber-200 text-amber-700 hover:bg-amber-50 transition-colors font-medium text-sm"
+                    >
+                        <RotateCcw className="h-4 w-4" />
+                        Einwilligung widerrufen
+                    </button>
+                ) : (
+                    <div className="space-y-3">
+                        <div className="flex items-start gap-3 p-3 rounded-xl bg-amber-50 border border-amber-200">
+                            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p className="text-sm font-medium text-amber-800">
+                                    Auswertungen werden pausiert
+                                </p>
+                                <p className="text-xs text-amber-700 mt-1">
+                                    Nach dem Widerruf kannst du keine neuen Temperatur- oder Periodendaten speichern,
+                                    bis du im Onboarding erneut zustimmst. Deine vorhandenen Daten bleiben erhalten.
+                                </p>
+                            </div>
+                        </div>
+                        <div className="flex gap-2">
+                            <form action={withdrawSensitiveDataConsent} className="flex-1">
+                                <button
+                                    type="submit"
+                                    className="w-full flex items-center justify-center gap-2 p-3 rounded-xl bg-amber-600 text-white font-medium text-sm hover:bg-amber-700 transition-colors"
+                                >
+                                    <RotateCcw className="h-4 w-4" />
+                                    Widerrufen
+                                </button>
+                            </form>
+                            <button
+                                onClick={() => setShowConsentConfirm(false)}
+                                className="px-4 py-3 rounded-xl border border-[var(--border)] text-sm font-medium hover:bg-[var(--surface-hover)] transition-colors"
+                                style={{ color: 'var(--text-secondary)' }}
+                            >
+                                Abbrechen
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </div>
 
             {/* Konto löschen */}
             <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">

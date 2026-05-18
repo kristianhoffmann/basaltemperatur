@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import {
-    User,
     Settings as SettingsIcon,
     Info,
     BarChart3,
@@ -27,19 +26,25 @@ export default async function SettingsPage() {
         redirect('/login')
     }
 
-    const userName = (user.user_metadata?.owner_name as string) || ''
     const { data: profile } = await supabase
         .from('profiles')
-        .select('has_lifetime_access')
+        .select('has_lifetime_access, display_name')
         .eq('id', user.id)
         .maybeSingle()
     const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
+    // Bevorzuge profiles.display_name; user_metadata.owner_name nur als Fallback,
+    // aber nicht wenn display_name die E-Mail ist (Trigger-Fallback aus alten Konten).
+    const metadataName = (user.user_metadata?.owner_name as string) || ''
+    const profileName = profile?.display_name && profile.display_name !== user.email
+        ? profile.display_name
+        : ''
+    const userName = profileName || metadataName || ''
 
     const quickLinks = [
         { href: '/anleitung', icon: BookOpenCheck, label: 'Anleitung', desc: 'Schritt-für-Schritt erklärt', color: '#F97316', premium: false },
         { href: '/statistiken', icon: BarChart3, label: 'Statistiken', desc: 'Zyklusdaten & Trends', color: '#E8788A', premium: true },
         { href: '/zyklen', icon: GitCompareArrows, label: 'Zyklusvergleich', desc: 'Mehrere Zyklen vergleichen', color: '#8B5CF6', premium: true },
-        { href: '/export', icon: FileDown, label: 'PDF-Export', desc: 'Kurve für den Arzt', color: '#3B82F6', premium: true },
+        { href: '/export', icon: FileDown, label: 'PDF-Export', desc: 'Kurve für deine Dokumentation', color: '#3B82F6', premium: true },
     ]
 
     return (
@@ -125,21 +130,25 @@ export default async function SettingsPage() {
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Datenschutz</span>
-                        <a href="/datenschutz" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</a>
+                        <Link href="/datenschutz" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</Link>
                     </div>
                     <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Anleitung</span>
-                        <a href="/anleitung" className="text-sm font-medium text-rose-400 hover:underline">Öffnen</a>
+                        <Link href="/anleitung" className="text-sm font-medium text-rose-400 hover:underline">Öffnen</Link>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Support</span>
+                        <Link href="/support" className="text-sm font-medium text-rose-400 hover:underline">Kontakt</Link>
                     </div>
                     <div className="flex justify-between items-center py-2">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Impressum</span>
-                        <a href="/impressum" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</a>
+                        <Link href="/impressum" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</Link>
                     </div>
                 </div>
             </div>
 
             {/* Account Aktionen – Client Component */}
-            <AccountDangerZone userId={user.id} />
+            <AccountDangerZone />
         </div>
     )
 }

@@ -13,6 +13,11 @@ interface EntryPageClientProps {
     initialHasPeriod?: boolean
     initialFlowIntensity?: 'light' | 'medium' | 'heavy' | 'spotting'
     initialCervicalMucus?: CervicalMucusType | null
+    initialMeasurementTime?: string | null
+    initialSleepHours?: number | null
+    initialDisturbed?: boolean
+    initialDisturbanceReason?: string | null
+    initialExcludeFromAnalysis?: boolean
 }
 
 export function EntryPageClient(props: EntryPageClientProps) {
@@ -25,6 +30,11 @@ export function EntryPageClient(props: EntryPageClientProps) {
         hasPeriod: boolean
         flowIntensity: 'light' | 'medium' | 'heavy' | 'spotting'
         cervicalMucus: CervicalMucusType | null
+        measurementTime: string | null
+        sleepHours: number | null
+        disturbed: boolean
+        disturbanceReason: string
+        excludeFromAnalysis: boolean
     }) => {
         await saveTemperatureEntry(data)
         setTimeout(() => {
@@ -41,6 +51,11 @@ export function EntryPageClient(props: EntryPageClientProps) {
             initialHasPeriod={props.initialHasPeriod}
             initialFlowIntensity={props.initialFlowIntensity}
             initialCervicalMucus={props.initialCervicalMucus}
+            initialMeasurementTime={props.initialMeasurementTime}
+            initialSleepHours={props.initialSleepHours}
+            initialDisturbed={props.initialDisturbed}
+            initialDisturbanceReason={props.initialDisturbanceReason}
+            initialExcludeFromAnalysis={props.initialExcludeFromAnalysis}
         />
     )
 }

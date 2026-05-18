@@ -24,6 +24,8 @@ interface CalendarClientProps {
     peakDates?: string[]
     predictedPeriodDates?: string[]
     hasLifetimeAccess?: boolean
+    predictionBaselineReady?: boolean
+    completedCycleCount?: number
 }
 
 const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
@@ -35,6 +37,8 @@ export function CalendarClient({
     peakDates = [],
     predictedPeriodDates = [],
     hasLifetimeAccess = false,
+    predictionBaselineReady = false,
+    completedCycleCount = 0,
 }: CalendarClientProps) {
     const [currentMonth, setCurrentMonth] = useState(new Date())
 
@@ -123,10 +127,10 @@ export function CalendarClient({
                         }
                     } else if (isPeak) {
                         bgClass = ''
-                        dayStyle = { backgroundColor: '#fef3c720', border: '1px solid #f59e0b40' }
+                        dayStyle = { backgroundColor: 'rgba(254, 243, 199, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)' }
                     } else if (isFertile) {
                         bgClass = ''
-                        dayStyle = { backgroundColor: '#d1fae520', border: '1px solid #10b98130' }
+                        dayStyle = { backgroundColor: 'rgba(209, 250, 229, 0.12)', border: '1px solid rgba(16, 185, 129, 0.19)' }
                     }
                     else if (temp !== undefined) bgClass = 'bg-primary-50'
 
@@ -192,18 +196,18 @@ export function CalendarClient({
                     <span className="w-3 h-3 rounded" style={{ backgroundColor: '#fbd5dd', border: '1px solid rgba(184, 77, 101, 0.55)' }} />
                     Periode
                 </span>
-                {hasLifetimeAccess && (
+                {hasLifetimeAccess && predictionBaselineReady && (
                     <>
                         <span className="flex items-center gap-1.5">
                             <span className="w-3 h-3 rounded" style={{ backgroundColor: '#fff4f7', border: '1px dashed rgba(212, 99, 122, 0.7)' }} />
                             Periode (Prognose)
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#d1fae520', borderColor: '#10b98140' }} />
-                            Fruchtbar
+                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(209, 250, 229, 0.12)', borderColor: 'rgba(16, 185, 129, 0.25)' }} />
+                            Fruchtbare Tage
                         </span>
                         <span className="flex items-center gap-1.5">
-                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: '#fef3c720', borderColor: '#f59e0b40' }} />
+                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(254, 243, 199, 0.12)', borderColor: 'rgba(245, 158, 11, 0.25)' }} />
                             Peak ⚡
                         </span>
                     </>
@@ -216,7 +220,13 @@ export function CalendarClient({
 
             {!hasLifetimeAccess && (
                 <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Prognosen (Fruchtbar, Peak, vorhergesagte Periode) sind im Vollzugang enthalten.
+                    Prognosen zu fruchtbaren Tagen, Peak und Periode sind im Vollzugang enthalten.
+                </div>
+            )}
+            {hasLifetimeAccess && !predictionBaselineReady && (
+                <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
+                    Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen.
+                    Aktuell auswertbar: {completedCycleCount}.
                 </div>
             )}
         </div>

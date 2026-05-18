@@ -29,6 +29,13 @@ interface ShortcutsContextType {
 
 const ShortcutsContext = createContext<ShortcutsContextType | null>(null);
 
+const HELP_SHORTCUT: Omit<Shortcut, 'action'> = {
+  id: 'help',
+  keys: ['?'],
+  description: 'Tastenkombinationen anzeigen',
+  category: 'general',
+};
+
 // ============================================================================
 // SHORTCUTS PROVIDER
 // ============================================================================
@@ -41,7 +48,6 @@ interface ShortcutsProviderProps {
 export function ShortcutsProvider({ children, defaultShortcuts = [] }: ShortcutsProviderProps) {
   const [shortcuts, setShortcuts] = useState<Shortcut[]>(defaultShortcuts);
   const [isHelpOpen, setIsHelpOpen] = useState(false);
-  const [pressedKeys, setPressedKeys] = useState<Set<string>>(new Set());
   const [lastKeyTime, setLastKeyTime] = useState(0);
   const [sequenceKeys, setSequenceKeys] = useState<string[]>([]);
 
@@ -83,6 +89,12 @@ export function ShortcutsProvider({ children, defaultShortcuts = [] }: Shortcuts
       if (e.ctrlKey || e.metaKey) modifiers.add('ctrl');
       if (e.altKey) modifiers.add('alt');
       if (e.shiftKey) modifiers.add('shift');
+
+      if (!modifiers.size && key === '?') {
+        e.preventDefault();
+        setIsHelpOpen((prev) => !prev);
+        return;
+      }
 
       // Shortcut mit Modifiern prüfen
       for (const shortcut of shortcuts) {
@@ -156,23 +168,10 @@ export function ShortcutsProvider({ children, defaultShortcuts = [] }: Shortcuts
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [shortcuts, lastKeyTime, sequenceKeys]);
 
-  // ? für Hilfe registrieren
-  useEffect(() => {
-    registerShortcut({
-      id: 'help',
-      keys: ['?'],
-      description: 'Tastenkombinationen anzeigen',
-      category: 'general',
-      action: () => setIsHelpOpen((prev) => !prev),
-    });
-
-    return () => unregisterShortcut('help');
-  }, [registerShortcut, unregisterShortcut]);
-
   return (
     <ShortcutsContext.Provider
       value={{
-        shortcuts,
+        shortcuts: [...shortcuts, { ...HELP_SHORTCUT, action: () => {} }],
         registerShortcut,
         unregisterShortcut,
         isHelpOpen,

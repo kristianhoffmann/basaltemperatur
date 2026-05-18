@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-require-imports */
 // app.js
 // Startup file for Plesk Node.js hosting
 

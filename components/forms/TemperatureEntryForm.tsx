@@ -16,6 +16,11 @@ interface TemperatureEntryFormProps {
         hasPeriod: boolean
         flowIntensity: 'light' | 'medium' | 'heavy' | 'spotting'
         cervicalMucus: CervicalMucusType | null
+        measurementTime: string | null
+        sleepHours: number | null
+        disturbed: boolean
+        disturbanceReason: string
+        excludeFromAnalysis: boolean
     }) => Promise<void>
     initialDate?: string
     initialTemperature?: number
@@ -23,6 +28,11 @@ interface TemperatureEntryFormProps {
     initialHasPeriod?: boolean
     initialFlowIntensity?: 'light' | 'medium' | 'heavy' | 'spotting'
     initialCervicalMucus?: CervicalMucusType | null
+    initialMeasurementTime?: string | null
+    initialSleepHours?: number | null
+    initialDisturbed?: boolean
+    initialDisturbanceReason?: string | null
+    initialExcludeFromAnalysis?: boolean
     className?: string
 }
 
@@ -58,6 +68,11 @@ export function TemperatureEntryForm({
     initialHasPeriod = false,
     initialFlowIntensity = 'medium',
     initialCervicalMucus = null,
+    initialMeasurementTime = null,
+    initialSleepHours = null,
+    initialDisturbed = false,
+    initialDisturbanceReason = null,
+    initialExcludeFromAnalysis = false,
     className,
 }: TemperatureEntryFormProps) {
     const today = format(new Date(), 'yyyy-MM-dd')
@@ -69,6 +84,11 @@ export function TemperatureEntryForm({
     const [hasPeriod, setHasPeriod] = useState(initialHasPeriod)
     const [flowIntensity, setFlowIntensity] = useState(initialFlowIntensity)
     const [cervicalMucus, setCervicalMucus] = useState<CervicalMucusType | null>(initialCervicalMucus)
+    const [measurementTime, setMeasurementTime] = useState(initialMeasurementTime?.slice(0, 5) || '')
+    const [sleepHours, setSleepHours] = useState(initialSleepHours !== null && initialSleepHours !== undefined ? String(initialSleepHours) : '')
+    const [disturbed, setDisturbed] = useState(initialDisturbed)
+    const [disturbanceReason, setDisturbanceReason] = useState(initialDisturbanceReason || '')
+    const [excludeFromAnalysis, setExcludeFromAnalysis] = useState(initialExcludeFromAnalysis)
     const [isPending, startTransition] = useTransition()
     const [error, setError] = useState('')
     const [success, setSuccess] = useState(false)
@@ -86,6 +106,13 @@ export function TemperatureEntryForm({
             return
         }
 
+        const sleepValue = sleepHours.trim() ? parseFloat(sleepHours.replace(',', '.')) : null
+        if (sleepValue !== null && (isNaN(sleepValue) || sleepValue < 0 || sleepValue > 24)) {
+            setError('Bitte gib eine gültige Schlafdauer zwischen 0 und 24 Stunden ein.')
+            triggerHaptic('heavy')
+            return
+        }
+
         startTransition(async () => {
             try {
                 await onSubmit({
@@ -95,26 +122,25 @@ export function TemperatureEntryForm({
                     hasPeriod,
                     flowIntensity,
                     cervicalMucus,
+                    measurementTime: measurementTime || null,
+                    sleepHours: sleepValue,
+                    disturbed,
+                    disturbanceReason,
+                    excludeFromAnalysis,
                 })
                 setSuccess(true)
                 triggerHaptic('medium')
                 // Keep success state a bit longer for the nice animation
                 setTimeout(() => setSuccess(false), 3000)
-            } catch (err) {
+            } catch {
                 setError('Fehler beim Speichern. Bitte versuche es erneut.')
                 triggerHaptic('heavy')
             }
         })
     }
 
-    // Dynamic UI feedback based on temperature
-    const parsedTemp = parseFloat(temperature.replace(',', '.'))
-    const isHigh = !isNaN(parsedTemp) && parsedTemp >= 36.8
-    const isLow = !isNaN(parsedTemp) && parsedTemp < 36.5
-
-    // Choose dynamic colors
-    const activeColor = isHigh ? '#F43F5E' : isLow ? '#8B5CF6' : 'var(--primary)'
-    const glowColor = isHigh ? 'rgba(244, 63, 94, 0.15)' : isLow ? 'rgba(139, 92, 246, 0.15)' : 'rgba(0, 0, 0, 0.05)'
+    const activeColor = 'var(--primary)'
+    const glowColor = 'rgba(0, 0, 0, 0.05)'
 
     return (
         <motion.form
@@ -149,24 +175,8 @@ export function TemperatureEntryForm({
 
                 {/* Temperatur */}
                 <motion.div layout="position">
-                    <label htmlFor="entry-temp" className="label flex justify-between">
-                        <span>Basaltemperatur (°C)</span>
-                        <AnimatePresence>
-                            {(isHigh || isLow) && (
-                                <motion.span
-                                    initial={{ opacity: 0, y: 5 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, scale: 0.9 }}
-                                    className="text-xs font-semibold px-2 py-0.5 rounded-full"
-                                    style={{
-                                        backgroundColor: isHigh ? '#FFF1F2' : '#F5F3FF',
-                                        color: isHigh ? '#F43F5E' : '#8B5CF6'
-                                    }}
-                                >
-                                    {isHigh ? 'Hochlage' : 'Tieflage'}
-                                </motion.span>
-                            )}
-                        </AnimatePresence>
+                    <label htmlFor="entry-temp" className="label">
+                        Basaltemperatur (°C)
                     </label>
                     <div className="relative">
                         <input
@@ -190,6 +200,88 @@ export function TemperatureEntryForm({
                             °C
                         </span>
                     </div>
+                </motion.div>
+
+                {/* Messqualität */}
+                <motion.div layout="position" className="space-y-3">
+                    <label className="label">Messqualität</label>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div>
+                            <label htmlFor="entry-time" className="text-xs font-medium text-gray-500">
+                                Messzeit
+                            </label>
+                            <input
+                                id="entry-time"
+                                type="time"
+                                value={measurementTime}
+                                onChange={(e) => setMeasurementTime(e.target.value)}
+                                className="input mt-1 text-sm"
+                            />
+                        </div>
+                        <div>
+                            <label htmlFor="entry-sleep" className="text-xs font-medium text-gray-500">
+                                Schlaf (h)
+                            </label>
+                            <input
+                                id="entry-sleep"
+                                type="text"
+                                inputMode="decimal"
+                                placeholder="7.5"
+                                value={sleepHours}
+                                onChange={(e) => setSleepHours(e.target.value.replace(/[^\d.,]/g, ''))}
+                                className="input mt-1 text-sm"
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        type="button"
+                        onClick={() => {
+                            triggerHaptic('light')
+                            const nextDisturbed = !disturbed
+                            setDisturbed(nextDisturbed)
+                            setExcludeFromAnalysis(nextDisturbed)
+                            if (!nextDisturbed) setDisturbanceReason('')
+                        }}
+                        className={`w-full flex items-center justify-between px-4 py-3 rounded-2xl border transition-all ${disturbed
+                                ? 'border-amber-300 bg-amber-50 text-amber-700'
+                                : 'border-gray-200 bg-gray-50 text-gray-600'
+                            }`}
+                    >
+                        <span className="text-sm font-medium">Messung gestört</span>
+                        <span className={`w-5 h-5 rounded-full border flex items-center justify-center ${disturbed ? 'bg-amber-500 border-amber-500' : 'border-gray-300'}`}>
+                            {disturbed && <Check className="w-3 h-3 text-white" strokeWidth={3} />}
+                        </span>
+                    </button>
+
+                    <AnimatePresence>
+                        {disturbed && (
+                            <motion.div
+                                initial={{ opacity: 0, height: 0 }}
+                                animate={{ opacity: 1, height: 'auto' }}
+                                exit={{ opacity: 0, height: 0 }}
+                                className="space-y-2"
+                            >
+                                <input
+                                    type="text"
+                                    value={disturbanceReason}
+                                    onChange={(e) => setDisturbanceReason(e.target.value)}
+                                    maxLength={200}
+                                    placeholder="z.B. krank, Alkohol, wenig Schlaf, Reisen"
+                                    className="input text-sm"
+                                />
+                                <label className="flex items-center gap-2 text-xs text-gray-600">
+                                    <input
+                                        type="checkbox"
+                                        checked={excludeFromAnalysis}
+                                        onChange={(e) => setExcludeFromAnalysis(e.target.checked)}
+                                        className="h-4 w-4 accent-rose-400"
+                                    />
+                                    Wert nicht für die Temperaturauswertung verwenden
+                                </label>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
                 </motion.div>
 
                 {/* Zervixschleim */}
@@ -356,7 +448,7 @@ export function TemperatureEntryForm({
                             width: success ? '56px' : '100%',
                             background: success
                                 ? '#10B981' // emerald-500
-                                : `linear-gradient(135deg, ${activeColor}, ${isHigh ? '#E11D48' : isLow ? '#7C3AED' : 'var(--rose-dark)'})`,
+                                : `linear-gradient(135deg, ${activeColor}, var(--rose-dark))`,
                             boxShadow: success
                                 ? '0 0 20px rgba(16, 185, 129, 0.4)'
                                 : `0 4px 20px -2px ${glowColor}`,

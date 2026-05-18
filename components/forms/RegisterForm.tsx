@@ -54,6 +54,8 @@ export function RegisterForm() {
       fd.set('email', formData.email);
       fd.set('password', formData.password);
       fd.set('ownerName', formData.name);
+      fd.set('termsAccepted', 'true');
+      fd.set('sensitiveDataConsent', 'true');
       const result = await signUp(null, fd);
 
       if (result?.error) {
@@ -61,7 +63,7 @@ export function RegisterForm() {
       } else if (result?.success) {
         router.push('/login?message=Bitte bestätige deine E-Mail-Adresse.');
       }
-    } catch (err) {
+    } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.');
     } finally {
       setIsLoading(false);

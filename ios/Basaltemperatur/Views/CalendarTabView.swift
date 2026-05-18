@@ -45,10 +45,10 @@ struct CalendarTabView: View {
                             .font(.headline)
                         
                         // Fertility indicator for selected day
-                        if viewModel.hasLifetimeAccess && dayFertilityStatus != .infertile {
+                        if viewModel.hasLifetimeAccess && viewModel.predictionBaselineReady && dayFertilityStatus != .infertile {
                             HStack(spacing: 6) {
                                 Text(dayFertilityStatus == .peak ? "⚡" : "🌱")
-                                Text(dayFertilityStatus == .peak ? "Höchste Fruchtbarkeit" : "Fruchtbar")
+                                Text(dayFertilityStatus == .peak ? "Peak-Fruchtbarkeit (Prognose)" : "Fruchtbar (Prognose)")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundStyle(dayFertilityStatus == .peak ? .orange : .green)
@@ -67,6 +67,34 @@ struct CalendarTabView: View {
                                 Text(notes)
                                     .font(.subheadline)
                                     .foregroundStyle(.secondary)
+                            }
+
+                            if let mucus = entry.cervicalMucus {
+                                HStack {
+                                    Image(systemName: "drop.degreesign")
+                                        .foregroundStyle(Color("AppPrimary"))
+                                    Text("Zervixschleim: \(mucus.displayName)")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            }
+
+                            if !entry.isUsableForAnalysis {
+                                HStack {
+                                    Image(systemName: "exclamationmark.triangle.fill")
+                                        .foregroundStyle(.orange)
+                                    Text(entry.disturbed ? "Messung gestört und aus der Auswertung ausgeschlossen" : "Aus der Auswertung ausgeschlossen")
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                }
+                            } else if let time = entry.measurementTime, !time.isEmpty {
+                                HStack {
+                                    Image(systemName: "clock")
+                                        .foregroundStyle(.secondary)
+                                    Text("Messzeit: \(time)")
+                                        .font(.caption)
+                                        .foregroundStyle(.secondary)
+                                }
                             }
                         }
                         
@@ -113,7 +141,7 @@ struct CalendarTabView: View {
                     HStack(spacing: 16) {
                         CalendarLegendItem(color: Color("AppPrimary").opacity(0.15), label: "Temperatur")
                         CalendarLegendItem(color: Color("Period").opacity(0.15), label: "Periode")
-                        if viewModel.hasLifetimeAccess {
+                        if viewModel.hasLifetimeAccess && viewModel.predictionBaselineReady {
                             CalendarLegendItem(
                                 color: Color("Period").opacity(0.06),
                                 label: "Periode (Prognose)",
@@ -134,6 +162,17 @@ struct CalendarTabView: View {
                             title: "Kalender-Prognosen sind Premium",
                             message: "Einträge im Kalender bleiben kostenlos. Perioden-, Fruchtbarkeits- und Peak-Prognosen sind im Vollzugang enthalten."
                         )
+                    } else if !viewModel.predictionBaselineReady {
+                        VStack(spacing: 6) {
+                            Text("Prognosen werden noch gesammelt")
+                                .font(.subheadline.weight(.semibold))
+                            Text("Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(viewModel.completedCycleCount).")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                        }
+                        .padding()
+                        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
                     }
                 }
                 .padding()
@@ -145,19 +184,20 @@ struct CalendarTabView: View {
                 let entry = viewModel.entries.first { $0.date == dateStr }
                 let period = viewModel.periodEntries.first { $0.date == dateStr }
                 
-                if entry != nil || period != nil {
-                    EntryView(
-                        date: selectedDate,
-                        temperature: entry?.temperature,
-                        notes: entry?.notes,
-                        hasPeriod: period != nil,
-                        flowIntensity: period?.flowIntensity
-                    )
-                    .environmentObject(supabase)
-                } else {
-                    EntryView()
-                        .environmentObject(supabase)
-                }
+                EntryView(
+                    date: selectedDate,
+                    temperature: entry?.temperature,
+                    notes: entry?.notes,
+                    hasPeriod: period != nil,
+                    flowIntensity: period?.flowIntensity,
+                    cervicalMucus: entry?.cervicalMucus,
+                    measurementTime: entry?.measurementTime,
+                    sleepHours: entry?.sleepHours,
+                    disturbed: entry?.disturbed ?? false,
+                    disturbanceReason: entry?.disturbanceReason,
+                    excludeFromAnalysis: entry?.excludeFromAnalysis ?? false
+                )
+                .environmentObject(supabase)
             }
             .task {
                 await viewModel.loadData(supabase: supabase)

@@ -11,48 +11,39 @@ class AuthViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var errorMessage: String?
     
-    private var accessToken: String? {
-        didSet {
-            isAuthenticated = accessToken != nil
-        }
-    }
-    
     // Check stored session on launch
     init() {
-        if let token = UserDefaults.standard.string(forKey: "access_token") {
-            self.accessToken = token
-            self.isAuthenticated = true
-            self.userEmail = UserDefaults.standard.string(forKey: "user_email") ?? ""
-            self.userName = UserDefaults.standard.string(forKey: "user_name") ?? ""
-        } else if UserDefaults.standard.string(forKey: "refresh_token") != nil {
-            // We have a refresh token but no access token — mark as needing refresh
-            self.needsRefresh = true
-        }
+        // Restore display-only metadata (not secrets)
+        self.userEmail = UserDefaults.standard.string(forKey: "user_email") ?? ""
+        self.userName = UserDefaults.standard.string(forKey: "user_name") ?? ""
+        // Auth state will be resolved by checkSession() on appear
+        self.needsRefresh = true
     }
     
     private var needsRefresh = false
     
     /// Call this on app appear to refresh an expired session
     func checkSession(supabase: SupabaseService) async {
-        // If we restored from UserDefaults, try refreshing the token
-        if needsRefresh || (accessToken != nil) {
-            do {
-                try await supabase.refreshSession()
-                // Update local state from refreshed session
-                if let token = UserDefaults.standard.string(forKey: "access_token") {
-                    self.accessToken = token
-                    self.isAuthenticated = true
-                    self.userEmail = UserDefaults.standard.string(forKey: "user_email") ?? ""
-                    self.userName = UserDefaults.standard.string(forKey: "user_name") ?? ""
-                }
-                needsRefresh = false
-            } catch {
-                // Refresh failed — session is invalid
+        guard needsRefresh || isAuthenticated else { return }
+        do {
+            try await supabase.refreshSession()
+            self.isAuthenticated = true
+            needsRefresh = false
+        } catch let error as SupabaseError {
+            if case .notAuthenticated = error {
+                // Refresh token truly invalid -> log out locally
                 print("Session refresh failed: \(error)")
-                self.accessToken = nil
                 self.isAuthenticated = false
                 needsRefresh = false
+            } else {
+                // Keep existing session state on transient errors (network/server)
+                print("Session refresh skipped due transient error: \(error)")
+                needsRefresh = true
             }
+        } catch {
+            // Keep existing session state on unknown transient errors
+            print("Session refresh skipped due transient error: \(error)")
+            needsRefresh = true
         }
     }
     
@@ -61,16 +52,12 @@ class AuthViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            let response = try await supabase.signIn(email: email, password: password)
-            accessToken = response.accessToken
+            let _ = try await supabase.signIn(email: email, password: password)
+            isAuthenticated = true
             userEmail = email
             
-            // Persist
-            UserDefaults.standard.set(response.accessToken, forKey: "access_token")
+            // Persist display-only metadata
             UserDefaults.standard.set(email, forKey: "user_email")
-            if let rt = response.refreshToken {
-                UserDefaults.standard.set(rt, forKey: "refresh_token")
-            }
             
             // Load user name from metadata
             await loadUserMetadata(supabase: supabase)
@@ -81,22 +68,29 @@ class AuthViewModel: ObservableObject {
         isLoading = false
     }
     
-    func signUp(email: String, password: String, supabase: SupabaseService) async {
+    func signUp(email: String, password: String, sensitiveDataConsent: Bool, supabase: SupabaseService) async {
         isLoading = true
         errorMessage = nil
+
+        guard sensitiveDataConsent else {
+            errorMessage = "Bitte willige in die Verarbeitung deiner Gesundheitsdaten ein."
+            isLoading = false
+            return
+        }
         
         do {
-            let response = try await supabase.signUp(email: email, password: password)
+            let response = try await supabase.signUp(
+                email: email,
+                password: password,
+                sensitiveDataConsent: sensitiveDataConsent
+            )
             
-            if let token = response.accessToken {
+            if response.accessToken != nil {
                 // Direct login (no email confirmation required)
-                accessToken = token
+                isAuthenticated = true
                 userEmail = email
-                UserDefaults.standard.set(token, forKey: "access_token")
                 UserDefaults.standard.set(email, forKey: "user_email")
-                if let rt = response.refreshToken {
-                    UserDefaults.standard.set(rt, forKey: "refresh_token")
-                }
+                try? await supabase.updateSensitiveDataConsent()
             } else {
                 // Email confirmation required
                 errorMessage = "✅ Bestätigungs-E-Mail gesendet! Bitte prüfe dein Postfach und bestätige deine E-Mail-Adresse."
@@ -111,13 +105,11 @@ class AuthViewModel: ObservableObject {
     
     func signOut(supabase: SupabaseService) {
         supabase.signOut()
-        accessToken = nil
+        isAuthenticated = false
         userEmail = ""
         userName = ""
-        UserDefaults.standard.removeObject(forKey: "access_token")
         UserDefaults.standard.removeObject(forKey: "user_email")
         UserDefaults.standard.removeObject(forKey: "user_name")
-        UserDefaults.standard.removeObject(forKey: "refresh_token")
     }
     
     // MARK: - Profile Management

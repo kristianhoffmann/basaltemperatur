@@ -11,9 +11,12 @@ struct SettingsView: View {
     @State private var isSavingName = false
     
     @State private var showDeleteAlert = false
+    @State private var showConsentRevokeAlert = false
     @State private var deleteConfirmText = ""
     @State private var isDeleting = false
+    @State private var isRevokingConsent = false
     @State private var deleteError: String?
+    @State private var consentError: String?
     @State private var hasLifetimeAccess = false
     
     @AppStorage("cycleLength") private var cycleLength = 28
@@ -171,7 +174,7 @@ struct SettingsView: View {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text("PDF-Export")
-                                Text("Zykluskurve für den Arzt")
+                                Text("Zykluskurve für deine Dokumentation")
                                     .font(.caption)
                                     .foregroundStyle(.secondary)
                             }
@@ -228,6 +231,9 @@ struct SettingsView: View {
                     Link(destination: URL(string: "https://www.basaltemperatur.online/widerruf")!) {
                         Label("Widerruf", systemImage: "arrow.uturn.backward.circle")
                     }
+                    Link(destination: URL(string: "https://www.basaltemperatur.online/support")!) {
+                        Label("Support", systemImage: "envelope")
+                    }
                 } header: {
                     Text("Rechtliches")
                 }
@@ -244,6 +250,13 @@ struct SettingsView: View {
                 // Gefahrenzone
                 Section {
                     Button(role: .destructive) {
+                        consentError = nil
+                        showConsentRevokeAlert = true
+                    } label: {
+                        Label("Einwilligung widerrufen", systemImage: "arrow.counterclockwise")
+                    }
+
+                    Button(role: .destructive) {
                         deleteConfirmText = ""
                         deleteError = nil
                         showDeleteAlert = true
@@ -253,11 +266,32 @@ struct SettingsView: View {
                 } header: {
                     Text("Gefahrenzone")
                 } footer: {
-                    Text("Dein Konto und alle Daten werden unwiderruflich gelöscht.")
+                    Text("Ein Widerruf pausiert neue Einträge und Auswertungen, löscht aber keine Daten. Das Löschen deines Kontos entfernt alle Daten unwiderruflich.")
                 }
             }
             .navigationTitle("Einstellungen")
             .navigationBarTitleDisplayMode(.inline)
+            .alert("Einwilligung widerrufen", isPresented: $showConsentRevokeAlert) {
+                Button("Abbrechen", role: .cancel) { }
+                Button("Widerrufen", role: .destructive) {
+                    Task {
+                        isRevokingConsent = true
+                        do {
+                            try await supabase.revokeSensitiveDataConsent()
+                        } catch {
+                            consentError = error.localizedDescription
+                            showConsentRevokeAlert = true
+                        }
+                        isRevokingConsent = false
+                    }
+                }
+            } message: {
+                if let consentError {
+                    Text(consentError)
+                } else {
+                    Text("Neue Temperatur- oder Periodeneinträge und Auswertungen werden blockiert, bis du erneut zustimmst. Vorhandene Daten bleiben erhalten.")
+                }
+            }
             .alert("Konto löschen", isPresented: $showDeleteAlert) {
                 TextField("LÖSCHEN eingeben", text: $deleteConfirmText)
                     .autocorrectionDisabled()
@@ -290,13 +324,13 @@ struct SettingsView: View {
                 }
             }
             .overlay {
-                if isDeleting {
+                if isDeleting || isRevokingConsent {
                     ZStack {
                         Color.black.opacity(0.3)
                             .ignoresSafeArea()
                         VStack(spacing: 12) {
                             ProgressView()
-                            Text("Konto wird gelöscht...")
+                            Text(isDeleting ? "Konto wird gelöscht..." : "Einwilligung wird widerrufen...")
                                 .font(.subheadline)
                                 .foregroundStyle(.secondary)
                         }
@@ -428,7 +462,7 @@ struct AppGuideView: View {
                 GuideInfoCard(
                     icon: "sparkles",
                     title: "Schnellstart",
-                    text: "Trage täglich deine Temperatur ein, markiere deine Periode und bleib regelmäßig dran. So werden Prognosen deutlich genauer."
+                    text: "Trage täglich deine Temperatur ein, markiere deine Periode und bleib regelmäßig dran. So werden Auswertungen nachvollziehbarer."
                 )
 
                 VStack(alignment: .leading, spacing: 10) {
@@ -441,7 +475,7 @@ struct AppGuideView: View {
                     )
                     GuideStepRow(
                         title: "2. Eintrag speichern",
-                        text: "Temperatur täglich eintragen und bei Bedarf Notizen ergänzen."
+                        text: "Temperatur täglich eintragen und gestörte Messungen markieren."
                     )
                     GuideStepRow(
                         title: "3. Periode markieren",
@@ -449,7 +483,7 @@ struct AppGuideView: View {
                     )
                     GuideStepRow(
                         title: "4. Verlauf beobachten",
-                        text: "Nach einigen Zyklen werden Eisprung- und Periodenprognosen stabiler."
+                        text: "Temperaturanstiege werden rückblickend ausgewertet, Prognosen werden mit mehreren Zyklen stabiler."
                     )
                 }
                 .padding()
@@ -460,7 +494,7 @@ struct AppGuideView: View {
                         .font(.headline)
 
                     GuideLegendRow(color: Color("Period"), text: "Periode")
-                    GuideLegendRow(color: Color("Ovulation"), text: "Fruchtbar / Eisprungnah")
+                    GuideLegendRow(color: Color("Ovulation"), text: "Bestätigter Anstieg / Prognose")
                     GuideLegendRow(color: Color("AppPrimary"), text: "Heute / ausgewählter Tag")
                 }
                 .padding()

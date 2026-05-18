@@ -52,7 +52,7 @@ export function ResetPasswordForm() {
       } else {
         router.push('/login?message=Passwort erfolgreich geändert')
       }
-    } catch (err) {
+    } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.')
     } finally {
       setIsLoading(false)

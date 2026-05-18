@@ -11,10 +11,16 @@ interface ProfileSectionProps {
     hasLifetimeAccess: boolean
 }
 
+type ProfileActionState = {
+    error?: string
+    success?: boolean
+    message?: string
+} | null
+
 export function ProfileSection({ email, initialName, userId, hasLifetimeAccess }: ProfileSectionProps) {
     const [isEditing, setIsEditing] = useState(false)
     const [name, setName] = useState(initialName)
-    const [state, formAction, isPending] = useActionState(async (prevState: any, formData: FormData) => {
+    const [state, formAction, isPending] = useActionState<ProfileActionState, FormData>(async (prevState, formData) => {
         const result = await updateProfile(prevState, formData)
         if (result?.success) {
             setIsEditing(false)

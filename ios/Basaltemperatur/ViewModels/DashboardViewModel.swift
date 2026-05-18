@@ -69,7 +69,10 @@ class DashboardViewModel: ObservableObject {
     
     var cycleLength: Int {
         // Could come from profile; for now average from data or default 28
-        let periodDates = periodEntries.map { $0.date }.sorted()
+        let periodDates = periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
         var cycleStarts: [String] = []
         for (i, date) in periodDates.enumerated() {
             if i == 0 {
@@ -91,6 +94,39 @@ class DashboardViewModel: ObservableObject {
         }
         guard !lengths.isEmpty else { return 28 }
         return Int((Double(lengths.reduce(0, +)) / Double(lengths.count)).rounded())
+    }
+
+    var completedCycleCount: Int {
+        let periodDates = periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
+        var cycleStarts: [String] = []
+
+        for (i, date) in periodDates.enumerated() {
+            if i == 0 {
+                cycleStarts.append(date)
+            } else {
+                guard let current = dateFormatter.date(from: date),
+                      let previous = dateFormatter.date(from: periodDates[i - 1]) else { continue }
+                let diff = Calendar.current.dateComponents([.day], from: previous, to: current).day ?? 0
+                if diff > 3 { cycleStarts.append(date) }
+            }
+        }
+
+        guard cycleStarts.count >= 2 else { return 0 }
+        var count = 0
+        for i in 0..<(cycleStarts.count - 1) {
+            guard let start = dateFormatter.date(from: cycleStarts[i]),
+                  let end = dateFormatter.date(from: cycleStarts[i + 1]) else { continue }
+            let diff = Calendar.current.dateComponents([.day], from: start, to: end).day ?? 0
+            if diff >= 21 && diff <= 45 { count += 1 }
+        }
+        return count
+    }
+
+    var predictionBaselineReady: Bool {
+        completedCycleCount >= 3
     }
 
     /// Durchschnittliche Blutungsdauer aus vorhandenen Periodenblöcken (Fallback: 5 Tage)
@@ -123,12 +159,14 @@ class DashboardViewModel: ObservableObject {
     // MARK: - Predictions
     
     var nextPeriodDate: String? {
+        guard predictionBaselineReady else { return nil }
         guard let lastStart = lastPeriodStart else { return nil }
         return OvulationCalculator.predictNextPeriod(lastPeriodStart: lastStart, cycleLength: cycleLength)
     }
 
     /// Prognostizierte Periodentage für die kommenden Zyklen
     var predictedPeriodDates: Set<String> {
+        guard predictionBaselineReady else { return [] }
         guard let lastStart = lastPeriodStart,
               let lastStartDate = dateFormatter.date(from: lastStart) else { return [] }
 
@@ -162,6 +200,7 @@ class DashboardViewModel: ObservableObject {
     }
     
     var nextOvulationDate: String? {
+        guard predictionBaselineReady else { return nil }
         guard let lastStart = lastPeriodStart else { return nil }
         return OvulationCalculator.predictNextOvulation(lastPeriodStart: lastStart, cycleLength: cycleLength)
     }
@@ -177,12 +216,14 @@ class DashboardViewModel: ObservableObject {
     // MARK: - Fertility
     
     var fertilityWindow: FertilityWindow? {
+        guard predictionBaselineReady else { return nil }
         guard let lastStart = lastPeriodStart else { return nil }
         return OvulationCalculator.getFertilityWindow(lastPeriodStart: lastStart, cycleLength: cycleLength)
     }
     
     /// Alle Fruchtbarkeitsfenster – aktuell + bis 8 Zyklen in die Zukunft
     var fertilityWindows: [FertilityWindow] {
+        guard predictionBaselineReady else { return [] }
         guard let lastStart = lastPeriodStart else { return [] }
         return OvulationCalculator.getFutureWindows(lastPeriodStart: lastStart, cycleLength: cycleLength)
     }
@@ -204,7 +245,7 @@ class DashboardViewModel: ObservableObject {
     /// Ob der Eisprung temperaturbasiert bestätigt wurde (3-über-6-Regel)
     var isOvulationConfirmed: Bool {
         guard let ov = currentOvulation else { return false }
-        return ov.phase == .luteal && ov.coverLineTemp != nil
+        return ov.isConfirmed
     }
     
     // MARK: - Quick Entry
@@ -225,16 +266,17 @@ class DashboardViewModel: ObservableObject {
     // MARK: - Statistics
     
     var averageTemperature: Double? {
-        guard !entries.isEmpty else { return nil }
-        return entries.map { $0.temperature }.reduce(0, +) / Double(entries.count)
+        let usableEntries = entries.filter(\.isUsableForAnalysis)
+        guard !usableEntries.isEmpty else { return nil }
+        return usableEntries.map { $0.temperature }.reduce(0, +) / Double(usableEntries.count)
     }
     
     var minTemperature: Double? {
-        entries.map { $0.temperature }.min()
+        entries.filter(\.isUsableForAnalysis).map { $0.temperature }.min()
     }
     
     var maxTemperature: Double? {
-        entries.map { $0.temperature }.max()
+        entries.filter(\.isUsableForAnalysis).map { $0.temperature }.max()
     }
     
     var trackingStreak: Int {
@@ -274,8 +316,8 @@ class DashboardViewModel: ObservableObject {
     }
     
     private func fetchData(supabase: SupabaseService) async throws {
-        async let tempEntries = supabase.getTemperatureEntries()
-        async let periods = supabase.getPeriodEntries()
+            async let tempEntries = supabase.getTemperatureEntries(days: 730)
+            async let periods = supabase.getPeriodEntries(days: 730)
         
         entries = try await tempEntries
         periodEntries = try await periods
@@ -286,16 +328,21 @@ class DashboardViewModel: ObservableObject {
             hasLifetimeAccess = false
         }
         let detected = OvulationCalculator.detectAllOvulations(entries: entries)
-        ovulationResults = OvulationCalculator.combineOvulationsWithPredictions(
-            detected: detected,
-            periodEntries: periodEntries
-        )
+        ovulationResults = OvulationCalculator.hasReliablePredictionBaseline(periodEntries: periodEntries)
+            ? OvulationCalculator.combineOvulationsWithPredictions(
+                detected: detected,
+                periodEntries: periodEntries
+            )
+            : detected
     }
     
     // MARK: - Private
     
     private func findLastPeriodStart() -> String? {
-        let dates = periodEntries.map { $0.date }.sorted()
+        let dates = periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
         guard !dates.isEmpty else { return nil }
         
         var start = dates.last!
@@ -303,7 +350,7 @@ class DashboardViewModel: ObservableObject {
             guard let current = dateFormatter.date(from: dates[i + 1]),
                   let previous = dateFormatter.date(from: dates[i]) else { break }
             let diff = Calendar.current.dateComponents([.day], from: previous, to: current).day ?? 0
-            if diff <= 1 {
+            if diff <= 3 {
                 start = dates[i]
             } else {
                 break

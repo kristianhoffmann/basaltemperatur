@@ -8,6 +8,12 @@ struct TemperatureEntry: Identifiable, Codable {
     let date: String
     let temperature: Double
     let notes: String?
+    let cervicalMucus: CervicalMucusType?
+    let measurementTime: String?
+    let sleepHours: Double?
+    let disturbed: Bool
+    let disturbanceReason: String?
+    let excludeFromAnalysis: Bool
     let createdAt: String?
     let updatedAt: String?
     
@@ -23,6 +29,12 @@ struct TemperatureEntry: Identifiable, Codable {
         case date
         case temperature
         case notes
+        case cervicalMucus = "cervical_mucus"
+        case measurementTime = "measurement_time"
+        case sleepHours = "sleep_hours"
+        case disturbed
+        case disturbanceReason = "disturbance_reason"
+        case excludeFromAnalysis = "exclude_from_analysis"
         case createdAt = "created_at"
         case updatedAt = "updated_at"
     }
@@ -33,6 +45,28 @@ struct TemperatureEntry: Identifiable, Codable {
     
     var formattedTemperature: String {
         String(format: "%.2f°C", temperature)
+    }
+
+    var isUsableForAnalysis: Bool {
+        !disturbed && !excludeFromAnalysis
+    }
+}
+
+enum CervicalMucusType: String, Codable, CaseIterable {
+    case dry
+    case sticky
+    case creamy
+    case watery
+    case eggwhite
+
+    var displayName: String {
+        switch self {
+        case .dry: return "Trocken"
+        case .sticky: return "Klebrig"
+        case .creamy: return "Cremig"
+        case .watery: return "Wässrig"
+        case .eggwhite: return "Spinnbar"
+        }
     }
 }
 
@@ -114,7 +148,12 @@ struct UserProfile: Codable {
     var lutealPhaseDefault: Int
     var temperatureUnit: String
     var hasLifetimeAccess: Bool
+    var entitlementSource: String?
+    var lifetimeAccessGrantedAt: String?
     var onboardingCompleted: Bool
+    var sensitiveDataConsentAt: String?
+    var sensitiveDataConsentVersion: String?
+    var intendedUseAcknowledgedAt: String?
     
     enum CodingKeys: String, CodingKey {
         case id
@@ -123,6 +162,11 @@ struct UserProfile: Codable {
         case lutealPhaseDefault = "luteal_phase_default"
         case temperatureUnit = "temperature_unit"
         case hasLifetimeAccess = "has_lifetime_access"
+        case entitlementSource = "entitlement_source"
+        case lifetimeAccessGrantedAt = "lifetime_access_granted_at"
         case onboardingCompleted = "onboarding_completed"
+        case sensitiveDataConsentAt = "sensitive_data_consent_at"
+        case sensitiveDataConsentVersion = "sensitive_data_consent_version"
+        case intendedUseAcknowledgedAt = "intended_use_acknowledged_at"
     }
 }

@@ -26,15 +26,15 @@ const steps = [
     },
     {
         title: '3. Regelmäßig dranbleiben',
-        text: 'Je mehr Daten du hast, desto präziser werden Eisprung-, Fruchtbarkeits- und Periodenprognosen.',
+        text: 'Je mehr ungestörte Daten du hast, desto stabiler werden Temperaturauswertung sowie Zyklus- und Periodenprognosen.',
     },
 ]
 
 const premiumItems = [
     'Komplette Analyse mit Trends und KPIs',
-    'Eisprung-, Fruchtbarkeits- und Periodenprognosen',
+    'Temperaturauswertung sowie Zyklus- und Periodenprognosen',
     'Zyklusvergleich über mehrere Monate',
-    'PDF-Export für Arztgespräche',
+    'PDF-Export für deine Dokumentation',
 ]
 
 export default function GuidePage() {
@@ -75,8 +75,8 @@ export default function GuidePage() {
                 <div className="grid gap-2 sm:grid-cols-2">
                     <LegendItem label="Temperatur eingetragen" color="bg-slate-100 border-slate-200" icon={<Thermometer className="h-4 w-4 text-slate-500" />} />
                     <LegendItem label="Periode" color="bg-rose-50 border-rose-200" icon={<CalendarHeart className="h-4 w-4 text-rose-500" />} />
-                    <LegendItem label="Fruchtbar" color="bg-emerald-50 border-emerald-200" icon={<Sparkles className="h-4 w-4 text-emerald-500" />} />
-                    <LegendItem label="Peak / Eisprungnah" color="bg-amber-50 border-amber-200" icon={<Sparkles className="h-4 w-4 text-amber-500" />} />
+                    <LegendItem label="Fruchtbare Tage (Prognose)" color="bg-emerald-50 border-emerald-200" icon={<Sparkles className="h-4 w-4 text-emerald-500" />} />
+                    <LegendItem label="Peak (Prognose)" color="bg-amber-50 border-amber-200" icon={<Sparkles className="h-4 w-4 text-amber-500" />} />
                 </div>
                 <p className="text-xs text-[var(--text-muted)]">
                     Prognosen sind Schätzungen auf Basis deiner bisherigen Daten und können vom tatsächlichen Verlauf abweichen.

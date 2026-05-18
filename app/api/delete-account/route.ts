@@ -54,6 +54,26 @@ export async function DELETE(request: Request) {
             console.error('Error deleting period entries:', periodError)
         }
 
+        // Delete cycles
+        const { error: cyclesError } = await adminClient
+            .from('cycles')
+            .delete()
+            .eq('user_id', user.id)
+
+        if (cyclesError) {
+            console.error('Error deleting cycles:', cyclesError)
+        }
+
+        // Delete profile
+        const { error: profileError } = await adminClient
+            .from('profiles')
+            .delete()
+            .eq('id', user.id)
+
+        if (profileError) {
+            console.error('Error deleting profile:', profileError)
+        }
+
         // Delete the user account
         const { error: deleteError } = await adminClient.auth.admin.deleteUser(user.id)
 

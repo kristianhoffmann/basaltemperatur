@@ -44,7 +44,11 @@ struct DashboardView: View {
                     
                     if viewModel.hasLifetimeAccess {
                         // Fertility Status Banner
-                        if viewModel.fertilityStatus != .infertile {
+                        if !viewModel.predictionBaselineReady {
+                            PredictionBaselineCard(completedCycles: viewModel.completedCycleCount)
+                        }
+
+                        if viewModel.predictionBaselineReady && viewModel.fertilityStatus != .infertile {
                             FertilityBanner(status: viewModel.fertilityStatus)
                         }
                         
@@ -70,19 +74,19 @@ struct DashboardView: View {
                             )
                             
                             KPICard(
-                                title: "Eisprung",
+                                title: "Temperaturanstieg",
                                 value: {
                                     if viewModel.isOvulationConfirmed {
-                                        return "Erkannt ✓"
-                                    } else if let days = viewModel.daysUntilOvulation {
+                                        return "Bestätigt"
+                                    } else if viewModel.predictionBaselineReady, let days = viewModel.daysUntilOvulation {
                                         return "~\(days)d"
                                     }
                                     return "–"
                                 }(),
                                 subtitle: {
                                     if viewModel.isOvulationConfirmed {
-                                        return "Bestätigt (3-über-6)"
-                                    } else if let ov = viewModel.currentOvulation, let ovDate = ov.ovulationDate {
+                                        return "Temperaturanstieg bestätigt"
+                                    } else if viewModel.predictionBaselineReady, let ov = viewModel.currentOvulation, let ovDate = ov.ovulationDate {
                                         let f = DateFormatter()
                                         f.dateFormat = "yyyy-MM-dd"
                                         if let d = f.date(from: ovDate) {
@@ -92,7 +96,7 @@ struct DashboardView: View {
                                             return display.string(from: d)
                                         }
                                         return "Voraussichtlich"
-                                    } else if let nextOv = viewModel.nextOvulationDate, viewModel.daysUntilOvulation != nil {
+                                    } else if viewModel.predictionBaselineReady, let nextOv = viewModel.nextOvulationDate, viewModel.daysUntilOvulation != nil {
                                         let f = DateFormatter()
                                         f.dateFormat = "yyyy-MM-dd"
                                         if let d = f.date(from: nextOv) {
@@ -103,7 +107,7 @@ struct DashboardView: View {
                                         }
                                         return "voraussichtlich"
                                     }
-                                    return "Nicht genug Daten"
+                                    return viewModel.predictionBaselineReady ? "Nicht genug Daten" : "3 Zyklen nötig"
                                 }(),
                                 icon: "sparkles",
                                 color: Color("Ovulation")
@@ -146,7 +150,7 @@ struct DashboardView: View {
                         }
                         
                         // Disclaimer
-                        Text("Hinweis: Die Eisprung-Erkennung und Zyklusberechnungen basieren auf statistischen Methoden (NFP / 3-über-6-Regel) und deinen Eingaben. Es handelt sich um Schätzungen. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
+                        Text("Hinweis: Temperaturanstiege werden rückblickend nach der 3-über-6-Regel ausgewertet. Fruchtbare Tage und kommende Ereignisse sind Prognosen aus deinen Eingaben. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -181,6 +185,29 @@ struct DashboardView: View {
 
 // MARK: - Fertility Banner
 
+struct PredictionBaselineCard: View {
+    let completedCycles: Int
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .font(.title2)
+                .foregroundStyle(Color("AppPrimary"))
+            Text("Prognosen werden noch gesammelt")
+                .font(.subheadline.weight(.bold))
+            Text("Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(completedCycles).")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 16)
+        .padding(.horizontal)
+        .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
+        .padding(.horizontal)
+    }
+}
+
 struct FertilityBanner: View {
     let status: FertilityStatus
     
@@ -192,11 +219,11 @@ struct FertilityBanner: View {
         VStack(spacing: 6) {
             Text(status == .peak ? "⚡" : "🔥")
                 .font(.title)
-            Text(status == .peak ? "Höchste Fruchtbarkeit" : "Fruchtbares Fenster")
+            Text(status == .peak ? "Peak-Fruchtbarkeit (Prognose)" : "Fruchtbares Fenster (Prognose)")
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundStyle(accentColor)
-            Text(status == .peak ? "Eisprung steht unmittelbar bevor" : "Du befindest dich im fruchtbaren Fenster")
+            Text("Basierend auf Zyklusdaten, nicht temperaturbasiert bestätigt")
                 .font(.caption)
                 .foregroundStyle(accentColor.opacity(0.8))
         }
@@ -358,6 +385,10 @@ struct TemperatureChartView: View {
     private var periodDates: Set<String> {
         Set(periodEntries.map { $0.date })
     }
+
+    private var yDomain: ClosedRange<Double> {
+        temperatureChartYDomain(entries: entries, ovulations: ovulations)
+    }
     
     /// Visible date range based on zoom level + pan offset
     private var zoomedDateRange: ClosedRange<Date> {
@@ -378,7 +409,10 @@ struct TemperatureChartView: View {
     
     /// Find the most recent period start before or on a given date
     private func cycleDayFor(date: String) -> Int? {
-        let sorted = periodEntries.map { $0.date }.sorted()
+        let sorted = periodEntries
+            .filter { $0.flowIntensity != .spotting }
+            .map { $0.date }
+            .sorted()
         guard !sorted.isEmpty else { return nil }
         
         // Find cycle starts (first day of each period block)
@@ -446,9 +480,12 @@ struct TemperatureChartView: View {
             // Legend
             HStack(spacing: 16) {
                 LegendItem(color: Color("Period"), label: "Periode")
-                if !ovulations.isEmpty {
-                    LegendItem(color: Color("Ovulation"), label: "Eisprung")
+                if ovulations.contains(where: { $0.isConfirmed }) {
+                    LegendItem(color: Color("Ovulation"), label: "Bestätigter Anstieg")
                     LegendItem(color: Color("AccentColor"), label: "Cover-Linie", isDashed: true)
+                }
+                if ovulations.contains(where: { $0.source == .prediction }) {
+                    LegendItem(color: Color("Ovulation").opacity(0.45), label: "Prognose")
                 }
             }
             .font(.caption)
@@ -464,8 +501,8 @@ struct TemperatureChartView: View {
             ForEach(periodEntries, id: \.date) { period in
                 RectangleMark(
                     x: .value("Datum", period.dateObject),
-                    yStart: .value("Min", 35.8),
-                    yEnd: .value("Max", 37.5),
+                    yStart: .value("Min", yDomain.lowerBound),
+                    yEnd: .value("Max", yDomain.upperBound),
                     width: .fixed(20)
                 )
                 .foregroundStyle(Color("Period").opacity(0.1))
@@ -473,7 +510,7 @@ struct TemperatureChartView: View {
             
             // Cover lines
             ForEach(ovulations, id: \.ovulationDate) { result in
-                if let coverLine = result.coverLineTemp {
+                if result.isConfirmed, let coverLine = result.coverLineTemp {
                     RuleMark(y: .value("Cover", coverLine))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
                         .foregroundStyle(Color("AccentColor").opacity(0.6))
@@ -509,13 +546,15 @@ struct TemperatureChartView: View {
             
             // Points
             ForEach(entries, id: \.date) { entry in
-                let isOvulation = ovulations.contains { $0.ovulationDate == entry.date }
+                let ovulation = ovulations.first { $0.ovulationDate == entry.date }
+                let isConfirmed = ovulation?.isConfirmed == true
+                let isPrediction = ovulation?.source == .prediction
                 PointMark(
                     x: .value("Datum", entry.dateObject),
                     y: .value("Temperatur", entry.temperature)
                 )
-                .foregroundStyle(isOvulation ? Color("Ovulation") : Color("AppPrimary"))
-                .symbolSize(isOvulation ? 100 : 30)
+                .foregroundStyle(isConfirmed ? Color("Ovulation") : (isPrediction ? Color("Ovulation").opacity(0.45) : Color("AppPrimary")))
+                .symbolSize(isConfirmed ? 100 : (isPrediction ? 70 : 30))
             }
             
             // Selected point highlight
@@ -532,7 +571,7 @@ struct TemperatureChartView: View {
                 .symbolSize(150)
             }
         }
-        .chartYScale(domain: 35.8...37.5)
+        .chartYScale(domain: yDomain)
         .chartXScale(domain: zoomedDateRange)
         .chartYAxis {
             AxisMarks(values: .stride(by: 0.2)) { value in
@@ -644,7 +683,7 @@ struct TemperatureChartView: View {
     
     @ViewBuilder
     func tooltipView(for entry: TemperatureEntry) -> some View {
-        let isOvulation = ovulations.contains { $0.ovulationDate == entry.date }
+        let ovulation = ovulations.first { $0.ovulationDate == entry.date }
         let cycleDay = cycleDayFor(date: entry.date)
         
         VStack(spacing: 4) {
@@ -659,11 +698,16 @@ struct TemperatureChartView: View {
                     .font(.caption2)
                     .foregroundStyle(Color("AppPrimary"))
             }
-            if isOvulation {
-                Text("🥚 Eisprung")
+            if ovulation?.isConfirmed == true {
+                Text("Temperaturanstieg bestätigt")
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color("Ovulation"))
+            } else if ovulation?.source == .prediction {
+                Text("Zyklus-Prognose")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("Ovulation").opacity(0.8))
             }
         }
         .padding(.horizontal, 10)
@@ -722,6 +766,10 @@ struct TemperatureChartFullscreenView: View {
         let startStr = formatter.string(from: startDate)
         return periodEntries.filter { $0.date >= startStr }
     }
+
+    private var yDomain: ClosedRange<Double> {
+        temperatureChartYDomain(entries: filteredEntries, ovulations: ovulations)
+    }
     
     var body: some View {
         NavigationStack {
@@ -742,8 +790,11 @@ struct TemperatureChartFullscreenView: View {
                         // Legend
                         HStack(spacing: 12) {
                             LegendItem(color: Color("Period"), label: "Periode")
-                            if !ovulations.isEmpty {
-                                LegendItem(color: Color("Ovulation"), label: "Eisprung")
+                            if ovulations.contains(where: { $0.isConfirmed }) {
+                                LegendItem(color: Color("Ovulation"), label: "Bestätigter Anstieg")
+                            }
+                            if ovulations.contains(where: { $0.source == .prediction }) {
+                                LegendItem(color: Color("Ovulation").opacity(0.45), label: "Prognose")
                             }
                         }
                         .font(.caption)
@@ -789,15 +840,15 @@ struct TemperatureChartFullscreenView: View {
             ForEach(filteredPeriodEntries, id: \.date) { period in
                 RectangleMark(
                     x: .value("Datum", period.dateObject),
-                    yStart: .value("Min", 35.8),
-                    yEnd: .value("Max", 37.5),
+                    yStart: .value("Min", yDomain.lowerBound),
+                    yEnd: .value("Max", yDomain.upperBound),
                     width: .fixed(20)
                 )
                 .foregroundStyle(Color("Period").opacity(0.1))
             }
             
             ForEach(ovulations, id: \.ovulationDate) { result in
-                if let coverLine = result.coverLineTemp {
+                if result.isConfirmed, let coverLine = result.coverLineTemp {
                     RuleMark(y: .value("Cover", coverLine))
                         .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
                         .foregroundStyle(Color("AccentColor").opacity(0.6))
@@ -830,13 +881,15 @@ struct TemperatureChartFullscreenView: View {
             }
             
             ForEach(filteredEntries, id: \.date) { entry in
-                let isOvulation = ovulations.contains { $0.ovulationDate == entry.date }
+                let ovulation = ovulations.first { $0.ovulationDate == entry.date }
+                let isConfirmed = ovulation?.isConfirmed == true
+                let isPrediction = ovulation?.source == .prediction
                 PointMark(
                     x: .value("Datum", entry.dateObject),
                     y: .value("Temperatur", entry.temperature)
                 )
-                .foregroundStyle(isOvulation ? Color("Ovulation") : Color("AppPrimary"))
-                .symbolSize(isOvulation ? 120 : 40)
+                .foregroundStyle(isConfirmed ? Color("Ovulation") : (isPrediction ? Color("Ovulation").opacity(0.45) : Color("AppPrimary")))
+                .symbolSize(isConfirmed ? 120 : (isPrediction ? 80 : 40))
             }
             
             if let selected = selectedEntry {
@@ -852,7 +905,7 @@ struct TemperatureChartFullscreenView: View {
                 .symbolSize(180)
             }
         }
-        .chartYScale(domain: 35.8...37.5)
+        .chartYScale(domain: yDomain)
         .chartXScale(domain: zoomedDateRange)
         .chartYAxis {
             AxisMarks(values: .stride(by: 0.1)) { value in
@@ -958,7 +1011,7 @@ struct TemperatureChartFullscreenView: View {
     
     @ViewBuilder
     func tooltipView(for entry: TemperatureEntry) -> some View {
-        let isOvulation = ovulations.contains { $0.ovulationDate == entry.date }
+        let ovulation = ovulations.first { $0.ovulationDate == entry.date }
         let cycleDay = cycleDayFor(entry.date)
         
         VStack(spacing: 4) {
@@ -973,11 +1026,16 @@ struct TemperatureChartFullscreenView: View {
                     .font(.caption2)
                     .foregroundStyle(Color("AppPrimary"))
             }
-            if isOvulation {
-                Text("🥚 Eisprung")
+            if ovulation?.isConfirmed == true {
+                Text("Temperaturanstieg bestätigt")
                     .font(.caption2)
                     .fontWeight(.semibold)
                     .foregroundStyle(Color("Ovulation"))
+            } else if ovulation?.source == .prediction {
+                Text("Zyklus-Prognose")
+                    .font(.caption2)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(Color("Ovulation").opacity(0.8))
             }
         }
         .padding(.horizontal, 10)
@@ -1065,4 +1123,16 @@ struct EmptyChartView: View {
         .padding(40)
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
     }
+}
+
+private func temperatureChartYDomain(entries: [TemperatureEntry], ovulations: [OvulationResult]) -> ClosedRange<Double> {
+    let coverLines = ovulations.compactMap { $0.coverLineTemp }
+    let values = entries.map { $0.temperature } + coverLines
+    guard let minValue = values.min(), let maxValue = values.max() else {
+        return 35.8...37.5
+    }
+
+    let lower = floor((minValue - 0.2) * 10) / 10
+    let upper = ceil((maxValue + 0.2) * 10) / 10
+    return lower...max(upper, lower + 0.6)
 }

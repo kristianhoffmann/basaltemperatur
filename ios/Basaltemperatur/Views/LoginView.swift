@@ -9,6 +9,7 @@ struct LoginView: View {
     @State private var email = ""
     @State private var password = ""
     @State private var isRegistering = false
+    @State private var acceptedSensitiveDataConsent = false
     
     var body: some View {
         VStack(spacing: 32) {
@@ -52,6 +53,17 @@ struct LoginView: View {
                     .textContentType(isRegistering ? .newPassword : .password)
                     .padding()
                     .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+
+                if isRegistering {
+                    Toggle(isOn: $acceptedSensitiveDataConsent) {
+                        Text("Ich willige ausdrücklich ein, dass meine Gesundheitsdaten wie Temperaturwerte, Periodendaten, Zervixschleim und Störfaktoren für Zyklusauswertungen verarbeitet werden. Die App ist kein Medizinprodukt und nicht zur Verhütung, Diagnose oder Behandlung bestimmt.")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                    .toggleStyle(.switch)
+                    .padding()
+                    .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+                }
                 
                 if let error = authViewModel.errorMessage {
                     Text(error)
@@ -63,7 +75,12 @@ struct LoginView: View {
                 Button {
                     Task {
                         if isRegistering {
-                            await authViewModel.signUp(email: email, password: password, supabase: supabase)
+                            await authViewModel.signUp(
+                                email: email,
+                                password: password,
+                                sensitiveDataConsent: acceptedSensitiveDataConsent,
+                                supabase: supabase
+                            )
                         } else {
                             await authViewModel.signIn(email: email, password: password, supabase: supabase)
                         }
@@ -82,13 +99,16 @@ struct LoginView: View {
                     .background(Color("AppPrimary"), in: RoundedRectangle(cornerRadius: 16))
                     .foregroundStyle(.white)
                 }
-                .disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading)
+                .disabled(email.isEmpty || password.isEmpty || authViewModel.isLoading || (isRegistering && !acceptedSensitiveDataConsent))
             }
             .padding(.horizontal)
             
             // Toggle
             Button {
-                withAnimation { isRegistering.toggle() }
+                withAnimation {
+                    isRegistering.toggle()
+                    acceptedSensitiveDataConsent = false
+                }
             } label: {
                 Text(isRegistering ? "Schon ein Konto? Anmelden" : "Noch kein Konto? Registrieren")
                     .font(.subheadline)
@@ -100,6 +120,22 @@ struct LoginView: View {
             Text("Einträge kostenlos · Analyse einmalig 9,99 €")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
+        }
+        .onAppear {
+            Task {
+                await supabase.trackTrafficEvent(
+                    path: isRegistering ? "/ios/register" : "/ios/login",
+                    title: isRegistering ? "iOS Registrierung" : "iOS Login"
+                )
+            }
+        }
+        .onChange(of: isRegistering) { _, newValue in
+            Task {
+                await supabase.trackTrafficEvent(
+                    path: newValue ? "/ios/register" : "/ios/login",
+                    title: newValue ? "iOS Registrierung" : "iOS Login"
+                )
+            }
         }
     }
 }

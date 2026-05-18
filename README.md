@@ -1,182 +1,146 @@
-# {{APP_EMOJI}} {{APP_NAME}}
+# Basaltemperatur
 
-> **{{APP_TAGLINE}}**
+Web- und iOS-App für Basaltemperatur-Tracking, Periodenmarkierung und Zyklusanalyse.
 
-Eine SaaS-Anwendung für {{TARGET_AUDIENCE}}. DSGVO-konform, GoBD-konform, Kleinunternehmer-fähig.
+## Funktionsumfang
 
----
+- Kostenlos: Temperatur mit Messqualität eintragen, Periodentage markieren, Kalender nutzen
+- Premium (einmalig 9,99 €): Prognosen, Statistiken, Zyklusvergleich, PDF-Export
+- Rechtliche Seiten: Impressum, Datenschutz, AGB, Widerruf
+- Stripe Checkout, StoreKit 2 und serverseitige Entitlements für Lifetime-Zugang
 
-## 🚀 Quick Start
+## Tech-Stack
+
+- Next.js 16 (App Router), React 19, TypeScript
+- Supabase (Auth + Postgres)
+- Stripe Checkout + Apple StoreKit 2
+- iOS App in SwiftUI (`ios/Basaltemperatur`)
+
+## Lokales Setup (Web)
+
+1. Abhängigkeiten installieren:
 
 ```bash
-# 1. Repository klonen
-git clone https://github.com/your-username/{{APP_SLUG}}.git
-cd {{APP_SLUG}}
-
-# 2. Dependencies installieren
 npm install
+```
 
-# 3. Umgebungsvariablen konfigurieren
-cp .env.example .env.local
-# → Werte in .env.local eintragen
+2. `.env.local` anlegen (siehe `.env.production.example` als Vorlage, ohne Live-Secrets committen)
 
-# 4. Supabase Datenbank aufsetzen
-# → Migrations in Supabase SQL Editor ausführen (siehe unten)
+3. Supabase Migrationen ausführen (im SQL Editor, in dieser Reihenfolge):
 
-# 5. Development Server starten
+- `supabase/migrations/001_create_profiles.sql`
+- `supabase/migrations/002_create_temperature_entries.sql`
+- `supabase/migrations/003_create_period_entries.sql`
+- `supabase/migrations/004_create_cycles.sql`
+- `supabase/migrations/20260214_fix_rls.sql`
+- `supabase/migrations/20260214170534_add_cervical_mucus.sql`
+- `supabase/migrations/20260518090000_add_measurement_quality_and_entitlements.sql`
+
+4. Dev-Server starten:
+
+```bash
 npm run dev
 ```
 
----
+5. Qualitätschecks:
 
-## 📋 Vollständige Setup-Anleitung
-
-### 1. Supabase Projekt erstellen
-
-1. Gehe zu [supabase.com](https://supabase.com)
-2. Erstelle ein neues Projekt
-3. **WICHTIG:** Wähle Region **Frankfurt (eu-central-1)** für DSGVO
-4. Notiere:
-   - Project URL
-   - `anon` Key (öffentlich)
-   - `service_role` Key (geheim!)
-
-### 2. Datenbank-Migrations ausführen
-
-Führe die SQL-Dateien in dieser Reihenfolge aus unter **Supabase Dashboard → SQL Editor**:
-
-```
-supabase/migrations/
-├── 001_create_profiles.sql
-├── 002_create_customers.sql
-├── 003_create_projects.sql
-├── 004_create_quotes.sql
-├── 005_create_invoices.sql
-├── 006_create_line_items.sql
-├── 007_create_appointments.sql
-├── 008_create_templates.sql
-├── 009_create_audit_log.sql
-├── 010_create_functions.sql
-├── 011_create_triggers.sql
-├── 012_create_subscriptions.sql
-└── 013_019_additional_tables.sql
+```bash
+npm run lint
+npm run test
+npm run build
 ```
 
-### 3. Supabase Auth konfigurieren
+## Benötigte Umgebungsvariablen (Web)
 
-**Dashboard → Authentication → Providers:**
-- [x] Email (aktiviert)
-- [x] Google (Client ID + Secret von Google Cloud Console)
-- [ ] GitHub (optional)
-- [ ] Apple (optional)
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_APP_URL`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_PRICE_ID`
+- `STRIPE_WEBHOOK_SECRET`
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` (optional für zukünftige Flows)
+- `APP_STORE_BUNDLE_ID` (Standard: `de.basaltemperatur.app`)
+- `APP_STORE_LIFETIME_PRODUCT_ID` (Standard: `de.basaltemperatur.lifetime`)
 
-**Dashboard → Authentication → URL Configuration:**
-```
-Site URL: http://localhost:3000
-Redirect URLs: 
-  - http://localhost:3000/auth/callback
-  - https://{{APP_DOMAIN}}/auth/callback
-```
+Rechtliche Seiten (Pflichtangaben):
 
-**Dashboard → Authentication → Email Templates:**
-- Nutze die fertigen Templates aus `docs/EMAIL-TEMPLATES.md`
+- `NEXT_PUBLIC_COMPANY_NAME`
+- `NEXT_PUBLIC_COMPANY_STREET`
+- `NEXT_PUBLIC_COMPANY_CITY`
+- `NEXT_PUBLIC_COMPANY_COUNTRY`
+- `NEXT_PUBLIC_COMPANY_EMAIL`
+- `NEXT_PUBLIC_COMPANY_PHONE` (optional)
 
-### 4. Stripe konfigurieren
+Infrastrukturangaben:
 
-1. Erstelle einen [Stripe Account](https://stripe.com)
-2. **Products → Preise erstellen** (siehe CONFIG.md für Preise)
-3. **WICHTIG:** Tax Collection deaktivieren (Kleinunternehmer)
-4. **Webhooks → Endpoint hinzufügen:**
-   - URL: `https://{{APP_DOMAIN}}/api/stripe-webhook`
-   - Events: `checkout.session.completed`
+- `NEXT_PUBLIC_WEB_HOSTING_PROVIDER`
+- `NEXT_PUBLIC_WEB_HOSTING_LOCATION`
+- `NEXT_PUBLIC_DB_PROVIDER`
+- `NEXT_PUBLIC_DB_LOCATION`
 
-### 5. Edge Functions deployen
+Optional:
 
-Erstelle jede Function in **Supabase Dashboard → Edge Functions → New Function**:
+- `NEXT_PUBLIC_APP_STORE_URL` (Landingpage-Link „App Store (bald)“)
 
-| Function | Wichtigkeit |
-|----------|-------------|
-| `send-email` | Basis |
-| `send-welcome-email` | E-Mail |
-| `send-invoice-reminder` | E-Mail |
-| `delete-account` | DSGVO |
-| `cleanup-demo` | Cron |
-| `generate-pdf` | PDF |
-| `process-email-queue` | Cron |
-| **`stripe-webhook`** | ⚠️ **KRITISCH** |
-| **`create-checkout-session`** | ⚠️ **KRITISCH** |
-| **`create-portal-session`** | ⚠️ **KRITISCH** |
+## Stripe Integration
 
----
+- Checkout-Route: `POST /api/checkout`
+- Webhook-Route: `POST /api/stripe-webhook`
+- Relevantes Event: `checkout.session.completed`
+- Nach erfolgreicher Zahlung wird `profiles.has_lifetime_access = true` gesetzt
+- Die Entitlement-Felder in `profiles` dürfen clientseitig nicht verändert werden.
 
-## 📁 Projektstruktur
+Wichtig:
 
-```
-{{APP_SLUG}}/
-├── app/                      # Next.js App Router
-│   ├── (auth)/               # Login, Register
-│   ├── (dashboard)/          # Hauptanwendung
-│   ├── (demo)/               # Demo-Modus
-│   ├── (admin)/              # Admin-Dashboard
-│   ├── (legal)/              # Impressum, Datenschutz, AGB
-│   ├── api/                  # API Routes
-│   └── globals.css           # Design System
-├── components/               # React Komponenten
-├── lib/                      # Supabase Clients, Utilities
-├── types/                    # TypeScript Types
-├── docs/                     # Dokumentation
-└── supabase/
-    ├── migrations/           # SQL Migrations
-    └── functions/            # Edge Functions
+- Im Live-Betrieb muss `NEXT_PUBLIC_APP_URL` eine öffentliche HTTPS-Domain sein.
+- Für den Webhook muss exakt dieselbe Route in Stripe hinterlegt sein.
+
+## Deployment (Plesk / Node.js)
+
+- Startup-Datei: `app.js`
+- Build/Start:
+
+```bash
+npm install
+npm run build
+npm run start
 ```
 
----
+- Application Root und Document Root in Plesk korrekt setzen (Document Root muss unterhalb Application Root liegen).
 
-## 📖 Dokumentation
+## iOS App
 
-| Dokument | Inhalt |
-|----------|--------|
-| [CONFIG.md](CONFIG.md) | App-Konfiguration |
-| [CLAUDE.md](CLAUDE.md) | Entwicklungsanweisungen |
-| [docs/DATABASE.md](docs/DATABASE.md) | Datenbank-Schema |
-| [docs/AUTH.md](docs/AUTH.md) | Authentifizierung |
-| [docs/EMAIL-TEMPLATES.md](docs/EMAIL-TEMPLATES.md) | E-Mail-Templates |
-| [docs/UI-GUIDELINES.md](docs/UI-GUIDELINES.md) | Design System |
-| [docs/STRIPE.md](docs/STRIPE.md) | Zahlungen |
-| [docs/LEGAL.md](docs/LEGAL.md) | Rechtliche Texte |
-| [docs/EDGE-FUNCTIONS.md](docs/EDGE-FUNCTIONS.md) | Edge Functions |
+Projekt liegt unter `ios/Basaltemperatur`.
 
----
+- Tabs: Dashboard, Kalender, Anleitung, Eintrag, Mehr
+- Kalender zeigt auch prognostizierte Periodentage (bei Lifetime)
+- Einträge enthalten Messzeit, Schlafdauer, Störfaktoren, Ausschluss aus der Auswertung und Zervixschleim
+- Profil zeigt `Lifetime` Badge bei freigeschaltetem Zugang
+- App-Store-kompatibler Standard: StoreKit 2 Non-Consumable (`de.basaltemperatur.lifetime`) und kein externer Kauf-Link in Release-Builds
 
-## 🛠️ Tech Stack
+iOS-Konfiguration:
 
-| Bereich | Technologie |
-|---------|-------------|
-| Frontend | Next.js 14 (App Router) |
-| Styling | Tailwind CSS 3.4 |
-| Backend | Supabase (PostgreSQL, Frankfurt) |
-| Auth | Supabase Auth + OAuth |
-| Payments | Stripe (Checkout, Portal) |
-| E-Mail | Eigener SMTP + Edge Functions |
-| Hosting | Vercel + Supabase Cloud (EU) |
+- Bundle ID: `de.basaltemperatur.app`
+- In-App-Kauf: Non-Consumable `de.basaltemperatur.lifetime`
+- StoreKit-Käufe werden über `POST /api/app-store/entitlement` serverseitig geprüft und dem eingeloggten Konto zugeordnet.
 
----
+Build lokal (Beispiel):
 
-## 🔒 Compliance
-
-- **DSGVO:** EU-Server (Frankfurt), Datenschutzerklärung, Löschfunktion
-- **GoBD:** Unveränderbare Rechnungen, Audit-Log, 10 Jahre Archivierung
-- **§19 UStG:** Kleinunternehmer-Regelung (keine MwSt.)
-
----
-
-## 📄 Lizenz
-
-Proprietär – Alle Rechte vorbehalten.
-
-**Betreiber:**
+```bash
+xcodebuild -project ios/Basaltemperatur.xcodeproj -scheme Basaltemperatur -configuration Debug -destination 'generic/platform=iOS' build
 ```
-{{OWNER_NAME}}
-{{OWNER_STREET}}
-{{OWNER_CITY}}
-```
+
+## CI
+
+GitHub Actions Pipeline unter `.github/workflows/ci.yml`:
+
+- `npm ci`
+- `npm run lint`
+- `npm run test`
+- `npm run build`
+
+## Hinweise
+
+- Temperaturanstiege werden rückblickend ausgewertet; Fruchtbarkeitsfenster und zukünftige Ereignisse sind statistische Prognosen und keine medizinische Diagnose.
+- Live-Secrets niemals in Git committen.

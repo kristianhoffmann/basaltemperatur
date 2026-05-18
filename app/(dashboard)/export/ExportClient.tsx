@@ -1,5 +1,5 @@
 // app/(dashboard)/export/ExportClient.tsx
-// Client-Komponente für PDF-Export – Professionell für den Frauenarzt
+// Client-Komponente für PDF-Export – persönliche Zyklusdokumentation
 'use client'
 
 import { useMemo } from 'react'
@@ -13,10 +13,19 @@ interface OvulationInfo {
 }
 
 interface ExportClientProps {
-    entries: { date: string; temperature: number; notes: string | null; cervical_mucus: string | null }[]
+    entries: {
+        date: string
+        temperature: number
+        notes: string | null
+        cervical_mucus: string | null
+        measurement_time?: string | null
+        sleep_hours?: number | null
+        disturbed?: boolean
+        disturbance_reason?: string | null
+        exclude_from_analysis?: boolean
+    }[]
     periodEntries: { date: string; flow_intensity: string }[]
     ovulations: OvulationInfo[]
-    userEmail: string
 }
 
 const mucusLabels: Record<string, string> = {
@@ -27,7 +36,7 @@ const mucusLabels: Record<string, string> = {
     eggwhite: 'Spinnbar',
 }
 
-export function ExportClient({ entries, periodEntries, ovulations, userEmail }: ExportClientProps) {
+export function ExportClient({ entries, periodEntries, ovulations }: ExportClientProps) {
     const handlePrint = () => window.print()
 
     const periodSet = useMemo(() => new Set(periodEntries.map(p => p.date)), [periodEntries])
@@ -69,12 +78,12 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
 
     const labelEvery = entries.length <= 20 ? 2 : entries.length <= 40 ? 3 : entries.length <= 60 ? 5 : 7
 
-    const pathData = useMemo(() => {
+    const pathData = (() => {
         if (entries.length < 2) return ''
         return entries.map((e, i) =>
             `${i === 0 ? 'M' : 'L'} ${xScale(i)} ${yScale(Number(e.temperature))}`
         ).join(' ')
-    }, [entries])
+    })()
 
     const dateRange = entries.length > 0
         ? `${format(parseISO(entries[0].date), 'd. MMMM yyyy', { locale: de })} – ${format(parseISO(entries[entries.length - 1].date), 'd. MMMM yyyy', { locale: de })}`
@@ -89,7 +98,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                         Zykluskurve exportieren
                     </h1>
                     <p className="text-sm mt-1" style={{ color: 'var(--text-secondary)' }}>
-                        Drucke oder speichere als PDF für deinen Frauenarzt.
+                        Drucke oder speichere deine Kurve als PDF für deine eigene Dokumentation.
                     </p>
                 </div>
                 <div className="flex gap-2">
@@ -148,7 +157,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                             <StatBox label="⌀ Temperatur" value={`${(temps.reduce((a, b) => a + b, 0) / temps.length).toFixed(2)}°C`} />
                             {coverLine && <StatBox label="Hilfslinie" value={`${coverLine.toFixed(2)}°C`} />}
                             <StatBox
-                                label={ovulationDates.size === 1 ? 'Eisprung erkannt' : 'Eisprünge erkannt'}
+                                label={ovulationDates.size === 1 ? 'Anstieg bestätigt' : 'Anstiege bestätigt'}
                                 value={ovulationDates.size > 0
                                     ? ovulations
                                         .filter(o => o.ovulationDate)
@@ -272,7 +281,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                                                     fontWeight="600"
                                                     fontFamily="system-ui"
                                                 >
-                                                    Eisprung
+                                                    bestätigt
                                                 </text>
                                             )}
                                         </g>
@@ -331,7 +340,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                                 )}
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#8B5CF6', display: 'inline-block' }} />
-                                    Eisprung ({ovulationDates.size})
+                                    Bestätigter Anstieg ({ovulationDates.size})
                                 </span>
                                 <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
                                     <span style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#E8788A', opacity: 0.3, display: 'inline-block' }} />
@@ -354,6 +363,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                                     <th style={{ ...thStyle, textAlign: 'center' }}>Temp. (°C)</th>
                                     <th style={{ ...thStyle, textAlign: 'center' }}>Periode</th>
                                     <th style={{ ...thStyle, textAlign: 'center' }}>Zervixschleim</th>
+                                    <th style={{ ...thStyle, textAlign: 'center' }}>Qualität</th>
                                     <th style={{ ...thStyle, textAlign: 'left' }}>Notizen</th>
                                 </tr>
                             </thead>
@@ -396,8 +406,17 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                                             <td style={{ ...tdStyle, textAlign: 'center', color: '#6b7280' }}>
                                                 {e.cervical_mucus ? mucusLabels[e.cervical_mucus] || e.cervical_mucus : '–'}
                                             </td>
+                                            <td style={{ ...tdStyle, textAlign: 'center', color: e.exclude_from_analysis ? '#b45309' : '#6b7280' }}>
+                                                {e.exclude_from_analysis
+                                                    ? 'ausgekl.'
+                                                    : e.disturbed
+                                                        ? 'gestört'
+                                                        : e.measurement_time
+                                                            ? e.measurement_time.slice(0, 5)
+                                                            : '–'}
+                                            </td>
                                             <td style={{ ...tdStyle, color: '#6b7280', maxWidth: '160px' }}>
-                                                {e.notes || '–'}
+                                                {[e.disturbance_reason, e.notes].filter(Boolean).join(' · ') || '–'}
                                             </td>
                                         </tr>
                                     )
@@ -427,7 +446,7 @@ export function ExportClient({ entries, periodEntries, ovulations, userEmail }: 
                         Erstellt am {format(new Date(), 'd. MMMM yyyy', { locale: de })} • basaltemperatur.online
                     </span>
                     <span>
-                        Hinweis: Diese Kurve dient der Unterstützung des Arztgesprächs und ersetzt keine medizinische Diagnose.
+                        Hinweis: Diese Kurve ist eine persönliche Dokumentation und ersetzt keine medizinische Diagnose.
                     </span>
                 </div>
             </div>

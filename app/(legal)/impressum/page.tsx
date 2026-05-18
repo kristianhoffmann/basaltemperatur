@@ -68,7 +68,7 @@ export default function ImpressumPage() {
         Diagnosewerkzeug. Sie ersetzt keine ärztliche Beratung oder Untersuchung.
       </p>
       <p>
-        Algorithmenbasierte Vorhersagen (z.B. Eisprung-Erkennung, Zyklusprognosen) sind
+        Algorithmenbasierte Vorhersagen (z.B. zu fruchtbaren Tagen und Zyklusverläufen) sind
         Schätzungen und können individuell abweichen. Für medizinische Entscheidungen
         konsultieren Sie bitte Ihre Ärztin oder Ihren Arzt.
       </p>

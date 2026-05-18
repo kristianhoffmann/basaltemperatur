@@ -54,7 +54,10 @@ export default async function CycleComparisonPage() {
     }
 
     // Finde Zyklusstarts (erste Tage der Periode nach einer Pause)
-    const periodDates = periodEntries.map(p => p.date).sort()
+    const periodDates = periodEntries
+        .filter(p => p.flow_intensity !== 'spotting')
+        .map(p => p.date)
+        .sort()
     const cycleStarts: string[] = []
 
     for (let i = 0; i < periodDates.length; i++) {

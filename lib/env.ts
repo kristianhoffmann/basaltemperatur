@@ -8,21 +8,14 @@ import { z } from 'zod';
 // Server-seitige Umgebungsvariablen
 const serverSchema = z.object({
   // Supabase
-  SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
   
   // Stripe (optional in dev)
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   STRIPE_PRICE_ID: z.string().optional(),
-  
-  // Email (optional)
-  RESEND_API_KEY: z.string().optional(),
-  
-  // AI (optional)
-  OPENAI_API_KEY: z.string().optional(),
-  OPENAI_MODEL: z.string().default('gpt-4-turbo-preview'),
-  
+
   // Node Environment
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
 });

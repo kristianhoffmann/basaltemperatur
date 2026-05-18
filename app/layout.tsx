@@ -2,9 +2,11 @@
 // Root Layout – Basaltemperatur App
 
 import type { Metadata, Viewport } from 'next'
+import { Suspense } from 'react'
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import { ThemeProvider, ThemeScript } from '@/components/shared/ThemeToggle'
 import { ToastProvider } from '@/components/shared/Toaster'
+import { TrafficTracker } from '@/components/analytics/TrafficTracker'
 import './globals.css'
 
 const inter = Inter({
@@ -21,7 +23,7 @@ const jakarta = Plus_Jakarta_Sans({
 
 const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
 const siteName = 'Basaltemperatur'
-const siteDescription = 'Tracke deine Basaltemperatur, erkenne deinen Eisprung und behalte deinen Zyklus im Blick. Einfach, sicher und privat.'
+const siteDescription = 'Tracke deine Basaltemperatur, werte Temperaturanstiege aus und behalte deinen Zyklus im Blick. Einfach, sicher und privat.'
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -38,7 +40,7 @@ export const metadata: Metadata = {
   description: siteDescription,
   applicationName: siteName,
   category: 'health',
-  keywords: ['Basaltemperatur', 'Zyklustracking', 'Eisprung', 'NFP', 'Temperaturkurve', 'Periodenkalender', 'Kinderwunsch'],
+  keywords: ['Basaltemperatur', 'Zyklustracking', 'Temperaturauswertung', 'NFP', 'Temperaturkurve', 'Periodenkalender', 'Kinderwunsch'],
   authors: [{ name: 'Basaltemperatur App' }],
   creator: 'Basaltemperatur App',
   alternates: {
@@ -99,6 +101,9 @@ export default function RootLayout({
       <body className="min-h-screen antialiased">
         <ThemeProvider>
           <ToastProvider>
+            <Suspense fallback={null}>
+              <TrafficTracker />
+            </Suspense>
             {children}
           </ToastProvider>
         </ThemeProvider>

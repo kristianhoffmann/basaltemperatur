@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // ============================================================================
 // useDebounce
@@ -71,19 +71,19 @@ export function useLocalStorage<T>(
 // ============================================================================
 
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false);
+  const [matches, setMatches] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.matchMedia(query).matches;
+  });
 
   useEffect(() => {
     const media = window.matchMedia(query);
-    if (media.matches !== matches) {
-      setMatches(media.matches);
-    }
 
     const listener = (e: MediaQueryListEvent) => setMatches(e.matches);
     media.addEventListener('change', listener);
 
     return () => media.removeEventListener('change', listener);
-  }, [query, matches]);
+  }, [query]);
 
   return matches;
 }
@@ -199,7 +199,10 @@ export function useAsync<T>(
 
   useEffect(() => {
     if (immediate) {
-      execute();
+      const timer = setTimeout(() => {
+        void execute();
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [execute, immediate]);
 
@@ -259,21 +262,6 @@ export function useInterval(callback: () => void, delay: number | null): void {
     const id = setInterval(() => savedCallback.current(), delay);
     return () => clearInterval(id);
   }, [delay]);
-}
-
-// ============================================================================
-// usePrevious
-// Vorherigen Wert eines State speichern
-// ============================================================================
-
-export function usePrevious<T>(value: T): T | undefined {
-  const ref = useRef<T | undefined>(undefined);
-
-  useEffect(() => {
-    ref.current = value;
-  }, [value]);
-
-  return ref.current;
 }
 
 // ============================================================================

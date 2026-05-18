@@ -1,13 +1,14 @@
-// middleware.ts
-// Auth Middleware - Schützt Routen und managed Sessions
+// proxy.ts
+// Auth Proxy - Schützt Routen und managed Sessions
 //
 // Geschützte Routen: /dashboard/*, /einstellungen/*
 // Öffentliche Routen: /, /login, /registrieren, /demo/*, /impressum, etc.
 
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { isConfiguredAdminEmail } from '@/lib/adminAccess'
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -21,7 +22,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) =>
+          cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value)
           )
           supabaseResponse = NextResponse.next({
@@ -45,17 +46,15 @@ export async function middleware(request: NextRequest) {
   // ============================================
   const protectedRoutes = [
     '/dashboard',
-    '/kunden',
-    '/projekte',
-    '/angebote',
-    '/rechnungen',
     '/kalender',
-    '/vorlagen',
     '/einstellungen',
     '/statistiken',
     '/zyklen',
     '/export',
     '/eintrag',
+    '/onboarding',
+    '/erfolg',
+    '/anleitung',
   ]
 
   const isProtectedRoute = protectedRoutes.some(route =>
@@ -80,6 +79,21 @@ export async function middleware(request: NextRequest) {
   }
 
   // ============================================
+  // ONBOARDING-GATING
+  // ============================================
+  if (isProtectedRoute && user && pathname !== '/onboarding') {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('onboarding_completed, sensitive_data_consent_at')
+      .eq('id', user.id)
+      .maybeSingle()
+
+    if (!profile?.onboarding_completed || !profile?.sensitive_data_consent_at) {
+      return NextResponse.redirect(new URL('/onboarding', request.url))
+    }
+  }
+
+  // ============================================
   // ADMIN ROUTEN
   // ============================================
   if (pathname.startsWith('/admin')) {
@@ -87,14 +101,7 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(new URL('/login', request.url))
     }
 
-    // Prüfen ob Admin
-    const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('role')
-      .eq('user_id', user.id)
-      .single()
-
-    if (!adminUser) {
+    if (!isConfiguredAdminEmail(user.email)) {
       return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }

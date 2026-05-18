@@ -11,34 +11,47 @@ import { differenceInDays, parseISO, format, addDays } from 'date-fns'
 import type { Profile } from '@/types/database'
 
 function buildCycleStats(
-    periodEntries: { date: string }[],
+    periodEntries: { date: string; flow_intensity?: string }[],
     fallbackCycleLength: number
 ) {
-    const sortedDates = periodEntries.map(p => p.date).sort()
+    const sortedDates = periodEntries
+        .filter(p => p.flow_intensity !== 'spotting')
+        .map(p => p.date)
+        .sort()
 
     if (sortedDates.length === 0) {
         return {
             cycleStarts: [] as string[],
+            completedCycleCount: 0,
             averageCycleLength: fallbackCycleLength,
             averagePeriodLength: 5,
         }
     }
 
+    // Zyklusstart = >3 Tage Lücke (konsistent mit ovulation.ts und allen anderen Seiten).
+    // Periodenblock = aufeinanderfolgende Tage (≤1 Tag Lücke), wird separat getrackt
+    // damit averagePeriodLength nicht von der Zyklusgrenze beeinflusst wird.
     const cycleStarts: string[] = [sortedDates[0]]
-    const periodLengths: number[] = []
-    let currentPeriodLength = 1
+    const periodBlocks: number[] = []
+    let currentBlockLength = 1
 
     for (let i = 1; i < sortedDates.length; i++) {
         const diff = differenceInDays(parseISO(sortedDates[i]), parseISO(sortedDates[i - 1]))
+
+        // Block-Tracking (für Periodenlänge)
         if (diff <= 1) {
-            currentPeriodLength += 1
+            currentBlockLength += 1
         } else {
-            periodLengths.push(currentPeriodLength)
+            periodBlocks.push(currentBlockLength)
+            currentBlockLength = 1
+        }
+
+        // Zyklusstart-Erkennung (für Vorhersagen)
+        if (diff > 3) {
             cycleStarts.push(sortedDates[i])
-            currentPeriodLength = 1
         }
     }
-    periodLengths.push(currentPeriodLength)
+    periodBlocks.push(currentBlockLength)
 
     const cycleLengths: number[] = []
     for (let i = 0; i < cycleStarts.length - 1; i++) {
@@ -48,7 +61,7 @@ function buildCycleStats(
         }
     }
 
-    const validPeriodLengths = periodLengths.filter(length => length >= 2 && length <= 8)
+    const validPeriodLengths = periodBlocks.filter(length => length >= 2 && length <= 8)
 
     const averageCycleLength = cycleLengths.length > 0
         ? Math.round(cycleLengths.reduce((sum, value) => sum + value, 0) / cycleLengths.length)
@@ -60,6 +73,7 @@ function buildCycleStats(
 
     return {
         cycleStarts,
+        completedCycleCount: cycleLengths.length,
         averageCycleLength,
         averagePeriodLength,
     }
@@ -102,22 +116,25 @@ export default async function CalendarPage() {
     const profile = profileResult.data as Profile | null
     const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
     const cycleLength = profile?.cycle_length_default || 28
+    const lutealPhase = profile?.luteal_phase_default || 14
     const periodEntries = periodResult.data || []
 
     // Nutzt reale Verlaufsdaten (wenn vorhanden) statt nur Default-Werten.
     const {
         cycleStarts,
+        completedCycleCount,
         averageCycleLength,
         averagePeriodLength,
     } = buildCycleStats(periodEntries, cycleLength)
     const lastPeriodStart = cycleStarts.length > 0 ? cycleStarts[cycleStarts.length - 1] : null
+    const predictionBaselineReady = completedCycleCount >= 3
 
     const fertileDates: string[] = []
     const peakDates: string[] = []
     const predictedPeriodDates: string[] = []
 
-    if (lastPeriodStart && hasLifetimeAccess) {
-        const windows = getFutureWindows(lastPeriodStart, averageCycleLength)
+    if (lastPeriodStart && hasLifetimeAccess && predictionBaselineReady) {
+        const windows = getFutureWindows(lastPeriodStart, averageCycleLength, lutealPhase)
         for (const window of windows) {
             // Generate all dates in fertile window
             const start = parseISO(window.start)
@@ -156,6 +173,8 @@ export default async function CalendarPage() {
                 peakDates={peakDates}
                 predictedPeriodDates={predictedPeriodDates}
                 hasLifetimeAccess={hasLifetimeAccess}
+                predictionBaselineReady={predictionBaselineReady}
+                completedCycleCount={completedCycleCount}
             />
         </div>
     )

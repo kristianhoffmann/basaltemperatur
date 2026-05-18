@@ -10,8 +10,7 @@ interface SocialLoginProps {
 export function SocialLogin({ label = 'Mit Google anmelden' }: SocialLoginProps) {
     const handleGoogleLogin = async () => {
         const supabase = createClient()
-        // Cast to any to avoid type error with @supabase/ssr client
-        await (supabase.auth as any).signInWithOAuth({
+        await supabase.auth.signInWithOAuth({
             provider: 'google',
             options: {
                 redirectTo: `${window.location.origin}/auth/callback`,

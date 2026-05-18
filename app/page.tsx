@@ -25,13 +25,13 @@ const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
 export const metadata: Metadata = {
-  title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+  title: 'Basaltemperatur App: Zyklus tracken, Temperaturanstieg auswerten',
   description: 'Basaltemperatur App für natürliches Zyklustracking: Temperatur und Periode kostenlos eintragen, komplette Analyse einmalig für 9,99 € freischalten.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+    title: 'Basaltemperatur App: Zyklus tracken, Temperaturanstieg auswerten',
     description: 'Temperatur & Periode kostenlos eintragen. Analyse, Prognosen und Export einmalig für 9,99 € freischalten.',
     url: '/',
     type: 'website',
@@ -82,8 +82,8 @@ const features = [
   },
   {
     icon: Sparkles,
-    title: 'Prognosen & Eisprung',
-    description: 'Eisprung-, Fruchtbarkeits- und Periodenprognosen basierend auf deinem Verlauf.',
+    title: 'Prognosen & Temperaturanstieg',
+    description: 'Statistische Zyklus- und Periodenprognosen mit rückblickender Temperaturauswertung.',
     tier: 'Premium Analyse',
     accent: 'from-violet-400 to-purple-500',
     iconBg: 'bg-violet-400/10',
@@ -101,7 +101,7 @@ const features = [
   {
     icon: FileDown,
     title: 'PDF-Export',
-    description: 'Exportiere deine Kurve als PDF für Arztgespräche und Dokumentation.',
+    description: 'Exportiere deine Kurve als PDF für deine persönliche Dokumentation.',
     tier: 'Premium Analyse',
     accent: 'from-emerald-400 to-teal-500',
     iconBg: 'bg-emerald-400/10',
@@ -112,10 +112,10 @@ const features = [
 const lifetimeFeatures = [
   'Analyse-Dashboard mit Zyklus-KPIs',
   'Temperaturkurve mit Mustererkennung',
-  'Eisprung-, Fruchtbarkeits- und Periodenprognosen',
+  'Temperaturauswertung sowie Zyklus- und Periodenprognosen',
   'Zyklusstatistiken und Verlaufstrends',
   'Zyklusvergleich mehrerer Zyklen',
-  'PDF-Export für den Frauenarzt',
+  'PDF-Export für deine Dokumentation',
   'Web-App + iOS Analyse',
   'Alle zukünftigen Updates',
   'Kein Abo – einmalig zahlen',
@@ -125,13 +125,13 @@ const testimonials = [
   {
     name: 'Sarah M.',
     location: 'München',
-    text: 'Endlich eine App, die einfach nur funktioniert – ohne Werbung, ohne Abo, ohne Schnickschnack. Mein Eisprung wird zuverlässig erkannt.',
+    text: 'Endlich eine App, die einfach nur funktioniert – ohne Werbung, ohne Abo, ohne Schnickschnack. Meine Temperaturkurve ist endlich nachvollziehbar.',
     rating: 5,
   },
   {
     name: 'Laura K.',
     location: 'Hamburg',
-    text: 'Die PDF-Export-Funktion ist Gold wert! Mein Frauenarzt war begeistert von der übersichtlichen Temperaturkurve. Klare Empfehlung.',
+    text: 'Die PDF-Export-Funktion ist Gold wert! Meine Temperaturkurve ist übersichtlich dokumentiert und leicht zu teilen.',
     rating: 5,
   },
   {
@@ -389,7 +389,7 @@ export default function LandingPage() {
                 {/* Ovulation marker */}
                 <circle cx="420" cy="168" r="10" fill="rgba(123,97,255,0.2)" stroke="#7B61FF" strokeWidth="2" />
                 <circle cx="420" cy="168" r="4" fill="#7B61FF" />
-                <text x="420" y="152" textAnchor="middle" fill="#7B61FF" fontSize="11" fontWeight="700">Eisprung</text>
+                <text x="420" y="152" textAnchor="middle" fill="#7B61FF" fontSize="11" fontWeight="700">Anstieg</text>
               </svg>
             </div>
           </div>
@@ -471,7 +471,7 @@ export default function LandingPage() {
             {[
               { step: '1', title: 'Registrieren', desc: 'Erstelle in Sekunden deinen Account.' },
               { step: '2', title: 'Temperatur eintragen', desc: 'Miss morgens deine Basaltemperatur und trage sie ein.' },
-              { step: '3', title: 'Zyklus verstehen', desc: 'Deine Kurve zeigt dir Eisprung, Periode und Muster.' },
+              { step: '3', title: 'Zyklus verstehen', desc: 'Deine Kurve zeigt dir Periode, Temperaturanstiege und Muster.' },
             ].map((item, i) => (
               <div key={item.step} className={`text-center animate-fade-in animate-stagger-${i + 1}`}>
                 <div className="inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-gradient-to-br from-rose-400 to-violet-500 text-white text-2xl font-bold mb-6 shadow-lg shadow-rose-500/20">

@@ -21,6 +21,12 @@ const SignUpSchema = z.object({
     .regex(/[0-9]/, 'Das Passwort muss mindestens eine Zahl enthalten.'),
   companyName: z.string().optional(),
   ownerName: z.string().min(1, 'Bitte gib deinen Namen ein.'),
+  termsAccepted: z.literal('true', {
+    errorMap: () => ({ message: 'Bitte akzeptiere die AGB und Datenschutzrichtlinien.' }),
+  }),
+  sensitiveDataConsent: z.literal('true', {
+    errorMap: () => ({ message: 'Bitte willige in die Verarbeitung deiner Gesundheitsdaten ein.' }),
+  }),
 })
 
 const SignInSchema = z.object({
@@ -40,18 +46,29 @@ const UpdatePasswordSchema = z.object({
     .regex(/[0-9]/, 'Das Passwort muss mindestens eine Zahl enthalten.'),
 })
 
+type AuthActionState = {
+  error?: unknown
+  success?: boolean
+  message?: string
+} | null
+
+const SENSITIVE_DATA_CONSENT_VERSION = '2026-05-18'
+
 // ============================================
 // SIGN UP
 // ============================================
 
-export async function signUp(prevState: any, formData: FormData) {
+export async function signUp(_prevState: AuthActionState, formData: FormData) {
   const supabase = await createClient()
+  const companyNameValue = formData.get('companyName')
 
   const validatedFields = SignUpSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password'),
-    companyName: formData.get('companyName'),
+    companyName: typeof companyNameValue === 'string' && companyNameValue.trim() ? companyNameValue : undefined,
     ownerName: formData.get('ownerName'),
+    termsAccepted: formData.get('termsAccepted'),
+    sensitiveDataConsent: formData.get('sensitiveDataConsent'),
   })
 
   if (!validatedFields.success) {
@@ -70,6 +87,9 @@ export async function signUp(prevState: any, formData: FormData) {
       data: {
         company_name: companyName,
         owner_name: ownerName,
+        terms_accepted: true,
+        sensitive_data_consent: true,
+        sensitive_data_consent_version: SENSITIVE_DATA_CONSENT_VERSION,
       },
     },
   })
@@ -89,14 +109,14 @@ export async function signUp(prevState: any, formData: FormData) {
     }
   }
 
-  redirect('/dashboard')
+  redirect('/onboarding')
 }
 
 // ============================================
 // SIGN IN
 // ============================================
 
-export async function signIn(prevState: any, formData: FormData) {
+export async function signIn(_prevState: AuthActionState, formData: FormData) {
   const supabase = await createClient()
 
   const validatedFields = SignInSchema.safeParse({
@@ -127,6 +147,21 @@ export async function signIn(prevState: any, formData: FormData) {
     return { error: 'Anmeldung fehlgeschlagen. Bitte versuche es erneut.' }
   }
 
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    redirect('/dashboard')
+  }
+
+  const { data: profile } = await supabase
+    .from('profiles')
+    .select('onboarding_completed, sensitive_data_consent_at')
+    .eq('id', user.id)
+    .maybeSingle()
+
+  if (!profile?.onboarding_completed || !profile?.sensitive_data_consent_at) {
+    redirect('/onboarding')
+  }
+
   revalidatePath('/', 'layout')
   redirect('/dashboard')
 }
@@ -140,6 +175,39 @@ export async function signOut() {
   await supabase.auth.signOut()
   revalidatePath('/', 'layout')
   redirect('/login')
+}
+
+export async function withdrawSensitiveDataConsent() {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user) {
+    redirect('/login')
+  }
+
+  const { error } = await supabase
+    .from('profiles')
+    .update({
+      sensitive_data_consent_at: null,
+      sensitive_data_consent_version: null,
+      intended_use_acknowledged_at: null,
+      onboarding_completed: false,
+    })
+    .eq('id', user.id)
+
+  if (error) {
+    throw new Error('Einwilligung konnte nicht widerrufen werden.')
+  }
+
+  await supabase.auth.updateUser({
+    data: {
+      sensitive_data_consent: false,
+      sensitive_data_consent_version: null,
+    },
+  })
+
+  revalidatePath('/', 'layout')
+  redirect('/onboarding?consent=revoked')
 }
 
 // ============================================
@@ -169,7 +237,7 @@ export async function signInWithGoogle() {
 // PASSWORD RESET
 // ============================================
 
-export async function resetPassword(prevState: any, formData: FormData) {
+export async function resetPassword(_prevState: AuthActionState, formData: FormData) {
   const supabase = await createClient()
 
   const validatedFields = ResetPasswordSchema.safeParse({
@@ -202,7 +270,7 @@ export async function resetPassword(prevState: any, formData: FormData) {
 // UPDATE PASSWORD
 // ============================================
 
-export async function updatePassword(prevState: any, formData: FormData) {
+export async function updatePassword(_prevState: AuthActionState, formData: FormData) {
   const supabase = await createClient()
 
   const validatedFields = UpdatePasswordSchema.safeParse({
@@ -253,6 +321,8 @@ export async function deleteAccount(formData: FormData) {
   // Alle Benutzerdaten löschen (DSGVO-konform)
   await supabase.from('temperature_entries').delete().eq('user_id', user.id)
   await supabase.from('period_entries').delete().eq('user_id', user.id)
+  await supabase.from('cycles').delete().eq('user_id', user.id)
+  await adminClient.from('profiles').delete().eq('id', user.id)
 
   // Account über Admin-Client löschen
   const { error } = await adminClient.auth.admin.deleteUser(user.id)
@@ -270,7 +340,7 @@ export async function deleteAccount(formData: FormData) {
 // UPDATE PROFILE
 // ============================================
 
-export async function updateProfile(prevState: any, formData: FormData) {
+export async function updateProfile(_prevState: AuthActionState, formData: FormData) {
   const supabase = await createClient()
 
   const name = (formData.get('name') as string)?.trim()
@@ -283,15 +353,29 @@ export async function updateProfile(prevState: any, formData: FormData) {
     return { error: 'Der Name darf maximal 100 Zeichen lang sein.' }
   }
 
-  const { error } = await supabase.auth.updateUser({
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
+    return { error: 'Nicht angemeldet.' }
+  }
+
+  // Mirror the name into both auth metadata (used by iOS) and profiles.display_name (used by web)
+  const { error: authError } = await supabase.auth.updateUser({
     data: { owner_name: name },
   })
 
-  if (error) {
+  if (authError) {
+    return { error: 'Name konnte nicht aktualisiert werden.' }
+  }
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .update({ display_name: name })
+    .eq('id', user.id)
+
+  if (profileError) {
     return { error: 'Name konnte nicht aktualisiert werden.' }
   }
 
   revalidatePath('/einstellungen')
   return { success: true, message: 'Name erfolgreich aktualisiert.' }
 }
-

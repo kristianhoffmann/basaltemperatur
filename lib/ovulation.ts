@@ -13,6 +13,10 @@ export interface OvulationResult {
     coverLineTemp: number | null
     phase: 'follicular' | 'ovulation' | 'luteal' | 'unknown'
     cycleDay: number | null
+    source: 'temperature' | 'prediction'
+    confidence: 'high' | 'medium' | 'low'
+    isConfirmed: boolean
+    reason?: string
 }
 
 export interface ChartDataPoint {
@@ -21,6 +25,73 @@ export interface ChartDataPoint {
     isPeriod: boolean
     isOvulation: boolean
     flowIntensity?: 'light' | 'medium' | 'heavy' | 'spotting'
+}
+
+type TemperatureInput = Pick<TemperatureEntry, 'date' | 'temperature'> & Partial<Pick<
+    TemperatureEntry,
+    'disturbed' | 'exclude_from_analysis' | 'cervical_mucus'
+>>
+
+type PeriodInput = Pick<import('@/types/database').PeriodEntry, 'date'> & Partial<Pick<
+    import('@/types/database').PeriodEntry,
+    'flow_intensity'
+>>
+
+const DAY_MS = 1000 * 60 * 60 * 24
+
+function daysBetween(a: string, b: string): number {
+    const start = new Date(`${a}T00:00:00`)
+    const end = new Date(`${b}T00:00:00`)
+    return Math.round((end.getTime() - start.getTime()) / DAY_MS)
+}
+
+function hasConsecutiveDates(entries: Pick<TemperatureEntry, 'date'>[]): boolean {
+    for (let i = 1; i < entries.length; i++) {
+        if (daysBetween(entries[i - 1].date, entries[i].date) !== 1) return false
+    }
+    return true
+}
+
+function getEligibleTemperatureEntries<T extends TemperatureInput>(entries: T[]): T[] {
+    return [...entries]
+        .filter((entry) =>
+            !entry.disturbed &&
+            !entry.exclude_from_analysis &&
+            entry.temperature !== null &&
+            entry.temperature !== undefined &&
+            Number.isFinite(Number(entry.temperature))
+        )
+        .sort((a, b) => a.date.localeCompare(b.date))
+}
+
+function temperatureResult(
+    entries: Pick<TemperatureEntry, 'date' | 'temperature'>[],
+    ovulationIndex: number,
+    coverLineTemp: number | null,
+): OvulationResult {
+    return {
+        ovulationDate: entries[ovulationIndex]?.date || null,
+        coverLineTemp,
+        phase: 'luteal',
+        cycleDay: calculateCycleDay(entries, ovulationIndex),
+        source: 'temperature',
+        confidence: 'high',
+        isConfirmed: true,
+        reason: 'Temperaturanstieg nach 3-über-6-Regel bestätigt',
+    }
+}
+
+function unknownResult(reason: string): OvulationResult {
+    return {
+        ovulationDate: null,
+        coverLineTemp: null,
+        phase: 'unknown',
+        cycleDay: null,
+        source: 'temperature',
+        confidence: 'low',
+        isConfirmed: false,
+        reason,
+    }
 }
 
 /**
@@ -65,21 +136,21 @@ function calculateCycleDay(
  * @returns OvulationResult mit Eisprung-Datum und Cover-Linie
  */
 export function detectOvulation(
-    entries: Pick<TemperatureEntry, 'date' | 'temperature'>[]
+    entries: TemperatureInput[]
 ): OvulationResult {
-    if (entries.length < 9) {
-        return {
-            ovulationDate: null,
-            coverLineTemp: null,
-            phase: 'unknown',
-            cycleDay: null,
-        }
+    const eligibleEntries = getEligibleTemperatureEntries(entries)
+
+    if (eligibleEntries.length < 9) {
+        return unknownResult('Nicht genug auswertbare, ungestörte Temperaturwerte')
     }
 
-    const temps = entries.map(e => Number(e.temperature))
+    const temps = eligibleEntries.map(e => Number(e.temperature))
 
     // Suche nach dem Temperaturanstieg (3-über-6-Regel mit Ausnahmeregeln)
     for (let i = 6; i <= temps.length - 3; i++) {
+        const windowEntries = eligibleEntries.slice(i - 6, Math.min(i + 4, eligibleEntries.length))
+        if (!hasConsecutiveDates(windowEntries.slice(0, 9))) continue
+
         const previousSix = temps.slice(i - 6, i)
         const coverLine = Math.max(...previousSix) // Hilfslinie = Maximum der 6 Vorwerte
 
@@ -96,26 +167,16 @@ export function detectOvulation(
             const coverLineValue = calculateCoverLine(previousSix)
             const ovulationIndex = i - 1
 
-            return {
-                ovulationDate: entries[ovulationIndex]?.date || null,
-                coverLineTemp: coverLineValue,
-                phase: 'luteal',
-                cycleDay: calculateCycleDay(entries, ovulationIndex),
-            }
+            return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
         }
 
         // Ausnahmeregel 1: 3. Wert über coverLine aber < +0.2°C → 4. Wert prüfen
         if (allAbove && first3[2] > coverLine && !thirdHighEnough && available.length >= 4) {
-            if (available[3] > coverLine) {
+            if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine) {
                 const coverLineValue = calculateCoverLine(previousSix)
                 const ovulationIndex = i - 1
 
-                return {
-                    ovulationDate: entries[ovulationIndex]?.date || null,
-                    coverLineTemp: coverLineValue,
-                    phase: 'luteal',
-                    cycleDay: calculateCycleDay(entries, ovulationIndex),
-                }
+                return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
             }
         }
 
@@ -125,16 +186,11 @@ export function detectOvulation(
             if (aboveCount === 2) {
                 // Genau 1 Wert auf/unter coverLine → 4. muss drüber liegen
                 const valuesAbove = [...first3.filter(t => t > coverLine), available[3]]
-                if (available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
+                if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
                     const coverLineValue = calculateCoverLine(previousSix)
                     const ovulationIndex = i - 1
 
-                    return {
-                        ovulationDate: entries[ovulationIndex]?.date || null,
-                        coverLineTemp: coverLineValue,
-                        phase: 'luteal',
-                        cycleDay: calculateCycleDay(entries, ovulationIndex),
-                    }
+                    return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
                 }
             }
         }
@@ -145,6 +201,10 @@ export function detectOvulation(
         coverLineTemp: null,
         phase: 'follicular',
         cycleDay: null,
+        source: 'temperature',
+        confidence: 'low',
+        isConfirmed: false,
+        reason: 'Kein bestätigter Temperaturanstieg gefunden',
     }
 }
 
@@ -152,16 +212,22 @@ export function detectOvulation(
  * Erkennt ALLE Eisprünge im gesamten Zeitraum (Sensiplan-Methode mit Ausnahmeregeln)
  */
 export function detectAllOvulations(
-    entries: Pick<TemperatureEntry, 'date' | 'temperature'>[]
+    entries: TemperatureInput[]
 ): OvulationResult[] {
-    if (entries.length < 9) return []
+    const sortedEntries = getEligibleTemperatureEntries(entries)
+    if (sortedEntries.length < 9) return []
 
-    const sortedEntries = [...entries].sort((a, b) => a.date.localeCompare(b.date))
     const temps = sortedEntries.map(e => Number(e.temperature))
     const results: OvulationResult[] = []
 
     let i = 6
     while (i <= temps.length - 3) {
+        const windowEntries = sortedEntries.slice(i - 6, Math.min(i + 4, sortedEntries.length))
+        if (!hasConsecutiveDates(windowEntries.slice(0, 9))) {
+            i++
+            continue
+        }
+
         const previousSix = temps.slice(i - 6, i)
         const coverLine = Math.max(...previousSix)
 
@@ -181,7 +247,7 @@ export function detectAllOvulations(
 
         // Ausnahmeregel 1: 3. Wert über coverLine aber < +0.2°C → 4. Wert prüfen
         if (!detected && allAbove && first3[2] > coverLine && !thirdHighEnough && available.length >= 4) {
-            if (available[3] > coverLine) detected = true
+            if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine) detected = true
         }
 
         // Ausnahmeregel 2: 1 Wert auf/unter coverLine → 4 Werte nötig
@@ -189,7 +255,7 @@ export function detectAllOvulations(
             const aboveCount = first3.filter(t => t > coverLine).length
             if (aboveCount === 2) {
                 const valuesAbove = [...first3.filter(t => t > coverLine), available[3]]
-                if (available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
+                if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
                     detected = true
                 }
             }
@@ -199,12 +265,7 @@ export function detectAllOvulations(
             const coverLineValue = calculateCoverLine(previousSix)
             const ovulationIndex = i - 1
 
-            results.push({
-                ovulationDate: sortedEntries[ovulationIndex]?.date || null,
-                coverLineTemp: coverLineValue,
-                phase: 'luteal',
-                cycleDay: calculateCycleDay(sortedEntries, ovulationIndex),
-            })
+            results.push(temperatureResult(sortedEntries, ovulationIndex, coverLineValue))
 
             // Mindestens 20 Tage Pause – ein Zyklus ist mind. ~21 Tage
             i += 20
@@ -219,8 +280,11 @@ export function detectAllOvulations(
 /**
  * Gruppiert Periodendaten in Zyklusstarts (erster Tag nach >3 Tage Pause)
  */
-function findCycleStarts(periodEntries: Pick<import('@/types/database').PeriodEntry, 'date'>[]): string[] {
-    const sorted = [...periodEntries].map(p => p.date).sort()
+export function getCycleStarts(periodEntries: PeriodInput[]): string[] {
+    const sorted = [...periodEntries]
+        .filter(p => p.flow_intensity !== 'spotting')
+        .map(p => p.date)
+        .sort()
     if (sorted.length === 0) return []
 
     const cycleStarts: string[] = [sorted[0]]
@@ -235,16 +299,83 @@ function findCycleStarts(periodEntries: Pick<import('@/types/database').PeriodEn
     return cycleStarts
 }
 
+export function getCompletedCycleCount(periodEntries: PeriodInput[]): number {
+    const cycleStarts = getCycleStarts(periodEntries)
+    let completedCycles = 0
+
+    for (let i = 0; i < cycleStarts.length - 1; i++) {
+        const diff = daysBetween(cycleStarts[i], cycleStarts[i + 1])
+        if (diff >= 21 && diff <= 45) {
+            completedCycles++
+        }
+    }
+
+    return completedCycles
+}
+
+export function hasReliablePredictionBaseline(periodEntries: PeriodInput[], minCompletedCycles = 3): boolean {
+    return getCompletedCycleCount(periodEntries) >= minCompletedCycles
+}
+
+export interface PredictionReadiness {
+    ready: boolean
+    completedCycleCount: number
+    usableTemperatureCount: number
+    disturbedTemperatureCount: number
+    excludedTemperatureCount: number
+    latestEntryAgeDays: number | null
+    reasons: string[]
+}
+
+export function getPredictionReadiness(
+    entries: TemperatureInput[],
+    periodEntries: PeriodInput[],
+    minCompletedCycles = 3
+): PredictionReadiness {
+    const completedCycleCount = getCompletedCycleCount(periodEntries)
+    const usableTemperatureCount = entries.filter(entry => !entry.disturbed && !entry.exclude_from_analysis).length
+    const disturbedTemperatureCount = entries.filter(entry => Boolean(entry.disturbed)).length
+    const excludedTemperatureCount = entries.filter(entry => Boolean(entry.exclude_from_analysis)).length
+    const latestDate = entries.map(entry => entry.date).sort().at(-1) || null
+    const latestEntryAgeDays = latestDate ? daysBetween(latestDate, new Date().toISOString().slice(0, 10)) : null
+
+    const reasons: string[] = []
+    if (completedCycleCount < minCompletedCycles) {
+        reasons.push(`${minCompletedCycles - completedCycleCount} weitere abgeschlossene Zyklen erfassen`)
+    }
+    if (usableTemperatureCount < 18) {
+        reasons.push('mehr auswertbare Temperaturwerte eintragen')
+    }
+    if (latestEntryAgeDays === null) {
+        reasons.push('erste Temperatur eintragen')
+    } else if (latestEntryAgeDays > 3) {
+        reasons.push('aktuelle Temperaturwerte ergänzen')
+    }
+    if (entries.length > 0 && (disturbedTemperatureCount + excludedTemperatureCount) / entries.length > 0.35) {
+        reasons.push('Störfaktoren reduzieren oder Werte gezielt ausschließen')
+    }
+
+    return {
+        ready: reasons.length === 0,
+        completedCycleCount,
+        usableTemperatureCount,
+        disturbedTemperatureCount,
+        excludedTemperatureCount,
+        latestEntryAgeDays,
+        reasons,
+    }
+}
+
 /**
  * Kombiniert erkannte Eisprünge mit berechneten (für Zyklen ohne temperaturbasierten Eisprung)
  * Pro Zyklus wird maximal EIN Eisprung angezeigt.
  */
 export function combineOvulationsWithPredictions(
     detected: OvulationResult[],
-    periodEntries: Pick<import('@/types/database').PeriodEntry, 'date'>[],
+    periodEntries: PeriodInput[],
     cycleLength: number = 28 // Fallback
 ): OvulationResult[] {
-    const cycleStarts = findCycleStarts(periodEntries)
+    const cycleStarts = getCycleStarts(periodEntries)
     if (cycleStarts.length === 0) return detected
 
     // Berechne durchschnittliche Zykluslänge aus den Zyklusstarts
@@ -298,7 +429,13 @@ export function combineOvulationsWithPredictions(
                 ovulationDate: predictedDate.toISOString().split('T')[0],
                 coverLineTemp: null,
                 phase: 'ovulation',
-                cycleDay: Math.floor((predictedDate.getTime() - cycleStart.getTime()) / (1000 * 60 * 60 * 24)) + 1
+                cycleDay: Math.floor((predictedDate.getTime() - cycleStart.getTime()) / DAY_MS) + 1,
+                source: 'prediction',
+                confidence: nextCycleStart ? 'medium' : 'low',
+                isConfirmed: false,
+                reason: nextCycleStart
+                    ? 'Rückrechnung aus nächstem Periodenbeginn, nicht temperaturbestätigt'
+                    : 'Prognose aus durchschnittlicher Zykluslänge',
             })
         }
     }
@@ -311,8 +448,7 @@ export function combineOvulationsWithPredictions(
  */
 export function getCyclePhase(
     cycleDay: number,
-    ovulationDay: number | null,
-    cycleLength: number = 28
+    ovulationDay: number | null
 ): 'menstruation' | 'follicular' | 'ovulation' | 'luteal' {
     if (cycleDay <= 5) return 'menstruation'
     if (ovulationDay) {
