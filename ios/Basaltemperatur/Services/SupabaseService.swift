@@ -363,6 +363,41 @@ class SupabaseService: ObservableObject {
             throw SupabaseError.notAuthenticated
         }
 
+        do {
+            try await updateSensitiveDataConsentViaWebApi()
+        } catch {
+            #if DEBUG
+            print("Consent API update failed, falling back to direct profile update: \(error)")
+            #endif
+            try await updateSensitiveDataConsentDirectly(userId: uid, version: version)
+        }
+
+        await MainActor.run {
+            sensitiveDataConsentRevision += 1
+        }
+    }
+
+    private func updateSensitiveDataConsentViaWebApi() async throws {
+        let url = URL(string: "\(Config.webAppUrl)/api/onboarding")!
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try JSONSerialization.data(withJSONObject: [
+            "sensitive_data_consent": true,
+            "cycle_length_default": 28,
+        ])
+
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request, includeApiKey: false)
+        guard httpResponse.statusCode < 300 else {
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               let msg = json["error"] as? String ?? json["message"] as? String {
+                throw SupabaseError.apiError(msg)
+            }
+            throw SupabaseError.requestFailed
+        }
+    }
+
+    private func updateSensitiveDataConsentDirectly(userId uid: String, version: String) async throws {
         let url = URL(string: "\(supabaseUrl)/rest/v1/profiles?id=eq.\(uid)")!
         var request = URLRequest(url: url)
         request.httpMethod = "PATCH"
@@ -385,9 +420,6 @@ class SupabaseService: ObservableObject {
                 throw SupabaseError.apiError(msg)
             }
             throw SupabaseError.requestFailed
-        }
-        await MainActor.run {
-            sensitiveDataConsentRevision += 1
         }
     }
 

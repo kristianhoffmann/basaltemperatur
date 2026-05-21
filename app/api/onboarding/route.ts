@@ -1,19 +1,46 @@
 // app/api/onboarding/route.ts
 // Saves onboarding preferences and marks onboarding as completed
 
-import { createClient } from '@/lib/supabase/server'
+import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { createClient as createSupabaseClient, type User } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
 const SENSITIVE_DATA_CONSENT_VERSION = '2026-05-18'
 
-export async function GET() {
+async function getUserForRequest(request: Request): Promise<{ user: User | null; bearerToken: string | null }> {
+    const authHeader = request.headers.get('Authorization')
+    const bearerToken = authHeader?.startsWith('Bearer ') ? authHeader.slice('Bearer '.length) : null
+
+    if (bearerToken) {
+        const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+        const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+        if (!supabaseUrl || !supabaseAnonKey) {
+            return { user: null, bearerToken }
+        }
+
+        const userClient = createSupabaseClient(supabaseUrl, supabaseAnonKey, {
+            global: { headers: { Authorization: `Bearer ${bearerToken}` } },
+        })
+        const { data: { user }, error } = await userClient.auth.getUser()
+
+        return { user: error ? null : user, bearerToken }
+    }
+
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
+
+    return { user, bearerToken: null }
+}
+
+export async function GET(request: Request) {
+    const { user, bearerToken } = await getUserForRequest(request)
 
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
+    const supabase = bearerToken ? createAdminClient() : await createClient()
     const { data: profile, error } = await supabase
         .from('profiles')
         .select('display_name, cycle_length_default, sensitive_data_consent_at')
@@ -28,8 +55,7 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
-    const supabase = await createClient()
-    const { data: { user } } = await supabase.auth.getUser()
+    const { user, bearerToken } = await getUserForRequest(request)
 
     if (!user) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -58,6 +84,7 @@ export async function POST(request: Request) {
         profileUpdate.display_name = rawName
     }
 
+    const supabase = bearerToken ? createAdminClient() : await createClient()
     const { error } = await supabase
         .from('profiles')
         .update(profileUpdate)
@@ -69,7 +96,12 @@ export async function POST(request: Request) {
 
     // Mirror name into auth metadata so iOS (which reads user_metadata.owner_name) sees it too.
     if (hasDisplayName) {
-        await supabase.auth.updateUser({ data: { owner_name: rawName } })
+        if (bearerToken) {
+            const admin = createAdminClient()
+            await admin.auth.admin.updateUserById(user.id, { user_metadata: { owner_name: rawName } })
+        } else {
+            await supabase.auth.updateUser({ data: { owner_name: rawName } })
+        }
     }
 
     return NextResponse.json({ success: true })
