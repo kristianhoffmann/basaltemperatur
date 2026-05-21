@@ -1,4 +1,4 @@
-export const LEGAL_LAST_UPDATED = '06. März 2026';
+export const LEGAL_LAST_UPDATED = '21. Mai 2026';
 
 export type LegalCompany = {
   name: string;
@@ -17,12 +17,12 @@ export type LegalInfrastructure = {
 };
 
 const COMPANY_FALLBACKS: LegalCompany = {
-  name: '[Dein vollständiger Name]',
-  street: '[Straße Hausnummer]',
-  city: '[PLZ Stadt]',
+  name: 'Kristian Hoffmann (Einzelunternehmen)',
+  street: 'Karl-Kraut-Straße 15',
+  city: '30177 Hannover',
   country: 'Deutschland',
-  email: 'info@kristianhoffmann.de',
-  phone: '',
+  email: 'moin@kristianhoffmann.de',
+  phone: '+49 151 15538987',
 };
 
 const MISSING_COMPANY_FIELD_LABELS: Record<keyof Pick<LegalCompany, 'name' | 'street' | 'city' | 'email'>, string> = {

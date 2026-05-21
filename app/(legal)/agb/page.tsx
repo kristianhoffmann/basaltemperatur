@@ -107,9 +107,12 @@ export default function AGBPage() {
 
       <h2>§ 5 Vergütung</h2>
       <p>
-        (1) Die Nutzung der App erfordert eine <strong>einmalige Zahlung von 9,99 €</strong>{' '}
-        (inklusive ggf. anfallender gesetzlicher Umsatzsteuer). Es handelt sich um eine Einmalzahlung – es entstehen
+        (1) Die Nutzung der App erfordert eine <strong>einmalige Zahlung von 9,99 €</strong>.
+        Es handelt sich um eine Einmalzahlung – es entstehen
         keine wiederkehrenden Kosten oder Abonnements.
+      </p>
+      <p>
+        (1a) Gemäß § 19 UStG wird keine Umsatzsteuer berechnet und nicht ausgewiesen.
       </p>
       <p>
         (2) Nach erfolgreicher Zahlung erhält der Kunde zeitlich unbegrenzten Zugang zu

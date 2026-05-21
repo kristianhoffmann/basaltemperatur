@@ -49,6 +49,7 @@ export function getReferrerHost(referrer: string | null | undefined): string | n
 
 export function normalizePath(path: string | null | undefined): string {
   if (!path) return '/'
+  if (!path.startsWith('/') && !/^https?:\/\//i.test(path)) return '/'
   try {
     const url = path.startsWith('http') ? new URL(path) : new URL(path, 'https://local.invalid')
     return url.pathname || '/'

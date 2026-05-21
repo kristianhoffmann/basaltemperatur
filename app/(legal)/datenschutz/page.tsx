@@ -1,5 +1,6 @@
 import { Metadata } from 'next';
 import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
+import { AnalyticsOptOut } from '@/app/(legal)/AnalyticsOptOut';
 import {
   getLegalCompany,
   getLegalInfrastructure,
@@ -59,6 +60,7 @@ export default function DatenschutzPage() {
         <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte, Periodendaten (Datum, Stärke), Zyklusnotizen</li>
         <li><strong>Nutzungsdaten:</strong> Zykluseinstellungen, Profilpräferenzen</li>
         <li><strong>Technische Daten:</strong> IP-Adresse, Browsertyp, Zugriffszeiten (Server-Logs)</li>
+        <li><strong>Nutzungsanalyse:</strong> besuchte Seiten, Referrer, Geräte-/Browserdaten, Sprache, Zeitzone, pseudonyme Besucher- und Sitzungskennungen</li>
       </ul>
 
       <p><strong>Wofür nutzen wir Ihre Daten?</strong></p>
@@ -155,16 +157,34 @@ export default function DatenschutzPage() {
 
       <h2>7. Cookies</h2>
       <p>
-        Die App verwendet ausschließlich <strong>technisch notwendige Cookies</strong> für
-        die Session-Verwaltung (Anmeldestatus). Es werden keine Tracking-Cookies,
-        Analyse-Tools oder Werbe-Cookies eingesetzt.
+        Die App verwendet technisch notwendige Cookies für die Session-Verwaltung
+        (Anmeldestatus). Für die unten beschriebene Nutzungsanalyse werden keine
+        Drittanbieter-Cookies gesetzt; die pseudonyme Besucherkennung wird im lokalen
+        Browser-Speicher gespeichert.
       </p>
       <p>
         Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
         technischen Funktionsfähigkeit).
       </p>
 
-      <h2>8. Zahlungsdienstleister</h2>
+      <h2>8. Nutzungsanalyse</h2>
+      <p>
+        Wir erfassen einfache technische Nutzungsdaten, um Fehler, Reichweite und
+        Nutzung der App nachvollziehen zu können. Dabei werden insbesondere Seitenpfad,
+        vollständige URL, Referrer, Seitentitel, Sprache, Zeitzone, Bildschirmgröße,
+        Browser-/Betriebssysteminformationen, pseudonyme Besucher- und Sitzungskennungen
+        sowie ein gehashter IP-Wert verarbeitet. Die Analyse erfolgt auf unserer eigenen
+        Infrastruktur und nicht zu Werbezwecken.
+      </p>
+      <p>
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse
+        liegt im sicheren und wirtschaftlichen Betrieb der App. Sie können die
+        Nutzungsanalyse für diesen Browser deaktivieren; außerdem respektiert die App
+        die Browser-Einstellung „Do Not Track“, sofern sie gesetzt ist.
+      </p>
+      <AnalyticsOptOut />
+
+      <h2>9. Zahlungsdienstleister</h2>
 
       <h3>Stripe</h3>
       <p>
@@ -183,7 +203,7 @@ export default function DatenschutzPage() {
         </a>
       </p>
 
-      <h2>9. Speicherdauer</h2>
+      <h2>10. Speicherdauer</h2>
       <p>
         Ihre Gesundheitsdaten werden gespeichert, solange Ihr Benutzerkonto besteht.
         Bei Löschung Ihres Kontos werden alle personenbezogenen Daten einschließlich
@@ -194,7 +214,7 @@ export default function DatenschutzPage() {
         bleiben hiervon unberührt (Aufbewahrungsfrist: bis zu 10 Jahre).
       </p>
 
-      <h2>10. Beschwerderecht bei der Aufsichtsbehörde</h2>
+      <h2>11. Beschwerderecht bei der Aufsichtsbehörde</h2>
       <p>
         Wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten
         gegen die DSGVO verstößt, haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde

@@ -6,6 +6,14 @@ import { usePathname, useSearchParams } from 'next/navigation'
 const VISITOR_KEY = 'bt_visitor_id'
 const SESSION_KEY = 'bt_session_id'
 const LAST_URL_KEY = 'bt_last_url'
+const ANALYTICS_OPT_OUT_KEY = 'bt_analytics_opt_out'
+
+function isAnalyticsOptedOut() {
+  if (typeof window === 'undefined') return true
+  const doNotTrack = navigator.doNotTrack === '1'
+    || (window as Window & { doNotTrack?: string }).doNotTrack === '1'
+  return doNotTrack || window.localStorage.getItem(ANALYTICS_OPT_OUT_KEY) === 'true'
+}
 
 function getOrCreateStorageId(storage: Storage, key: string) {
   const existing = storage.getItem(key)
@@ -24,6 +32,7 @@ export function TrafficTracker() {
   useEffect(() => {
     if (process.env.NEXT_PUBLIC_ENABLE_ANALYTICS === 'false') return
     if (!pathname || pathname.startsWith('/api')) return
+    if (isAnalyticsOptedOut()) return
 
     const search = searchParams.toString()
     const currentUrl = `${window.location.origin}${pathname}${search ? `?${search}` : ''}`

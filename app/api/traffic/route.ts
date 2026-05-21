@@ -17,10 +17,21 @@ export const dynamic = 'force-dynamic'
 const MAX_BODY_BYTES = 16_384
 const EVENT_TYPES = new Set(['pageview', 'conversion', 'custom'])
 
+function getTrafficHashSalt() {
+  const salt = process.env.TRAFFIC_HASH_SALT?.trim()
+
+  if (salt) return salt
+
+  if (process.env.NODE_ENV === 'production') {
+    throw new Error('TRAFFIC_HASH_SALT must be configured in production before traffic analytics can store IP hashes.')
+  }
+
+  return 'development-traffic-hash-salt'
+}
+
 function hashIp(ip: string | null) {
   if (!ip) return null
-  const salt = process.env.TRAFFIC_HASH_SALT || process.env.SUPABASE_SERVICE_ROLE_KEY || 'basaltemperatur'
-  return createHmac('sha256', salt).update(ip).digest('hex')
+  return createHmac('sha256', getTrafficHashSalt()).update(ip).digest('hex')
 }
 
 function getClientIp(request: NextRequest) {
