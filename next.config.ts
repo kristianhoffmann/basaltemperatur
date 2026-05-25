@@ -12,6 +12,18 @@ const nextConfig: NextConfig = {
         ],
     },
 
+    // Rewrites: IndexNow key file
+    async rewrites() {
+        const key = process.env.SEO_AUTOPILOT_INDEXNOW_KEY
+        if (!key) return []
+        return [
+            {
+                source: `/${key}.txt`,
+                destination: '/api/seo-autopilot/indexnow-key',
+            },
+        ]
+    },
+
     // Redirects
     async redirects() {
         return [
