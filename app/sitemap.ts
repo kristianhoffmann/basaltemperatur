@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next'
 import { createClient } from '@supabase/supabase-js'
 import { unstable_cache } from 'next/cache'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
-const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
+const siteUrl = getSeoSiteUrl()
 
 const LOCALES = ['de']
 

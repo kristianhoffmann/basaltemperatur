@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import { MDXRemote } from 'next-mdx-remote/rsc'
 import { getPost } from '@/lib/seo-autopilot/storage'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import { BlogAttributionTracker } from './BlogAttributionTracker'
 
 interface Props {
@@ -22,9 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getCachedPost(locale, slug)
   if (!post) return {}
 
-  const siteUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online'
-  ).replace(/\/$/, '')
+  const siteUrl = getSeoSiteUrl()
   const canonical = `${siteUrl}/${locale}/blog/${slug}`
   const ogImage = post.hero_image_url
     ? [{ url: post.hero_image_url, alt: post.hero_image_alt ?? post.title }]
@@ -58,9 +57,7 @@ export default async function BlogPostPage({ params }: Props) {
   const post = await getCachedPost(locale, slug)
   if (!post) notFound()
 
-  const siteUrl = (
-    process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online'
-  ).replace(/\/$/, '')
+  const siteUrl = getSeoSiteUrl()
   const canonical = `${siteUrl}/${locale}/blog/${slug}`
 
   return (

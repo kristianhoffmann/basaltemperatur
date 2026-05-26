@@ -7,6 +7,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import { ThemeProvider, ThemeScript } from '@/components/shared/ThemeToggle'
 import { ToastProvider } from '@/components/shared/Toaster'
 import { TrafficTracker } from '@/components/analytics/TrafficTracker'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import './globals.css'
 
 const inter = Inter({
@@ -21,7 +22,7 @@ const jakarta = Plus_Jakarta_Sans({
   display: 'swap',
 })
 
-const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
+const siteUrl = getSeoSiteUrl()
 const siteName = 'Basaltemperatur'
 const siteDescription = 'Tracke deine Basaltemperatur, werte Temperaturanstiege aus und behalte deinen Zyklus im Blick. Einfach, sicher und privat.'
 

@@ -20,8 +20,8 @@ import {
   Smartphone,
   ExternalLink,
 } from 'lucide-react'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
-const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
 export const metadata: Metadata = {
@@ -166,6 +166,7 @@ const faqItems = [
 ]
 
 export default function LandingPage() {
+  const siteUrl = getSeoSiteUrl()
   const structuredData = {
     '@context': 'https://schema.org',
     '@graph': [

@@ -1,6 +1,7 @@
 import type { MetadataRoute } from 'next'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
-const siteUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://www.basaltemperatur.online').replace(/\/$/, '')
+const siteUrl = getSeoSiteUrl()
 
 export default function robots(): MetadataRoute.Robots {
   return {

@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { listPosts } from '@/lib/seo-autopilot/storage'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
 const SUPPORTED_LOCALES = ['de']
 
@@ -22,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title: 'Blog | Basaltemperatur',
     description: 'Alle Artikel rund um Basaltemperatur und Zyklusgesundheit.',
     alternates: {
-      canonical: `${process.env.NEXT_PUBLIC_APP_URL}/${locale}/blog`,
+      canonical: `${getSeoSiteUrl()}/${locale}/blog`,
     },
   }
 }
