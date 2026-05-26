@@ -4,6 +4,7 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { listPosts } from '@/lib/seo-autopilot/storage'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { BlogFooter, BlogHeader } from './BlogChrome'
 
 const SUPPORTED_LOCALES = ['de']
 
@@ -36,41 +37,63 @@ export default async function BlogIndexPage({ params }: Props) {
   const posts = await getCachedPosts(locale)
 
   return (
-    <main className="mx-auto max-w-3xl px-4 py-12">
-      <h1 className="mb-8 text-3xl font-bold">Blog</h1>
-      {posts.length === 0 && (
-        <p className="text-gray-500">Noch keine Artikel vorhanden.</p>
-      )}
-      <ul className="space-y-8">
-        {posts.map((post) => (
-          <li key={post.id}>
-            <Link
-              href={`/${locale}/blog/${post.slug}`}
-              className="group block"
-            >
-              {post.hero_image_url && (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
-                  src={post.hero_image_url}
-                  alt={post.hero_image_alt ?? post.title}
-                  className="mb-3 h-48 w-full rounded-lg object-cover"
-                />
-              )}
-              <h2 className="text-xl font-semibold group-hover:underline">
-                {post.title}
-              </h2>
-              <p className="mt-1 text-sm text-gray-500">
-                {new Date(post.published_at).toLocaleDateString('de-DE', {
-                  year: 'numeric',
-                  month: 'long',
-                  day: 'numeric',
-                })}
-              </p>
-              <p className="mt-2 text-gray-700">{post.meta_description}</p>
-            </Link>
-          </li>
-        ))}
-      </ul>
-    </main>
+    <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
+      <BlogHeader locale={locale} />
+      <main>
+        <section className="border-b border-slate-200/80 bg-white">
+          <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
+            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">Basaltemperatur Blog</p>
+            <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
+              Wissen fuer Zyklustracking, NFP und Temperaturkurven.
+            </h1>
+            <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
+              Praxisnahe Artikel rund um Basaltemperatur, App-Vergleiche und sichere digitale Zyklusdokumentation.
+            </p>
+          </div>
+        </section>
+
+        <section className="mx-auto max-w-6xl px-4 py-12 sm:px-6">
+          {posts.length === 0 ? (
+            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-slate-500">
+              Noch keine Artikel vorhanden.
+            </div>
+          ) : (
+            <div className="grid gap-6 md:grid-cols-2">
+              {posts.map((post) => (
+                <Link
+                  key={post.id}
+                  href={`/${locale}/blog/${post.slug}`}
+                  className="group overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-xl hover:shadow-slate-200/70"
+                >
+                  {post.hero_image_url && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.hero_image_url}
+                      alt={post.hero_image_alt ?? post.title}
+                      className="aspect-[16/9] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
+                    />
+                  )}
+                  <div className="p-6">
+                    <p className="text-sm font-medium text-slate-500">
+                      {new Date(post.published_at).toLocaleDateString('de-DE', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric',
+                      })}
+                    </p>
+                    <h2 className="mt-3 text-2xl font-bold leading-snug tracking-tight group-hover:text-rose-600">
+                      {post.title}
+                    </h2>
+                    <p className="mt-3 line-clamp-3 leading-7 text-slate-600">{post.meta_description}</p>
+                    <p className="mt-5 text-sm font-semibold text-rose-600">Artikel lesen</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </section>
+      </main>
+      <BlogFooter />
+    </div>
   )
 }

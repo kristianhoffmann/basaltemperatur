@@ -241,6 +241,7 @@ export default function LandingPage() {
               <a href="#faq" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</a>
               <a href="#testimonials" className="text-sm text-white/50 hover:text-white transition-colors">Erfahrungen</a>
               <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Preis</a>
+              <Link href="/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
               <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">App Store (bald)</a>
               <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Anmelden</Link>
               <Link href="/registrieren">
@@ -648,6 +649,7 @@ export default function LandingPage() {
                 <li><a href="#faq" className="hover:text-[var(--rose)] transition-colors">FAQ</a></li>
                 <li><a href="#pricing" className="hover:text-[var(--rose)] transition-colors">Preis</a></li>
                 <li><a href="#testimonials" className="hover:text-[var(--rose)] transition-colors">Erfahrungen</a></li>
+                <li><Link href="/blog" className="hover:text-[var(--rose)] transition-colors">Blog</Link></li>
                 <li>
                   <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-[var(--rose)] transition-colors">
                     App Store (bald)

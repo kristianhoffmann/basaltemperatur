@@ -1,9 +1,11 @@
 import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { MDXRemote } from 'next-mdx-remote/rsc'
+import Link from 'next/link'
 import { getPost } from '@/lib/seo-autopilot/storage'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { BlogFooter, BlogHeader } from '../BlogChrome'
+import { BlogArticleBody } from './BlogArticleBody'
 import { BlogAttributionTracker } from './BlogAttributionTracker'
 
 interface Props {
@@ -61,7 +63,7 @@ export default async function BlogPostPage({ params }: Props) {
   const canonical = `${siteUrl}/${locale}/blog/${slug}`
 
   return (
-    <>
+    <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{
@@ -78,42 +80,53 @@ export default async function BlogPostPage({ params }: Props) {
         locale={post.locale}
       />
 
-      <main className="mx-auto max-w-3xl px-4 py-12">
-        {post.hero_image_url && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={post.hero_image_url}
-            alt={post.hero_image_alt ?? post.title}
-            className="mb-8 h-64 w-full rounded-xl object-cover"
-          />
-        )}
+      <BlogHeader locale={locale} />
 
-        <h1 className="mb-4 text-4xl font-bold leading-tight">{post.title}</h1>
+      <main>
+        <article>
+          <header className="border-b border-slate-200/80 bg-white">
+            <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 md:py-16">
+              <Link href={`/${locale}/blog`} className="text-sm font-semibold text-rose-600 hover:text-rose-700">
+                Zurueck zum Blog
+              </Link>
+              <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+                <time dateTime={post.published_at}>
+                  {new Date(post.published_at).toLocaleDateString('de-DE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric',
+                  })}
+                </time>
+                {post.author?.name && (
+                  <>
+                    <span aria-hidden="true">/</span>
+                    <span>{post.author.name}</span>
+                  </>
+                )}
+              </div>
+              <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-6xl">{post.title}</h1>
+              <p className="mt-5 text-lg leading-8 text-slate-600">{post.meta_description}</p>
+            </div>
+          </header>
 
-        <div className="mb-8 flex items-center gap-3 text-sm text-gray-500">
-          {post.author?.avatarUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={post.author.avatarUrl}
-              alt={post.author.name}
-              className="h-8 w-8 rounded-full object-cover"
-            />
+          {post.hero_image_url && (
+            <figure className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={post.hero_image_url}
+                alt={post.hero_image_alt ?? post.title}
+                className="aspect-[16/9] w-full rounded-3xl object-cover shadow-xl shadow-slate-200/70"
+              />
+            </figure>
           )}
-          <span>{post.author?.name}</span>
-          <span>·</span>
-          <time dateTime={post.published_at}>
-            {new Date(post.published_at).toLocaleDateString('de-DE', {
-              year: 'numeric',
-              month: 'long',
-              day: 'numeric',
-            })}
-          </time>
-        </div>
 
-        <article className="prose prose-gray max-w-none">
-          <MDXRemote source={post.mdx_body} />
+          <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-slate-200 bg-white px-5 py-8 shadow-sm sm:px-8 md:px-10">
+            <BlogArticleBody source={post.mdx_body} />
+          </div>
         </article>
       </main>
-    </>
+
+      <BlogFooter />
+    </div>
   )
 }
