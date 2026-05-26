@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
   const timestamp = req.headers.get('x-autopilot-timestamp')
 
   if (!signature || !timestamp) {
-    return NextResponse.json({ error: 'Missing signature' }, { status: 401 })
+    return NextResponse.json({ error: 'missing_headers' }, { status: 401 })
   }
 
   const rawBody = await req.text()
