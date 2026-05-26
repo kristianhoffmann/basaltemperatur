@@ -37,13 +37,12 @@ export default function ImpressumPage() {
       <h2>Kontakt</h2>
       <p>
         {company.phone && <>{`Telefon: ${company.phone}`}<br /></>}
-        E-Mail: <a href={`mailto:${company.email}`}>{company.email}</a>
+        E-Mail: <span>{company.email.replace('@', ' [at] ')}</span>
       </p>
 
       <h2>Umsatzsteuer</h2>
       <p>
-        Wir sind ein Kleinunternehmen gemäß § 19 UStG und daher nicht umsatzsteuerpflichtig.
-        Eine Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz liegt nicht vor.
+        Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).
       </p>
 
       <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>

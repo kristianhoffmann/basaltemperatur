@@ -7,6 +7,7 @@ import { Inter, Plus_Jakarta_Sans } from 'next/font/google'
 import { ThemeProvider, ThemeScript } from '@/components/shared/ThemeToggle'
 import { ToastProvider } from '@/components/shared/Toaster'
 import { TrafficTracker } from '@/components/analytics/TrafficTracker'
+import { GoogleAnalyticsConsent } from '@/components/analytics/GoogleAnalyticsConsent'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import './globals.css'
 
@@ -106,6 +107,7 @@ export default function RootLayout({
               <TrafficTracker />
             </Suspense>
             {children}
+            <GoogleAnalyticsConsent />
           </ToastProvider>
         </ThemeProvider>
       </body>

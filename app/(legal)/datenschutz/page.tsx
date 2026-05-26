@@ -131,7 +131,7 @@ export default function DatenschutzPage() {
         <li><strong>Widerruf der Einwilligung:</strong> Die Einwilligung zur Verarbeitung von Gesundheitsdaten kann jederzeit widerrufen werden.</li>
       </ul>
       <p>
-        Zur Ausübung Ihrer Rechte wenden Sie sich bitte an: <a href={`mailto:${company.email}`}>{company.email}</a>
+        Zur Ausübung Ihrer Rechte wenden Sie sich bitte an: <span>{company.email.replace('@', ' [at] ')}</span>
       </p>
 
       <h2>5. Verantwortliche Stelle</h2>
@@ -142,7 +142,7 @@ export default function DatenschutzPage() {
         {company.city}
       </p>
       <p>
-        E-Mail: <a href={`mailto:${company.email}`}>{company.email}</a>
+        E-Mail: <span>{company.email.replace('@', ' [at] ')}</span>
       </p>
 
       <h2>6. Registrierung und Benutzerkonto</h2>
@@ -183,6 +183,28 @@ export default function DatenschutzPage() {
         die Browser-Einstellung „Do Not Track“, sofern sie gesetzt ist.
       </p>
       <AnalyticsOptOut />
+
+      <h2>8a. Google Analytics 4</h2>
+      <p>
+        Zusätzlich nutzen wir Google Analytics 4 (Google Ireland Limited, Gordon House,
+        Barrow Street, Dublin 4, Irland) ausschließlich nach vorheriger Einwilligung.
+        Ohne Einwilligung wird der Google-Analytics-Tag nicht geladen. Nach Zustimmung
+        verarbeitet Google insbesondere Seitenaufrufe, technische Geräteinformationen,
+        Referrer, ungefähre Standortdaten und pseudonyme Nutzungskennungen. Google Analytics
+        speichert laut Google keine einzelnen IP-Adressen von EU-Nutzern.
+      </p>
+      <p>
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO in Verbindung mit § 25 Abs. 1 TDDDG.
+        Die Einwilligung kann durch Löschen der lokalen Browser-Auswahl oder über künftige
+        Consent-Einstellungen widerrufen werden.
+      </p>
+
+      <h2>8b. GitHub</h2>
+      <p>
+        Der Quellcode wird über GitHub verwaltet und mit Vercel-Deployments verbunden.
+        GitHub verarbeitet dabei insbesondere technische Account-, Repository- und
+        Deployment-Metadaten, jedoch keine App-Inhaltsdaten aus der Supabase-Datenbank.
+      </p>
 
       <h2>9. Zahlungsdienstleister</h2>
 

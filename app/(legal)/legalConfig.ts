@@ -1,4 +1,4 @@
-export const LEGAL_LAST_UPDATED = '21. Mai 2026';
+export const LEGAL_LAST_UPDATED = '26. Mai 2026';
 
 export type LegalCompany = {
   name: string;
@@ -17,12 +17,12 @@ export type LegalInfrastructure = {
 };
 
 const COMPANY_FALLBACKS: LegalCompany = {
-  name: 'Kristian Hoffmann (Einzelunternehmen)',
+  name: 'Kristian Hoffmann',
   street: 'Karl-Kraut-Straße 15',
   city: '30177 Hannover',
   country: 'Deutschland',
   email: 'moin@kristianhoffmann.de',
-  phone: '+49 151 15538987',
+  phone: '0151 15538987',
 };
 
 const MISSING_COMPANY_FIELD_LABELS: Record<keyof Pick<LegalCompany, 'name' | 'street' | 'city' | 'email'>, string> = {
@@ -57,8 +57,8 @@ export function getMissingCompanyFields(company: LegalCompany): string[] {
 
 export function getLegalInfrastructure(): LegalInfrastructure {
   return {
-    webProvider: process.env.NEXT_PUBLIC_WEB_HOSTING_PROVIDER?.trim() || 'Strato AG',
-    webLocation: process.env.NEXT_PUBLIC_WEB_HOSTING_LOCATION?.trim() || 'Deutschland',
+    webProvider: process.env.NEXT_PUBLIC_WEB_HOSTING_PROVIDER?.trim() || 'Vercel Inc.',
+    webLocation: process.env.NEXT_PUBLIC_WEB_HOSTING_LOCATION?.trim() || 'weltweites Edge-Netzwerk; technische Server-Logs koennen ausserhalb Deutschlands verarbeitet werden',
     dbProvider: process.env.NEXT_PUBLIC_DB_PROVIDER?.trim() || 'Supabase',
     dbLocation: process.env.NEXT_PUBLIC_DB_LOCATION?.trim() || 'Frankfurt am Main, Deutschland',
   };
