@@ -19,7 +19,7 @@ private struct KeychainHelper {
         SecItemDelete(query as CFDictionary)
         var addQuery = query
         addQuery[kSecValueData as String] = data
-        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleAfterFirstUnlock
+        addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         SecItemAdd(addQuery as CFDictionary, nil)
     }
     
@@ -47,26 +47,53 @@ private struct KeychainHelper {
     }
 }
 
+@MainActor
 class SupabaseService: ObservableObject {
     // MARK: - Configuration
     /// Supabase configuration constants.
     /// The Anon Key is a *public* client key (not a secret) — it is safe to embed.
     private enum Config {
-        static let supabaseUrl = "https://scohibllvlqujmvtuamv.supabase.co"
-        static let supabaseAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb2hpYmxsdmxxdWptdnR1YW12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjkwMDEsImV4cCI6MjA4NjY0NTAwMX0._Yg8bzOei4HVUkgUgPpQDoSAYKSA7m98LIDfW8NMJ8g"
-        static let webAppUrl = "https://www.basaltemperatur.online"
+        static let analyticsOptInKey = "analyticsOptIn"
         static let sensitiveDataConsentVersion = "2026-05-18"
+
+        static var supabaseUrl: String {
+            infoPlistString("BTSupabaseURL", "SUPABASE_URL", fallback: "https://supabase.basaltemperatur.online")
+        }
+
+        static var supabaseAnonKey: String {
+            infoPlistString(
+                "BTSupabaseAnonKey",
+                "SUPABASE_ANON_KEY",
+                fallback: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNzgzNDMzLCJleHAiOjIwOTcxNDM0MzN9.jTAPPNqTmtEAtQxVeUVBxmMKEosQll03_W-pDXHj9CU"
+            )
+        }
+
+        static var webAppUrl: String {
+            infoPlistString("BTWebAppURL", "WEB_APP_URL", fallback: "https://www.basaltemperatur.online")
+        }
+
+        private static func infoPlistString(_ keys: String..., fallback: String) -> String {
+            for key in keys {
+                guard let value = Bundle.main.object(forInfoDictionaryKey: key) as? String else {
+                    continue
+                }
+                let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+                if !trimmed.isEmpty {
+                    return trimmed
+                }
+            }
+            return fallback
+        }
     }
 
     private let supabaseUrl: String
     private let supabaseAnonKey: String
     @Published private(set) var sensitiveDataConsentRevision = 0
-    
+
     private var accessToken: String?
     private var userId: String?
     private var refreshToken: String?
     private let appTrafficSessionId = UUID().uuidString
-    private let refreshStateQueue = DispatchQueue(label: "co.basaltemperatur.app.refresh")
     private var inFlightRefreshTask: Task<Void, Error>?
     private let decoder: JSONDecoder = {
         let decoder = JSONDecoder()
@@ -154,28 +181,18 @@ class SupabaseService: ObservableObject {
     
     /// Refresh the access token using the stored refresh token
     func refreshSession() async throws {
-        let refreshTask: Task<Void, Error> = refreshStateQueue.sync {
-            if let existingTask = inFlightRefreshTask {
-                return existingTask
-            }
-
-            let newTask = Task<Void, Error> { [weak self] in
-                guard let self else {
-                    throw SupabaseError.requestFailed
-                }
-                defer {
-                    self.refreshStateQueue.sync {
-                        self.inFlightRefreshTask = nil
-                    }
-                }
-                try await self.performRefreshSession()
-            }
-
-            inFlightRefreshTask = newTask
-            return newTask
+        if let existingTask = inFlightRefreshTask {
+            try await existingTask.value
+            return
         }
 
-        try await refreshTask.value
+        let newTask = Task<Void, Error> {
+            defer { self.inFlightRefreshTask = nil }
+            try await self.performRefreshSession()
+        }
+
+        inFlightRefreshTask = newTask
+        try await newTask.value
     }
 
     private func performRefreshSession() async throws {
@@ -279,7 +296,9 @@ class SupabaseService: ObservableObject {
         let (data, httpResponse) = try await sendAuthenticatedRequest(request)
         guard httpResponse.statusCode < 300 else {
             let responseStr = String(data: data, encoding: .utf8) ?? "no body"
+            #if DEBUG
             print("Save temp error: \(responseStr)")
+            #endif
             if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
                let msg = json["message"] as? String {
                 throw SupabaseError.apiError(msg)
@@ -372,9 +391,7 @@ class SupabaseService: ObservableObject {
             try await updateSensitiveDataConsentDirectly(userId: uid, version: version)
         }
 
-        await MainActor.run {
-            sensitiveDataConsentRevision += 1
-        }
+        sensitiveDataConsentRevision += 1
     }
 
     private func updateSensitiveDataConsentViaWebApi() async throws {
@@ -463,9 +480,7 @@ class SupabaseService: ObservableObject {
         ])
         _ = try? await sendAuthenticatedRequest(metadataRequest)
 
-        await MainActor.run {
-            sensitiveDataConsentRevision += 1
-        }
+        sensitiveDataConsentRevision += 1
     }
     
     func updateUserName(_ name: String) async throws {
@@ -537,6 +552,10 @@ class SupabaseService: ObservableObject {
     // MARK: - Traffic Analytics
 
     func trackTrafficEvent(path: String, title: String, eventType: String = "pageview") async {
+        guard UserDefaults.standard.bool(forKey: Config.analyticsOptInKey) else {
+            return
+        }
+
         let url = URL(string: "\(Config.webAppUrl)/api/traffic")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
@@ -544,7 +563,7 @@ class SupabaseService: ObservableObject {
         if let token = accessToken {
             request.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-        let screenSize = await MainActor.run { UIScreen.main.bounds.size }
+        let screenSize = UIScreen.main.bounds.size
 
         let body: [String: Any] = [
             "eventType": eventType,
