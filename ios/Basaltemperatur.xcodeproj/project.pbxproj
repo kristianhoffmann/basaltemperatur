@@ -9,8 +9,6 @@
 /* Begin PBXBuildFile section */
 		02A4829BBF17E5CFFFAC5AB7 /* AuthViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */; };
 		0C806CD68B27C01B674C5346 /* DashboardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7FA494043BCA32921358F17D /* DashboardViewModel.swift */; };
-		A10000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* PrivacyInfo.xcprivacy */; };
-		A10000000000000000000008 /* OvulationCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* OvulationCalculatorTests.swift */; };
 		1E77E4EA998723AA8410B532 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 69D899FF58E516C4A2A92792 /* SettingsView.swift */; };
 		48DDF8AD2F4119E900FC4FCD /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */; };
 		4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9906C41250972C7A055CE766 /* OvulationCalculator.swift */; };
@@ -18,37 +16,50 @@
 		714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 917BC58216F5A55926C02139 /* LoginView.swift */; };
 		7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3951E1BA4E043DD771249C92 /* MainTabView.swift */; };
 		9758D971A77890C5497453E5 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = F00CB16ECC39B54B76618055 /* Assets.xcassets */; };
+		A10000000000000000000002 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000001 /* PrivacyInfo.xcprivacy */; };
+		A10000000000000000000008 /* OvulationCalculatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A10000000000000000000006 /* OvulationCalculatorTests.swift */; };
+		A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */; };
+		B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */; };
 		C1CB455A0B179481E5EB46E3 /* BasaltemperaturApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */; };
-			C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778563E83BB92BF4FB2CA1CC /* EntryView.swift */; };
-			A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */; };
-			B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */; };
-			D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */; };
-			D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C57EA5BDC2515F0649AA542 /* DashboardView.swift */; };
-			DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBAAC47E185425F6C662C1DA /* SupabaseService.swift */; };
+		C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 778563E83BB92BF4FB2CA1CC /* EntryView.swift */; };
+		D586FEBC61F8F0205F53F20E /* CalendarTabView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */; };
+		D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C57EA5BDC2515F0649AA542 /* DashboardView.swift */; };
+		DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */ = {isa = PBXBuildFile; fileRef = DBAAC47E185425F6C662C1DA /* SupabaseService.swift */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A10000000000000000000010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 40B4AE2E1AD7A46C03AE5E64 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = EA0693198E8FC83FB76AE549;
+			remoteInfo = Basaltemperatur;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		3951E1BA4E043DD771249C92 /* MainTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTabView.swift; sourceTree = "<group>"; };
 		40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasaltemperaturApp.swift; sourceTree = "<group>"; };
 		48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; sourceTree = "<group>"; };
+		69D899FF58E516C4A2A92792 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
+		778563E83BB92BF4FB2CA1CC /* EntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
+		7FA494043BCA32921358F17D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
+		82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTabView.swift; sourceTree = "<group>"; };
+		917BC58216F5A55926C02139 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
+		9906C41250972C7A055CE766 /* OvulationCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvulationCalculator.swift; sourceTree = "<group>"; };
+		9C57EA5BDC2515F0649AA542 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Basaltemperatur.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		A10000000000000000000012 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A10000000000000000000001 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		A10000000000000000000004 /* Basaltemperatur.storekit */ = {isa = PBXFileReference; lastKnownFileType = text; path = Basaltemperatur.storekit; sourceTree = "<group>"; };
 		A10000000000000000000006 /* OvulationCalculatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvulationCalculatorTests.swift; sourceTree = "<group>"; };
 		A10000000000000000000007 /* BasaltemperaturTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BasaltemperaturTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		69D899FF58E516C4A2A92792 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
-		6E00079F4D4EF18AAD4E5896 /* AuthViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthViewModel.swift; sourceTree = "<group>"; };
-			778563E83BB92BF4FB2CA1CC /* EntryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EntryView.swift; sourceTree = "<group>"; };
-			F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportView.swift; sourceTree = "<group>"; };
-			B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumPaywallView.swift; sourceTree = "<group>"; };
-			7FA494043BCA32921358F17D /* DashboardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardViewModel.swift; sourceTree = "<group>"; };
-			82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarTabView.swift; sourceTree = "<group>"; };
-			917BC58216F5A55926C02139 /* LoginView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginView.swift; sourceTree = "<group>"; };
-		9906C41250972C7A055CE766 /* OvulationCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OvulationCalculator.swift; sourceTree = "<group>"; };
-		9C57EA5BDC2515F0649AA542 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
-		A0003D0A13F4B4B5205506FD /* Basaltemperatur.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Basaltemperatur.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PremiumPaywallView.swift; sourceTree = "<group>"; };
 		DBAAC47E185425F6C662C1DA /* SupabaseService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseService.swift; sourceTree = "<group>"; };
 		E3FADDEFF146AE8D8DE70787 /* TemperatureEntry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemperatureEntry.swift; sourceTree = "<group>"; };
 		F00CB16ECC39B54B76618055 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PDFExportView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,13 +79,13 @@
 				48DDF8AC2F4119E900FC4FCD /* StatisticsView.swift */,
 				82B0DD480331F19B2B72DC27 /* CalendarTabView.swift */,
 				9C57EA5BDC2515F0649AA542 /* DashboardView.swift */,
-					778563E83BB92BF4FB2CA1CC /* EntryView.swift */,
-					F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */,
-					B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */,
-					917BC58216F5A55926C02139 /* LoginView.swift */,
-					3951E1BA4E043DD771249C92 /* MainTabView.swift */,
-					69D899FF58E516C4A2A92792 /* SettingsView.swift */,
-				);
+				778563E83BB92BF4FB2CA1CC /* EntryView.swift */,
+				F1E2D3C4B5A60718A9B0C1D2 /* PDFExportView.swift */,
+				B2D3E4F6061728394A5B6C7D /* PremiumPaywallView.swift */,
+				917BC58216F5A55926C02139 /* LoginView.swift */,
+				3951E1BA4E043DD771249C92 /* MainTabView.swift */,
+				69D899FF58E516C4A2A92792 /* SettingsView.swift */,
+			);
 			path = Views;
 			sourceTree = "<group>";
 		};
@@ -91,6 +102,7 @@
 			isa = PBXGroup;
 			children = (
 				F00CB16ECC39B54B76618055 /* Assets.xcassets */,
+				A10000000000000000000012 /* Info.plist */,
 				A10000000000000000000001 /* PrivacyInfo.xcprivacy */,
 				40CA699566D7200F9FBAFF31 /* BasaltemperaturApp.swift */,
 				F8F0CDC508AEE8AFC633F134 /* Models */,
@@ -252,12 +264,12 @@
 				D63C06D3626F1CB83DAE5890 /* DashboardView.swift in Sources */,
 				0C806CD68B27C01B674C5346 /* DashboardViewModel.swift in Sources */,
 				48DDF8AD2F4119E900FC4FCD /* StatisticsView.swift in Sources */,
-					C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */,
-					A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */,
-					B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */,
-					714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */,
-					7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */,
-					4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */,
+				C68F94177F964FD7D19A6A0C /* EntryView.swift in Sources */,
+				A1B2C3D4E5F60718A9B0C1D2 /* PDFExportView.swift in Sources */,
+				B2D3E4F5061728394A5B6C7D /* PremiumPaywallView.swift in Sources */,
+				714F5A72AE23FD3F971E4B84 /* LoginView.swift in Sources */,
+				7CBC33797789F0C8F7E4CD60 /* MainTabView.swift in Sources */,
+				4B793EAE28919D79D55EC270 /* OvulationCalculator.swift in Sources */,
 				1E77E4EA998723AA8410B532 /* SettingsView.swift in Sources */,
 				DF201F4A9DB74CD65D6A69A1 /* SupabaseService.swift in Sources */,
 				6AC72E3B2CB32BA456FD98D5 /* TemperatureEntry.swift in Sources */,
@@ -273,16 +285,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXContainerItemProxy section */
-		A10000000000000000000010 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 40B4AE2E1AD7A46C03AE5E64 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = EA0693198E8FC83FB76AE549;
-			remoteInfo = Basaltemperatur;
-		};
-/* End PBXContainerItemProxy section */
 
 /* Begin PBXTargetDependency section */
 		A10000000000000000000011 /* PBXTargetDependency */ = {
@@ -348,11 +350,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_ALLOW_WEB_UPGRADE_LINK = "$(ALLOW_WEB_UPGRADE_LINK)";
-				INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
-				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_ALLOW_WEB_UPGRADE_LINK = "$(ALLOW_WEB_UPGRADE_LINK)";
+					INFOPLIST_KEY_BTSupabaseAnonKey = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_BTSupabaseURL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_BTWebAppURL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
+					INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -362,13 +368,16 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
-				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
-				SWIFT_VERSION = 5.9;
-			};
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SDKROOT = iphoneos;
+					STRING_CATALOG_GENERATE_SYMBOLS = YES;
+					SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNzgzNDMzLCJleHAiOjIwOTcxNDM0MzN9.jTAPPNqTmtEAtQxVeUVBxmMKEosQll03_W-pDXHj9CU;
+					SUPABASE_URL = "https://supabase.basaltemperatur.online";
+					SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+					SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+					SWIFT_VERSION = 5.9;
+					WEB_APP_URL = "https://www.basaltemperatur.online";
+				};
 			name = Debug;
 		};
 		81DBCDC89545EE593900935C /* Release */ = {
@@ -420,11 +429,15 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_KEY_ALLOW_WEB_UPGRADE_LINK = "$(ALLOW_WEB_UPGRADE_LINK)";
-				INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
-				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
-				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+					INFOPLIST_KEY_ALLOW_WEB_UPGRADE_LINK = "$(ALLOW_WEB_UPGRADE_LINK)";
+					INFOPLIST_KEY_BTSupabaseAnonKey = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_BTSupabaseURL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_BTWebAppURL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_CFBundleDisplayName = Basaltemperatur;
+					INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
@@ -433,73 +446,16 @@
 				MARKETING_VERSION = 1.0.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = iphoneos;
-				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SWIFT_COMPILATION_MODE = wholemodule;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
-				SWIFT_VERSION = 5.9;
-			};
-			name = Release;
-		};
-		B99A64E9CC1713C336960582 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ALLOW_WEB_UPGRADE_LINK = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = W9V62XQNWZ;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
-				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb2hpYmxsdmxxdWptdnR1YW12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjkwMDEsImV4cCI6MjA4NjY0NTAwMX0._Yg8bzOei4HVUkgUgPpQDoSAYKSA7m98LIDfW8NMJ8g";
-				SUPABASE_URL = "https://scohibllvlqujmvtuamv.supabase.co";
-				WEB_APP_URL = "https://www.basaltemperatur.online";
-				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
-				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = basaltemperatur;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Debug;
-		};
-		C944ED7E85BAB71DD0210142 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				ALLOW_WEB_UPGRADE_LINK = NO;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
-				CODE_SIGN_STYLE = Manual;
-				DEVELOPMENT_TEAM = "";
-				"DEVELOPMENT_TEAM[sdk=iphoneos*]" = W9V62XQNWZ;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
-				SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNjb2hpYmxsdmxxdWptdnR1YW12Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzEwNjkwMDEsImV4cCI6MjA4NjY0NTAwMX0._Yg8bzOei4HVUkgUgPpQDoSAYKSA7m98LIDfW8NMJ8g";
-				SUPABASE_URL = "https://scohibllvlqujmvtuamv.supabase.co";
-				WEB_APP_URL = "https://www.basaltemperatur.online";
-				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
-				INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
-				INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
-				INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
-				PROVISIONING_PROFILE_SPECIFIER = "";
-				"PROVISIONING_PROFILE_SPECIFIER[sdk=iphoneos*]" = basaltemperatur;
-				SDKROOT = iphoneos;
-				TARGETED_DEVICE_FAMILY = "1,2";
-			};
+					PRODUCT_NAME = "$(TARGET_NAME)";
+					SDKROOT = iphoneos;
+					STRING_CATALOG_GENERATE_SYMBOLS = YES;
+					SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNzgzNDMzLCJleHAiOjIwOTcxNDM0MzN9.jTAPPNqTmtEAtQxVeUVBxmMKEosQll03_W-pDXHj9CU;
+					SUPABASE_URL = "https://supabase.basaltemperatur.online";
+					SWIFT_COMPILATION_MODE = wholemodule;
+					SWIFT_OPTIMIZATION_LEVEL = "-O";
+					SWIFT_VERSION = 5.9;
+					WEB_APP_URL = "https://www.basaltemperatur.online";
+				};
 			name = Release;
 		};
 		A1000000000000000000000E /* Debug */ = {
@@ -550,6 +506,70 @@
 			};
 			name = Release;
 		};
+		B99A64E9CC1713C336960582 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_WEB_UPGRADE_LINK = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W9V62XQNWZ;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Basaltemperatur/Info.plist;
+					INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+					INFOPLIST_KEY_BTSupabaseAnonKey = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_BTSupabaseURL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_BTWebAppURL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
+				INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNzgzNDMzLCJleHAiOjIwOTcxNDM0MzN9.jTAPPNqTmtEAtQxVeUVBxmMKEosQll03_W-pDXHj9CU;
+				SUPABASE_URL = "https://supabase.basaltemperatur.online";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WEB_APP_URL = "https://www.basaltemperatur.online";
+			};
+			name = Debug;
+		};
+		C944ED7E85BAB71DD0210142 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALLOW_WEB_UPGRADE_LINK = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W9V62XQNWZ;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Basaltemperatur/Info.plist;
+					INFOPLIST_KEY_ITSAppUsesNonExemptEncryption = NO;
+					INFOPLIST_KEY_BTSupabaseAnonKey = "$(SUPABASE_ANON_KEY)";
+					INFOPLIST_KEY_BTSupabaseURL = "$(SUPABASE_URL)";
+					INFOPLIST_KEY_BTWebAppURL = "$(WEB_APP_URL)";
+					INFOPLIST_KEY_SUPABASE_ANON_KEY = "$(SUPABASE_ANON_KEY)";
+				INFOPLIST_KEY_SUPABASE_URL = "$(SUPABASE_URL)";
+				INFOPLIST_KEY_WEB_APP_URL = "$(WEB_APP_URL)";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = de.basaltemperatur.app;
+				PROVISIONING_PROFILE_SPECIFIER = "";
+				SDKROOT = iphoneos;
+				SUPABASE_ANON_KEY = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzgxNzgzNDMzLCJleHAiOjIwOTcxNDM0MzN9.jTAPPNqTmtEAtQxVeUVBxmMKEosQll03_W-pDXHj9CU;
+				SUPABASE_URL = "https://supabase.basaltemperatur.online";
+				TARGETED_DEVICE_FAMILY = "1,2";
+				WEB_APP_URL = "https://www.basaltemperatur.online";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -562,20 +582,20 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		AC98E4368A9F38AB5BDFA2E6 /* Build configuration list for PBXNativeTarget "Basaltemperatur" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				B99A64E9CC1713C336960582 /* Debug */,
-				C944ED7E85BAB71DD0210142 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Debug;
-		};
 		A1000000000000000000000D /* Build configuration list for PBXNativeTarget "BasaltemperaturTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				A1000000000000000000000E /* Debug */,
 				A1000000000000000000000F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		AC98E4368A9F38AB5BDFA2E6 /* Build configuration list for PBXNativeTarget "Basaltemperatur" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B99A64E9CC1713C336960582 /* Debug */,
+				C944ED7E85BAB71DD0210142 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
