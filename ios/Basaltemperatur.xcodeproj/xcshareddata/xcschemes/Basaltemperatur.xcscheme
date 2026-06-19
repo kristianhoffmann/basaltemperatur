@@ -64,7 +64,7 @@
          </BuildableReference>
       </BuildableProductRunnable>
       <StoreKitConfigurationFileReference
-         identifier = "../Basaltemperatur/StoreKit/Basaltemperatur.storekit">
+         identifier = "Basaltemperatur/StoreKit/Basaltemperatur.storekit">
       </StoreKitConfigurationFileReference>
    </LaunchAction>
    <ProfileAction
