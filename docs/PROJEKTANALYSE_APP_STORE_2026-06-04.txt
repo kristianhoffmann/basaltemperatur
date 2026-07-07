@@ -3,7 +3,7 @@ Stand: 04. Juni 2026, 15:40 Uhr Europe/Berlin
 Projektpfad: /Users/kristian/Github/basaltemperatur
 
 Kurzfazit
-=========
+---------
 
 Das Projekt ist technisch in einem weit fortgeschrittenen Zustand. Web-App,
 iOS-App, Supabase-Auth, Datenmodell, Premium-Entitlements, Stripe Checkout,
@@ -16,7 +16,7 @@ korrekte App-Store-Screenshots, finale App-Privacy-Angaben, Testaccount,
 Review Notes, Distribution-Signing/Archive und einzelne produktive Keys.
 
 Technischer Prüfstand
-=====================
+---------------------
 
 Durchgeführte Checks
 --------------------
@@ -52,7 +52,7 @@ im iOS-Projekt, in mehreren Swift-Dateien, in Supabase-Temp-Dateien sowie ein
 untracked CLAUDE.md.
 
 Funktioniert Login?
-===================
+-------------------
 
 Web
 ---
@@ -91,7 +91,7 @@ Nicht vollständig beweisbar ohne Testkonto:
 - Konto-Löschung mit echtem Nutzer.
 
 Funktioniert die Paywall?
-=========================
+-------------------------
 
 Web-Paywall / Stripe
 --------------------
@@ -150,7 +150,7 @@ Gates sind vorhanden:
 - iOS zeigt PremiumPaywall in Dashboard, Kalender, Statistiken und PDF-Export.
 
 Sicherheits-/Datenschutzprüfung
-===============================
+-------------------------------
 
 Positiv
 -------
@@ -180,7 +180,7 @@ Risiken / offene Punkte
 - Kein echtes App-Archive mit App Store Distribution Signing wurde erzeugt; nur unsigned Release Build.
 
 Code-Freiheit von Fehlern
-=========================
+-------------------------
 
 Der Code ist nicht "bewiesenermaßen fehlerfrei" - das kann keine statische
 Prüfung garantieren. Der aktuelle Zustand ist aber build- und testfähig:
@@ -202,7 +202,7 @@ Bekannte verbleibende Testlücken:
 - Keine automatisierte Screenshot-/Layout-Prüfung für App Store Screenshots.
 
 Was fehlt zum Onlinegehen?
-==========================
+--------------------------
 
 Web live
 --------
@@ -291,7 +291,7 @@ App Store / iOS
    - TestFlight auf echtem Gerät prüfen.
 
 App Store Connect Angaben
-=========================
+-------------------------
 
 Basisdaten
 ----------
@@ -354,7 +354,7 @@ Die Verarbeitung sensibler Gesundheitsdaten erfordert eine ausdrückliche
 Einwilligung. Diese kann in den Einstellungen widerrufen werden.
 
 App Privacy Angaben
-===================
+-------------------
 
 Die App sammelt Daten. In App Store Connect daher "Yes, we collect data from
 this app" wählen.
@@ -405,7 +405,7 @@ Privacy Manifest Stand:
 - UserDefaults Access Reason: CA92.1.
 
 Benötigte Keys und Konfigurationen
-==================================
+----------------------------------
 
 Unbedingt produktiv nötig
 -------------------------
@@ -469,7 +469,7 @@ Benötigt in App Store Connect:
 - App Store Server Notifications V2 URL.
 
 Quellen
-=======
+-------
 
 Apple App Privacy Details:
 https://developer.apple.com/app-store/app-privacy-details/
@@ -499,7 +499,7 @@ Apple Set App Age Rating:
 https://developer.apple.com/help/app-store-connect/manage-app-information/set-an-app-age-rating
 
 Priorisierte To-do-Liste
-========================
+------------------------
 
 Blocker vor App Store Upload
 ----------------------------
