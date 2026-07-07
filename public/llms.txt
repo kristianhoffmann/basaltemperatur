@@ -1,0 +1,17 @@
+# Basaltemperatur
+> Kostenlose App zur natürlichen Zyklusbeobachtung (NFP/symptothermale Methode): Basaltemperatur und Periode erfassen, fruchtbare Tage erkennen, Zyklen auswerten. DSGVO-first, keine Werbung, keine Tracker.
+
+## Produkt
+- [Startseite](https://basaltemperatur.online/): Zyklus-Tracking mit Basaltemperatur-Kurve, Perioden-Kalender und Auswertung der fruchtbaren Phase.
+- [Blog](https://basaltemperatur.online/de/blog): Ratgeber rund um NFP, Zyklusgesundheit, Kinderwunsch und natürliche Verhütung.
+- [Support](https://basaltemperatur.online/support): Hilfe, häufige Fragen und Kontakt.
+
+## Rechtliches
+- [Datenschutz](https://basaltemperatur.online/datenschutz): Keine Tracker, keine Werbung, Gesundheitsdaten bleiben privat.
+- [Impressum](https://basaltemperatur.online/impressum): Anbieterkennzeichnung.
+- [AGB](https://basaltemperatur.online/agb): Nutzungsbedingungen.
+- [Widerruf](https://basaltemperatur.online/widerruf): Widerrufsbelehrung.
+
+## Hinweise
+- Zielgruppe: Personen, die ihren Zyklus natürlich beobachten wollen (Kinderwunsch oder natürliche Familienplanung), im deutschsprachigen Raum (DE/AT/CH).
+- Wichtig: Die App dient der Zyklusbeobachtung und ersetzt keine medizinische Beratung. Sie ist kein zertifiziertes Verhütungsmittel.
