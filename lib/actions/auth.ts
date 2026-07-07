@@ -5,7 +5,9 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
+import { cookies } from 'next/headers'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
+import { trackConversion } from '@/lib/seo-autopilot/attribution'
 import { z } from 'zod'
 
 // ============================================
@@ -99,6 +101,19 @@ export async function signUp(_prevState: AuthActionState, formData: FormData) {
       return { error: 'Diese E-Mail-Adresse ist bereits registriert.' }
     }
     return { error: 'Registrierung fehlgeschlagen. Bitte versuche es erneut.' }
+  }
+
+  // SEO-Autopilot signup conversion (fire-and-forget; never blocks signup).
+  if (data.user) {
+    try {
+      const raw = (await cookies()).get('seo_autopilot_attribution')?.value
+      const attr = raw
+        ? (JSON.parse(raw) as { postId?: string; slug?: string; locale?: string; keyword?: string })
+        : {}
+      await trackConversion({ eventName: 'signup' }, attr)
+    } catch {
+      // analytics must never break registration
+    }
   }
 
   // Bei Email-Bestätigung erforderlich

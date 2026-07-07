@@ -1,7 +1,8 @@
 import { signPayload } from './hmac'
 
-const CONVERSION_ENDPOINT =
-  'https://seoautopilot-mocha.vercel.app/api/conversions/track'
+const CONVERSION_ENDPOINT = process.env.SEO_AUTOPILOT_APP_URL
+  ? `${process.env.SEO_AUTOPILOT_APP_URL.replace(/\/+$/, '')}/api/conversions/track`
+  : 'https://www.seoautopilot.cloud/api/conversions/track'
 
 export interface AttributionData {
   postId?: string
@@ -35,11 +36,14 @@ export async function trackConversion(
     conversions: event.conversions ?? 1,
     revenue: event.revenue ?? 0,
     currency: event.currency ?? 'EUR',
-    occurredOn: new Date().toISOString(),
+    occurredOn: new Date().toISOString().slice(0, 10),
   })
 
   const signature = signPayload(timestamp, body)
 
+  // Never let analytics block or slow the signup path.
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), 2500)
   try {
     await fetch(CONVERSION_ENDPOINT, {
       method: 'POST',
@@ -49,8 +53,11 @@ export async function trackConversion(
         'x-autopilot-timestamp': timestamp,
       },
       body,
+      signal: controller.signal,
     })
   } catch (err) {
     console.error('[seo-autopilot] Conversion tracking failed:', err)
+  } finally {
+    clearTimeout(timeout)
   }
 }
