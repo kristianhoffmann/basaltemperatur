@@ -20,6 +20,8 @@ export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const safeRedirectTo =
+    redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/dashboard'
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -49,7 +51,7 @@ export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
       return
     }
 
-    router.push(redirectTo)
+    router.push(safeRedirectTo)
     router.refresh()
   }
 

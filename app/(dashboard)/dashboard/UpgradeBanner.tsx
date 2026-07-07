@@ -7,18 +7,24 @@ import { Crown, ArrowRight, X } from 'lucide-react'
 export function UpgradeBanner() {
     const [loading, setLoading] = useState(false)
     const [dismissed, setDismissed] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     if (dismissed) return null
 
     const handleUpgrade = async () => {
         setLoading(true)
+        setError(null)
         try {
             const res = await fetch('/api/checkout', { method: 'POST' })
             const data = await res.json()
             if (data.url) {
                 window.location.href = data.url
+                return
             }
+            setError(data.error || 'Checkout konnte nicht gestartet werden.')
         } catch {
+            setError('Checkout konnte nicht gestartet werden.')
+        } finally {
             setLoading(false)
         }
     }
@@ -61,6 +67,11 @@ export function UpgradeBanner() {
                     <ArrowRight className="h-3.5 w-3.5" />
                 </button>
             </div>
+            {error && (
+                <p className="mt-3 text-xs text-red-600">
+                    {error}
+                </p>
+            )}
         </div>
     )
 }

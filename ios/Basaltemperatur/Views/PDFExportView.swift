@@ -175,19 +175,26 @@ struct PDFExportView: View {
         isGenerating = false
     }
     
-    private func formatDateGerman(_ dateStr: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateStr) else { return dateStr }
-        formatter.dateFormat = "d. MMM yyyy"
-        formatter.locale = Locale(identifier: "de_DE")
-        return formatter.string(from: date)
-    }
-    
-    private func formatISO(_ date: Date) -> String {
+    private static let isoFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
-        return f.string(from: date)
+        return f
+    }()
+
+    private static let germanDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d. MMM yyyy"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
+    private func formatDateGerman(_ dateStr: String) -> String {
+        guard let date = Self.isoFormatter.date(from: dateStr) else { return dateStr }
+        return Self.germanDateFormatter.string(from: date)
+    }
+
+    private func formatISO(_ date: Date) -> String {
+        Self.isoFormatter.string(from: date)
     }
 }
 
@@ -443,7 +450,7 @@ struct PDFHTMLBuilder {
                 guard let value, !value.isEmpty else { return nil }
                 return value
             }
-            let notes = (notesParts.isEmpty ? "–" : notesParts.joined(separator: " · ")).replacingOccurrences(of: "<", with: "&lt;")
+            let notes = (notesParts.isEmpty ? "–" : notesParts.joined(separator: " · ")).htmlEscaped
             
             tableRows += """
             <tr style="border-bottom:1px solid #f3f4f6;background:\(bg)">
@@ -571,5 +578,15 @@ struct PDFHTMLBuilder {
         </body>
         </html>
         """
+    }
+}
+
+private extension String {
+    var htmlEscaped: String {
+        replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+            .replacingOccurrences(of: "\"", with: "&quot;")
+            .replacingOccurrences(of: "'", with: "&#39;")
     }
 }

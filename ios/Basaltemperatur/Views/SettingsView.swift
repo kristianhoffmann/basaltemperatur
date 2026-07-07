@@ -9,6 +9,7 @@ struct SettingsView: View {
     @State private var editingName = false
     @State private var nameText = ""
     @State private var isSavingName = false
+    @State private var nameError: String?
     
     @State private var showDeleteAlert = false
     @State private var showConsentRevokeAlert = false
@@ -21,6 +22,7 @@ struct SettingsView: View {
     
     @AppStorage("cycleLength") private var cycleLength = 28
     @AppStorage("temperatureUnit") private var temperatureUnit = "celsius"
+    @AppStorage("analyticsOptIn") private var analyticsOptIn = false
     
     var body: some View {
         NavigationStack {
@@ -87,28 +89,36 @@ struct SettingsView: View {
                 // Profil bearbeiten
                 Section {
                     if editingName {
-                        HStack {
-                            TextField("Dein Name", text: $nameText)
-                                .textContentType(.name)
-                                .autocorrectionDisabled()
-                            
-                            if isSavingName {
-                                ProgressView()
-                                    .controlSize(.small)
-                            } else {
-                                Button("Sichern") {
-                                    Task {
-                                        isSavingName = true
-                                        do {
-                                            try await authViewModel.updateName(nameText, supabase: supabase)
-                                            editingName = false
-                                        } catch {
-                                            // Show error inline
+                        VStack(alignment: .leading) {
+                            HStack {
+                                TextField("Dein Name", text: $nameText)
+                                    .textContentType(.name)
+                                    .autocorrectionDisabled()
+
+                                if isSavingName {
+                                    ProgressView()
+                                        .controlSize(.small)
+                                } else {
+                                    Button("Sichern") {
+                                        Task {
+                                            isSavingName = true
+                                            nameError = nil
+                                            do {
+                                                try await authViewModel.updateName(nameText, supabase: supabase)
+                                                editingName = false
+                                            } catch {
+                                                nameError = "Name konnte nicht gespeichert werden."
+                                            }
+                                            isSavingName = false
                                         }
-                                        isSavingName = false
                                     }
+                                    .disabled(nameText.trimmingCharacters(in: .whitespaces).isEmpty)
                                 }
-                                .disabled(nameText.trimmingCharacters(in: .whitespaces).isEmpty)
+                            }
+                            if let nameError {
+                                Text(nameError)
+                                    .font(.caption)
+                                    .foregroundStyle(.red)
                             }
                         }
                     } else {
@@ -210,6 +220,19 @@ struct SettingsView: View {
                             }
                         } icon: {
                             Image(systemName: "thermometer")
+                        }
+                    }
+
+                    Toggle(isOn: $analyticsOptIn) {
+                        Label {
+                            VStack(alignment: .leading, spacing: 2) {
+                                Text("Nutzungsanalyse")
+                                Text("Pseudonyme App-Nutzung zur Verbesserung senden")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        } icon: {
+                            Image(systemName: "chart.line.uptrend.xyaxis")
                         }
                     }
                 } header: {

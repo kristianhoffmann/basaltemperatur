@@ -61,7 +61,7 @@ export function RegisterForm() {
       if (result?.error) {
         setError(typeof result.error === 'string' ? result.error : 'Ein Fehler ist aufgetreten.');
       } else if (result?.success) {
-        router.push('/login?message=Bitte bestätige deine E-Mail-Adresse.');
+        router.push('/login?message=check_email');
       }
     } catch {
       setError('Ein unerwarteter Fehler ist aufgetreten.');

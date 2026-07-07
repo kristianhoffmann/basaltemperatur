@@ -301,32 +301,37 @@ class DashboardViewModel: ObservableObject {
     
     func loadData(supabase: SupabaseService) async {
         isLoading = true
+
+        // Load profile independently so lifetime access is never blocked by data errors
+        if let profile = try? await supabase.getUserProfile() {
+            hasLifetimeAccess = profile.hasLifetimeAccess
+        }
+
         do {
             try await fetchData(supabase: supabase)
         } catch {
-            // Token might be expired — try refreshing and retry once
             do {
                 try await supabase.refreshSession()
                 try await fetchData(supabase: supabase)
             } catch {
+                #if DEBUG
+                errorMessage = "fetchData failed: \(error)"
+                print("Dashboard fetchData error: \(error)")
+                #else
                 errorMessage = error.localizedDescription
+                #endif
             }
         }
         isLoading = false
     }
-    
+
     private func fetchData(supabase: SupabaseService) async throws {
-            async let tempEntries = supabase.getTemperatureEntries(days: 730)
-            async let periods = supabase.getPeriodEntries(days: 730)
-        
+        async let tempEntries = supabase.getTemperatureEntries(days: 730)
+        async let periods = supabase.getPeriodEntries(days: 730)
+
         entries = try await tempEntries
         periodEntries = try await periods
 
-        if let profile = try? await supabase.getUserProfile() {
-            hasLifetimeAccess = profile.hasLifetimeAccess
-        } else {
-            hasLifetimeAccess = false
-        }
         let detected = OvulationCalculator.detectAllOvulations(entries: entries)
         ovulationResults = OvulationCalculator.hasReliablePredictionBaseline(periodEntries: periodEntries)
             ? OvulationCalculator.combineOvulationsWithPredictions(

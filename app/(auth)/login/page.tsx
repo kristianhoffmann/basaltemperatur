@@ -43,6 +43,7 @@ export default function LoginPage({
         <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-600">
           {searchParams.message === 'password_reset' && 'Passwort erfolgreich zurückgesetzt. Du kannst dich jetzt anmelden.'}
           {searchParams.message === 'email_confirmed' && 'E-Mail bestätigt! Du kannst dich jetzt anmelden.'}
+          {searchParams.message === 'check_email' && 'Bitte bestätige deine E-Mail-Adresse. Wir haben dir einen Link geschickt.'}
         </div>
       )}
 

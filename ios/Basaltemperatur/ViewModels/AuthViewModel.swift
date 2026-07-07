@@ -32,17 +32,21 @@ class AuthViewModel: ObservableObject {
         } catch let error as SupabaseError {
             if case .notAuthenticated = error {
                 // Refresh token truly invalid -> log out locally
+                #if DEBUG
                 print("Session refresh failed: \(error)")
+                #endif
                 self.isAuthenticated = false
                 needsRefresh = false
             } else {
-                // Keep existing session state on transient errors (network/server)
+                #if DEBUG
                 print("Session refresh skipped due transient error: \(error)")
+                #endif
                 needsRefresh = true
             }
         } catch {
-            // Keep existing session state on unknown transient errors
+            #if DEBUG
             print("Session refresh skipped due transient error: \(error)")
+            #endif
             needsRefresh = true
         }
     }
@@ -97,7 +101,9 @@ class AuthViewModel: ObservableObject {
             }
         } catch {
             errorMessage = "Registrierung fehlgeschlagen: \(error.localizedDescription)"
+            #if DEBUG
             print("SignUp error: \(error)")
+            #endif
         }
         
         isLoading = false
@@ -122,7 +128,9 @@ class AuthViewModel: ObservableObject {
                 UserDefaults.standard.set(name, forKey: "user_name")
             }
         } catch {
+            #if DEBUG
             print("Failed to load user metadata: \(error)")
+            #endif
         }
     }
     

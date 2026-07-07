@@ -164,6 +164,18 @@ struct DashboardView: View {
                         .padding(.horizontal)
                     }
                     
+                    #if DEBUG
+                    if let error = viewModel.errorMessage {
+                        Text("DEBUG: \(error)")
+                            .font(.caption)
+                            .foregroundStyle(.red)
+                            .padding()
+                            .frame(maxWidth: .infinity)
+                            .background(Color.red.opacity(0.1), in: RoundedRectangle(cornerRadius: 12))
+                            .padding(.horizontal)
+                    }
+                    #endif
+
                     // Quick Entry Prompt
                     if !viewModel.todayHasEntry {
                         QuickEntryPrompt()

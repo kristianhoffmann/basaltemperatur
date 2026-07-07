@@ -115,7 +115,9 @@ struct MainTabView: View {
             // Do not lock users out on transient profile failures; server-side write guards still apply.
             needsSensitiveDataConsent = false
             sensitiveDataConsentError = nil
+            #if DEBUG
             print("Sensitive data consent check failed: \(error)")
+            #endif
         }
     }
 
@@ -129,8 +131,12 @@ struct MainTabView: View {
             try await supabase.updateSensitiveDataConsent()
             needsSensitiveDataConsent = false
         } catch {
-            sensitiveDataConsentError = "Einwilligung konnte nicht gespeichert werden. Bitte versuche es erneut."
+            #if DEBUG
+            sensitiveDataConsentError = "Fehler: \(error.localizedDescription)"
             print("Sensitive data consent update failed: \(error)")
+            #else
+            sensitiveDataConsentError = "Einwilligung konnte nicht gespeichert werden. Bitte versuche es erneut."
+            #endif
         }
     }
 

@@ -45,7 +45,7 @@ struct EntryView: View {
     }
 
     var activeColor: Color {
-        temperatureText.isEmpty ? Color("AppPrimary") : Color("AppPrimary")
+        Color("AppPrimary")
     }
 
     init() {

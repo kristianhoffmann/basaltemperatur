@@ -182,6 +182,11 @@ export default function DatenschutzPage() {
         Nutzungsanalyse für diesen Browser deaktivieren; außerdem respektiert die App
         die Browser-Einstellung „Do Not Track“, sofern sie gesetzt ist.
       </p>
+      <p>
+        In der iOS-App wird diese Nutzungsanalyse nur gesendet, wenn Sie sie in den
+        Einstellungen ausdrücklich aktivieren. Sie können diese Einstellung dort
+        jederzeit wieder deaktivieren.
+      </p>
       <AnalyticsOptOut />
 
       <h2>8a. Google Analytics 4</h2>
