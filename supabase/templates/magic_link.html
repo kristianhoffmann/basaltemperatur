@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dein Login-Link · Basaltemperatur</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif; background-color: #FDF2F4; color: #3D1520; margin: 0; padding: 0; }
+    .container { max-width: 560px; margin: 40px auto; background: #ffffff; border-radius: 18px; border: 1px solid #FACDD6; overflow: hidden; box-shadow: 0 8px 30px rgba(212,99,122,0.10); }
+    .header { background: linear-gradient(135deg, #D4637A 0%, #D4A574 100%); padding: 34px 32px; text-align: center; }
+    .header .brand { margin: 0; font-size: 13px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.85); }
+    .header h1 { margin: 8px 0 0; font-size: 24px; color: #ffffff; }
+    .content { padding: 32px; }
+    .content p { font-size: 16px; line-height: 1.65; color: #5D2735; margin: 0 0 16px; }
+    .btn { display: inline-block; background: linear-gradient(135deg, #D4637A, #B84D65); color: #ffffff !important; text-decoration: none; padding: 14px 30px; border-radius: 10px; font-weight: 700; font-size: 15px; }
+    .hint { font-size: 13px; color: #8A3A4D; background: #FDF2F4; border: 1px solid #FACDD6; border-radius: 10px; padding: 12px 16px; word-break: break-all; }
+    .footer { padding: 22px 32px; border-top: 1px solid #FACDD6; text-align: center; font-size: 12px; color: #B84D65; }
+    .footer a { color: #D4637A; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <p class="brand">Basaltemperatur</p>
+      <h1>Dein Login-Link ✨</h1>
+    </div>
+    <div class="content">
+      <p>Hallo,</p>
+      <p>klicke auf den Button, um dich sicher und ohne Passwort anzumelden.</p>
+      <p style="text-align: center; margin: 26px 0;">
+        <a href="{{ .ConfirmationURL }}" class="btn">Jetzt anmelden</a>
+      </p>
+      <p>Falls der Button nicht funktioniert, kopiere diesen Link in deinen Browser:</p>
+      <p class="hint">{{ .ConfirmationURL }}</p>
+      <p>Dieser Link ist nur kurz gültig. Falls du dich nicht anmelden wolltest, ignoriere diese E-Mail einfach.</p>
+      <p>Herzliche Grüße,<br><strong>Dein Basaltemperatur-Team</strong></p>
+    </div>
+    <div class="footer">
+      <p>© 2026 Basaltemperatur · Deine Daten bleiben privat.</p>
+      <p><a href="https://www.basaltemperatur.online">basaltemperatur.online</a></p>
+    </div>
+  </div>
+</body>
+</html>
