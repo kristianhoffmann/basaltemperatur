@@ -223,6 +223,10 @@ otp_expiry = 3600
 # sender_name = "Admin"
 
 # Branded transactional email templates (Basaltemperatur)
+[auth.email.template.invite]
+subject = "Du wurdest zu Basaltemperatur eingeladen"
+content_path = "./supabase/templates/invite_user.html"
+
 [auth.email.template.confirmation]
 subject = "Bestätige deine E-Mail bei Basaltemperatur"
 content_path = "./supabase/templates/confirm_signup.html"
@@ -234,6 +238,10 @@ content_path = "./supabase/templates/reset_password.html"
 [auth.email.template.magic_link]
 subject = "Dein Login-Link für Basaltemperatur"
 content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.email_change]
+subject = "Bestätige deine neue E-Mail-Adresse"
+content_path = "./supabase/templates/change_email.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
