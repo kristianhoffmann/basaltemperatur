@@ -3,7 +3,9 @@
 
 import { createClient } from '@/lib/supabase/server'
 import { NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
 import Stripe from 'stripe'
+import { trackConversion, type AttributionData } from '@/lib/seo-autopilot/attribution'
 
 const stripeSecretKey = process.env.STRIPE_SECRET_KEY
 const stripePriceId = process.env.STRIPE_PRICE_ID
@@ -52,9 +54,25 @@ export async function POST() {
         )
     }
 
+    let attribution: AttributionData = {}
+    try {
+        const raw = (await cookies()).get('seo_autopilot_attribution')?.value
+        attribution = raw ? JSON.parse(raw) as AttributionData : {}
+    } catch {
+        attribution = {}
+    }
+
+    const metadata: Record<string, string> = {
+        user_id: user.id,
+        entitlement: 'lifetime_access',
+    }
+    if (attribution.postId) metadata.seo_post_id = attribution.postId.slice(0, 500)
+    if (attribution.slug) metadata.seo_slug = attribution.slug.slice(0, 500)
+    if (attribution.locale) metadata.seo_locale = attribution.locale.slice(0, 500)
+    if (attribution.keyword) metadata.seo_keyword = attribution.keyword.slice(0, 500)
+
     const session = await stripe.checkout.sessions.create({
         mode: 'payment',
-        payment_method_types: ['card'],
         line_items: [
             {
                 price: stripePriceId,
@@ -62,14 +80,16 @@ export async function POST() {
             },
         ],
         client_reference_id: user.id,
-        metadata: {
-            user_id: user.id,
-            entitlement: 'lifetime_access',
-        },
+        metadata,
         customer_email: user.email,
         success_url: `${appUrl}/erfolg?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${appUrl}/dashboard`,
     })
+
+    await trackConversion({
+        eventName: 'checkout_started',
+        idempotencyKey: `stripe:checkout_started:${session.id}`,
+    }, attribution)
 
     return NextResponse.json({ url: session.url })
 }

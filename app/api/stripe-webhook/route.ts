@@ -4,6 +4,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
+import { trackConversion } from '@/lib/seo-autopilot/attribution'
 
 export async function POST(request: Request) {
     const stripeSecretKey = process.env.STRIPE_SECRET_KEY
@@ -44,7 +45,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
     }
 
-    if (event.type === 'checkout.session.completed') {
+    if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
         const session = event.data.object as Stripe.Checkout.Session
         const userId = session.metadata?.user_id || session.client_reference_id
 
@@ -80,6 +81,18 @@ export async function POST(request: Request) {
             console.error('Failed to grant lifetime access:', error)
             return NextResponse.json({ error: 'Database error' }, { status: 500 })
         }
+
+        await trackConversion({
+            eventName: 'purchase',
+            revenue: typeof session.amount_total === 'number' ? session.amount_total / 100 : 0,
+            currency: session.currency?.toUpperCase() || 'EUR',
+            idempotencyKey: `stripe:purchase:${session.id}`,
+        }, {
+            postId: session.metadata?.seo_post_id,
+            slug: session.metadata?.seo_slug,
+            locale: session.metadata?.seo_locale,
+            keyword: session.metadata?.seo_keyword,
+        })
 
         console.log(`✅ Lifetime access granted to user: ${userId}`)
     }

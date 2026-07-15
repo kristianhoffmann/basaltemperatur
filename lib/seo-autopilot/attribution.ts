@@ -12,10 +12,32 @@ export interface AttributionData {
 }
 
 export interface ConversionEvent {
-  eventName: string
+  eventName: 'signup' | 'activation' | 'checkout_started' | 'purchase'
   conversions?: number
   revenue?: number
   currency?: string
+  idempotencyKey?: string
+}
+
+export function buildConversionPayload(
+  siteId: string,
+  event: ConversionEvent,
+  attribution: AttributionData,
+  occurredAt = new Date(),
+) {
+  return {
+    siteId,
+    postId: attribution.postId,
+    slug: attribution.slug,
+    locale: attribution.locale,
+    keyword: attribution.keyword,
+    eventName: event.eventName,
+    conversions: event.conversions ?? 1,
+    revenue: event.revenue ?? 0,
+    currency: event.currency ?? 'EUR',
+    occurredOn: occurredAt.toISOString(),
+    ...(event.idempotencyKey ? { idempotencyKey: event.idempotencyKey } : {}),
+  }
 }
 
 export async function trackConversion(
@@ -26,18 +48,7 @@ export async function trackConversion(
   if (!siteId) return
 
   const timestamp = Math.floor(Date.now() / 1000).toString()
-  const body = JSON.stringify({
-    siteId,
-    postId: attribution.postId,
-    slug: attribution.slug,
-    locale: attribution.locale,
-    keyword: attribution.keyword,
-    eventName: event.eventName,
-    conversions: event.conversions ?? 1,
-    revenue: event.revenue ?? 0,
-    currency: event.currency ?? 'EUR',
-    occurredOn: new Date().toISOString().slice(0, 10),
-  })
+  const body = JSON.stringify(buildConversionPayload(siteId, event, attribution))
 
   const signature = signPayload(timestamp, body)
 
