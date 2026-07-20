@@ -1,30 +1,31 @@
 // app/api/qa/status/route.ts
-// QA-Sonde: liefert den Zustand, den End-to-End-Tests sonst raten müssten
-// (Stripe-Modus, aktive Session, Entitlement). Streng read-only — die Route
-// legt nichts an und ändert nichts.
+// QA-Sonde: liefert den Vertrag (lib/qa-contract.ts), auf dem der flottenweite
+// Standardtest läuft. Der Test kennt kein einziges Produkt-Detail — er liest
+// auth.kind, um den Anmeldeweg zu wählen, navigiert zu gating.surface und
+// prüft gegen gating.blockedCopy.
 //
 // Zugriff nur mit QA_PROBE_SECRET im Header `x-qa-probe-secret`. Ist die
 // Variable nicht gesetzt (Regelfall in Produktion), verhält sich die Route
 // wie nicht vorhanden und antwortet mit 404.
 //
-// Es werden NIE Secrets oder Price-IDs ausgeliefert — nur abgeleitete Fakten.
+// Streng read-only. Es werden NIE Secrets oder Price-IDs ausgeliefert.
 
 import { timingSafeEqual } from 'node:crypto'
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { toEntitlement } from '@/lib/billing/entitlement'
+import { statisticsGateMessage } from '@/lib/billing/gating'
+import {
+    QA_CONTRACT_VERSION,
+    chargesRealMoney,
+    classifyStripeKey,
+    type QaContract,
+} from '@/lib/qa-contract'
 
 export const runtime = 'nodejs'
 export const dynamic = 'force-dynamic'
 
-type StripeMode = 'test' | 'live' | 'unconfigured'
-
-function resolveStripeMode(secretKey: string | undefined): StripeMode {
-    const key = (secretKey || '').trim()
-    if (!key) return 'unconfigured'
-    if (key.startsWith('sk_test_') || key.startsWith('rk_test_')) return 'test'
-    return 'live'
-}
+const PRODUCT = 'basaltemperatur'
 
 /**
  * Konstantzeit-Vergleich. timingSafeEqual wirft bei ungleicher Länge, daher
@@ -39,61 +40,89 @@ function secretMatches(provided: string, expected: string): boolean {
 }
 
 export async function GET(request: Request) {
-    const probeSecret = process.env.QA_PROBE_SECRET
+    const expected = process.env.QA_PROBE_SECRET?.trim()
 
     // Nicht konfiguriert → Route existiert für die Außenwelt nicht.
-    if (!probeSecret) {
+    if (!expected) {
         return NextResponse.json({ error: 'not_found' }, { status: 404 })
     }
 
-    const provided = request.headers.get('x-qa-probe-secret')
-    if (!provided || !secretMatches(provided, probeSecret)) {
+    const provided = request.headers.get('x-qa-probe-secret') ?? ''
+    if (!secretMatches(provided, expected)) {
         return NextResponse.json({ error: 'unauthorized' }, { status: 401 })
     }
-
-    // Schalter, die einen Paywall-Test aus den falschen Gründen bestehen
-    // lassen können. Es gibt keinen Demo-/Unlock-Env-Schalter; die echten
-    // Umgehungen sind die zusätzlichen Wege, has_lifetime_access zu setzen:
-    //   - appStoreEntitlementEnabled: eine StoreKit-Transaktion schaltet
-    //     Premium frei, ganz ohne Stripe-Zahlung
-    //   - manualEntitlementPossible: entitlement_source 'manual' erlaubt es,
-    //     den Zugang direkt in der DB zu setzen
-    const flags = {
-        appStoreEntitlementEnabled: Boolean(
-            process.env.APP_STORE_BUNDLE_ID && process.env.APP_STORE_LIFETIME_PRODUCT_ID
-        ),
-        manualEntitlementPossible: true,
-    }
-
-    const stripeMode = resolveStripeMode(process.env.STRIPE_SECRET_KEY)
 
     const supabase = await createClient()
     const { data: { user } } = await supabase.auth.getUser()
 
-    if (!user) {
-        return NextResponse.json({
-            product: 'basaltemperatur',
-            stripeMode,
-            flags,
-            session: null,
-            entitlement: null,
-        })
+    let session: QaContract['session'] = null
+    let entitlement: QaContract['entitlement'] = null
+
+    if (user) {
+        session = { userId: user.id, email: user.email ?? null }
+        // Read-only: kein Upsert, die Sonde legt kein Profil an.
+        const { data: profile } = await supabase
+            .from('profiles')
+            .select('has_lifetime_access, entitlement_source')
+            .eq('id', user.id)
+            .maybeSingle()
+        entitlement = toEntitlement(profile)
     }
 
-    const { data: profile } = await supabase
-        .from('profiles')
-        .select('has_lifetime_access, entitlement_source')
-        .eq('id', user.id)
-        .maybeSingle()
+    // Checkout (app/api/checkout) und Webhook (app/api/stripe-webhook) laufen
+    // in dieser App. Die einzige Edge Function des Projekts (delete-account)
+    // fasst Stripe nicht an — der Schlüssel hier ist also der, der abrechnet.
+    const keyMode = classifyStripeKey(process.env.STRIPE_SECRET_KEY)
 
-    return NextResponse.json({
-        product: 'basaltemperatur',
-        stripeMode,
-        flags,
-        session: {
-            userId: user.id,
-            email: user.email || '',
+    const contract: QaContract = {
+        contractVersion: QA_CONTRACT_VERSION,
+        product: PRODUCT,
+        billing: {
+            runtime: 'vercel',
+            keyMode,
+            chargesRealMoney: chargesRealMoney(keyMode),
         },
-        entitlement: toEntitlement(profile),
-    })
+        auth: {
+            kind: 'password',
+            // Deutsche Routen, wörtlich wie in app/(auth)/ angelegt.
+            signupPath: '/registrieren',
+            loginPath: '/login',
+            // Kontolöschung lebt in /einstellungen (AccountDangerZone), es gibt
+            // keine eigene Seite dafür.
+            deletePath: '/einstellungen',
+            passwordResetPath: '/passwort-vergessen',
+            // supabase/config.toml: [auth.email] enable_confirmations = false.
+            // Die Registrierung liefert sofort eine Session und leitet nach
+            // /onboarding weiter; der Bestätigungszweig in lib/actions/auth.ts
+            // ist nur eine Absicherung, falls die Einstellung gehostet abweicht.
+            emailConfirmationRequired: false,
+        },
+        gating: {
+            surface: '/statistiken',
+            // Aus lib/billing/gating.ts — dieselbe Quelle, aus der die Seite
+            // rendert. Deutsch, weil das UI deutsch ist.
+            blockedCopy: statisticsGateMessage(),
+            // Es gibt genau ein kostenpflichtiges Produkt: den einmaligen
+            // Vollzugang (mode: 'payment', 9,99 €). Eine Auswahl zwischen
+            // Plänen existiert nicht, also ist das zwangsläufig der Kauf, der
+            // den Unterschied auf /statistiken sichtbar macht.
+            testPlan: 'lifetime',
+        },
+        flags: {
+            // Es gibt keinen Demo-/Unlock-Env-Schalter; die echten Umgehungen
+            // sind die zusätzlichen Wege, has_lifetime_access zu setzen:
+            //   - appStoreEntitlementEnabled: eine StoreKit-Transaktion schaltet
+            //     Premium frei, ganz ohne Stripe-Zahlung
+            //   - manualEntitlementPossible: entitlement_source 'manual' erlaubt
+            //     es, den Zugang direkt in der DB zu setzen
+            appStoreEntitlementEnabled: Boolean(
+                process.env.APP_STORE_BUNDLE_ID && process.env.APP_STORE_LIFETIME_PRODUCT_ID
+            ),
+            manualEntitlementPossible: true,
+        },
+        session,
+        entitlement,
+    }
+
+    return NextResponse.json(contract, { headers: { 'cache-control': 'no-store' } })
 }

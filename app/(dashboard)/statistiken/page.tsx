@@ -4,6 +4,7 @@
 export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
+import { STATISTICS_GATE_BODY, STATISTICS_GATE_HEADING } from '@/lib/billing/gating'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { differenceInDays, parseISO, format } from 'date-fns'
@@ -79,11 +80,10 @@ export default async function StatisticsPage() {
                         <Lock className="h-7 w-7" />
                     </div>
                     <p className="text-lg font-semibold" style={{ color: 'var(--text)' }}>
-                        Statistiken sind Premium
+                        {STATISTICS_GATE_HEADING}
                     </p>
                     <p className="mx-auto mt-2 max-w-md text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
-                        Der Vollzugang schaltet Auswertbarkeit, Zyklus-Stabilität, Messqualität,
-                        Temperaturtrends und den Verlauf deiner Zyklen frei.
+                        {STATISTICS_GATE_BODY}
                     </p>
                     <Link href="/dashboard" className="mt-5 inline-flex">
                         <button className="btn btn-glow">Vollzugang ansehen</button>
