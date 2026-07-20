@@ -148,7 +148,7 @@ export default async function SettingsPage() {
             </div>
 
             {/* Account Aktionen – Client Component */}
-            <AccountDangerZone />
+            <AccountDangerZone email={user.email || ''} />
         </div>
     )
 }

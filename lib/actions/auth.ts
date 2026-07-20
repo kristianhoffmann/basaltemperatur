@@ -6,8 +6,11 @@
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { createClient as createSupabaseClient } from '@supabase/supabase-js'
+import Stripe from 'stripe'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { trackConversion } from '@/lib/seo-autopilot/attribution'
+import { planAccountDeletion } from '@/lib/account-deletion'
 import { z } from 'zod'
 
 // ============================================
@@ -316,34 +319,190 @@ export async function updatePassword(_prevState: AuthActionState, formData: Form
 // DELETE ACCOUNT
 // ============================================
 
-export async function deleteAccount(formData: FormData) {
-  const supabase = await createClient()
-  const adminClient = createAdminClient()
+type StripeErrorLike = { statusCode?: number; code?: string }
 
-  const confirmation = formData.get('confirmation') as string
+/** Nicht mehr kündbare Zustände — hier gibt es nichts zu tun. */
+const SETTLED_SUBSCRIPTION_STATUSES = new Set(['canceled', 'incomplete_expired'])
 
-  if (confirmation !== 'LÖSCHEN') {
-    return { error: 'Bitte gib "LÖSCHEN" ein, um dein Konto zu löschen.' }
+/**
+ * Sucht offene Abos zur E-Mail des Kontos.
+ *
+ * Basaltemperatur hat keine `stripe_customer_id` am Profil, weil der Kauf
+ * einmalig ist (Checkout mode: 'payment'). Die Suche läuft deshalb über die
+ * Kunden-E-Mail. Ist Stripe nicht konfiguriert oder existiert kein Kunde,
+ * ist das Ergebnis schlicht leer — das ist der Normalfall, kein Fehler.
+ */
+async function findActiveSubscriptionIds(email: string): Promise<string[]> {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeSecretKey) return []
+
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' })
+
+  const customers = await stripe.customers.list({ email, limit: 100 })
+  if (customers.data.length === 0) return []
+
+  const ids: string[] = []
+  for (const customer of customers.data) {
+    const subscriptions = await stripe.subscriptions.list({
+      customer: customer.id,
+      status: 'all',
+      limit: 100,
+    })
+
+    for (const subscription of subscriptions.data) {
+      if (!SETTLED_SUBSCRIPTION_STATUSES.has(subscription.status)) {
+        ids.push(subscription.id)
+      }
+    }
   }
 
-  // Aktuellen User holen
+  return ids
+}
+
+/**
+ * Kündigt ein Abo. Bereits gekündigte oder nicht mehr existierende Abos
+ * gelten als erledigt; jeder andere Fehler wird geworfen, damit der Aufrufer
+ * abbrechen kann.
+ */
+async function cancelSubscription(subscriptionId: string): Promise<void> {
+  const stripeSecretKey = process.env.STRIPE_SECRET_KEY
+  if (!stripeSecretKey) return
+
+  const stripe = new Stripe(stripeSecretKey, { apiVersion: '2023-10-16' })
+
+  try {
+    await stripe.subscriptions.cancel(subscriptionId)
+  } catch (err) {
+    const stripeErr = err as StripeErrorLike
+    if (stripeErr?.statusCode === 404 || stripeErr?.code === 'resource_missing') {
+      return
+    }
+    throw err
+  }
+}
+
+/**
+ * Selbstbedienungs-Löschung des eigenen Kontos (DSGVO Art. 17).
+ *
+ * Ablauf (Reihenfolge ist sicherheitsrelevant):
+ *   1. Reauthentifizierung mit dem aktuellen Passwort gegen einen
+ *      Wegwerf-Client (persistSession: false) — ein Fehlversuch darf die
+ *      laufende Session nicht anfassen.
+ *   2. Zweite Bestätigung: der Nutzer tippt seine eigene E-Mail, der Server
+ *      prüft die Übereinstimmung erneut (die Client-Prüfung ist nur Komfort).
+ *   3. Etwaige Stripe-Abos kündigen — VOR jeder Datenlöschung. Scheitert
+ *      das, bricht die Aktion ab und das Konto bleibt vollständig erhalten.
+ *      Basaltemperatur verkauft einen einmaligen Lifetime-Kauf, im Regelfall
+ *      gibt es also gar kein Abo — das ist kein Fehler, sondern der Normalfall.
+ *   4. Daten löschen, Auth-User ZULETZT.
+ */
+export async function deleteAccount(formData: FormData) {
+  const supabase = await createClient()
+
   const { data: { user } } = await supabase.auth.getUser()
 
-  if (!user) {
+  if (!user?.email) {
     return { error: 'Nicht angemeldet.' }
   }
 
-  // Alle Benutzerdaten löschen (DSGVO-konform)
-  await supabase.from('temperature_entries').delete().eq('user_id', user.id)
-  await supabase.from('period_entries').delete().eq('user_id', user.id)
-  await supabase.from('cycles').delete().eq('user_id', user.id)
-  await adminClient.from('profiles').delete().eq('id', user.id)
+  const password = (formData.get('password') as string) || ''
+  const confirmEmail = (formData.get('confirmEmail') as string) || ''
 
-  // Account über Admin-Client löschen
-  const { error } = await adminClient.auth.admin.deleteUser(user.id)
+  if (!password) {
+    return { error: 'Bitte gib dein Passwort ein.' }
+  }
 
-  if (error) {
-    return { error: 'Konto konnte nicht gelöscht werden. Bitte versuche es erneut.' }
+  // ─── 1. Reauthentifizierung über einen Wegwerf-Client ────────────
+  // Eigener Client mit Anon-Key und persistSession: false — ein
+  // fehlgeschlagener Versuch schreibt keine Cookies und kann die
+  // bestehende Session nicht beschädigen.
+  const throwawayClient = createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
+    }
+  )
+
+  const { error: reauthError } = await throwawayClient.auth.signInWithPassword({
+    email: user.email,
+    password,
+  })
+  // Die Wegwerf-Session sofort wieder entwerten — sie hat ihren Zweck erfüllt.
+  await throwawayClient.auth.signOut().catch(() => { })
+
+  // ─── 2. Abos suchen und Plan erstellen ───────────────────────────
+  // Erst nach bestandener Reauthentifizierung nach Stripe greifen, damit
+  // ein Fremder nicht per Fehlversuch Kontodaten abfragen kann.
+  let activeSubscriptionIds: string[] = []
+
+  if (!reauthError) {
+    try {
+      activeSubscriptionIds = await findActiveSubscriptionIds(user.email)
+    } catch (err) {
+      console.error('[deleteAccount] Stripe-Abfrage fehlgeschlagen:', err)
+      return {
+        error:
+          'Dein Zahlungsstatus konnte nicht geprüft werden. Dein Konto wurde deshalb NICHT ' +
+          'gelöscht. Bitte versuche es später erneut.',
+      }
+    }
+  }
+
+  const plan = planAccountDeletion({
+    sessionEmail: user.email,
+    typedEmail: confirmEmail,
+    passwordVerified: !reauthError,
+    activeSubscriptionIds,
+  })
+
+  if (!plan.ok) {
+    return { error: plan.error }
+  }
+
+  // ─── 3. Stripe zuerst — Abbruch lässt das Konto unangetastet ─────
+  for (const step of plan.steps) {
+    if (step.kind !== 'cancel-subscription') continue
+
+    try {
+      await cancelSubscription(step.subscriptionId)
+    } catch (err) {
+      console.error('[deleteAccount] Kündigung fehlgeschlagen:', err)
+      return {
+        error:
+          'Dein Abo konnte nicht gekündigt werden. Dein Konto wurde deshalb NICHT gelöscht. ' +
+          'Bitte versuche es später erneut oder kontaktiere den Support.',
+      }
+    }
+  }
+
+  // ─── 4. Daten löschen, Auth-User zuletzt ─────────────────────────
+  const adminClient = createAdminClient()
+
+  for (const step of plan.steps) {
+    if (step.kind === 'delete-table') {
+      const { error } = await adminClient
+        .from(step.table)
+        .delete()
+        .eq(step.idColumn, user.id)
+
+      if (error) {
+        console.error(`[deleteAccount] Löschen von ${step.table} fehlgeschlagen:`, error.message)
+      }
+      continue
+    }
+
+    if (step.kind === 'delete-auth-user') {
+      const { error } = await adminClient.auth.admin.deleteUser(user.id)
+
+      if (error) {
+        return { error: 'Konto konnte nicht gelöscht werden. Bitte versuche es erneut.' }
+      }
+    }
   }
 
   // Logout und Redirect

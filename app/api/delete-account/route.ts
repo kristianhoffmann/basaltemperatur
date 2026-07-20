@@ -4,6 +4,7 @@
 
 import { createClient as createAdminClientFn } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { USER_DATA_TABLES, idColumnFor } from '@/lib/account-deletion'
 
 export async function DELETE(request: Request) {
     try {
@@ -34,44 +35,17 @@ export async function DELETE(request: Request) {
         // Use admin client to delete data and user
         const adminClient = createAdminClientFn(supabaseUrl, serviceRoleKey)
 
-        // Delete temperature entries
-        const { error: tempError } = await adminClient
-            .from('temperature_entries')
-            .delete()
-            .eq('user_id', user.id)
+        // Delete owned rows in FK-safe order. The table list is shared with the
+        // web deletion flow (lib/account-deletion.ts) so the two cannot drift.
+        for (const table of USER_DATA_TABLES) {
+            const { error } = await adminClient
+                .from(table)
+                .delete()
+                .eq(idColumnFor(table), user.id)
 
-        if (tempError) {
-            console.error('Error deleting temperature entries:', tempError)
-        }
-
-        // Delete period entries
-        const { error: periodError } = await adminClient
-            .from('period_entries')
-            .delete()
-            .eq('user_id', user.id)
-
-        if (periodError) {
-            console.error('Error deleting period entries:', periodError)
-        }
-
-        // Delete cycles
-        const { error: cyclesError } = await adminClient
-            .from('cycles')
-            .delete()
-            .eq('user_id', user.id)
-
-        if (cyclesError) {
-            console.error('Error deleting cycles:', cyclesError)
-        }
-
-        // Delete profile
-        const { error: profileError } = await adminClient
-            .from('profiles')
-            .delete()
-            .eq('id', user.id)
-
-        if (profileError) {
-            console.error('Error deleting profile:', profileError)
+            if (error) {
+                console.error(`Error deleting ${table}:`, error)
+            }
         }
 
         // Delete the user account

@@ -4,31 +4,51 @@ import { useState } from 'react'
 import { Shield, LogOut, Trash2, AlertTriangle, RotateCcw } from 'lucide-react'
 import { signOut, deleteAccount, withdrawSensitiveDataConsent } from '@/lib/actions/auth'
 
-export function AccountDangerZone() {
+// Was bei der Löschung verschwindet – bewusst vor der Bestätigung sichtbar.
+const GELOESCHTE_DATEN = [
+    'Alle Temperatureinträge',
+    'Alle Periodeneinträge',
+    'Alle Zyklen und Auswertungen',
+    'Dein Profil und deine Einstellungen',
+    'Dein Zugang und ein etwaiger Premium-Kauf',
+]
+
+export function AccountDangerZone({ email }: { email: string }) {
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
-    const [confirmation, setConfirmation] = useState('')
+    const [password, setPassword] = useState('')
+    const [confirmEmail, setConfirmEmail] = useState('')
     const [showConsentConfirm, setShowConsentConfirm] = useState(false)
     const [isDeleting, setIsDeleting] = useState(false)
     const [error, setError] = useState<string | null>(null)
 
+    // Nur Komfort – der Server prüft die Übereinstimmung erneut.
+    const emailMatches =
+        email.length > 0 && confirmEmail.trim().toLowerCase() === email.trim().toLowerCase()
+    const canSubmit = emailMatches && password.length > 0 && !isDeleting
+
+    const resetForm = () => {
+        setShowDeleteConfirm(false)
+        setPassword('')
+        setConfirmEmail('')
+        setError(null)
+    }
+
     const handleDelete = async () => {
-        if (confirmation !== 'LÖSCHEN') {
-            setError('Bitte gib "LÖSCHEN" ein.')
-            return
-        }
+        if (!canSubmit) return
 
         setIsDeleting(true)
         setError(null)
 
         const formData = new FormData()
-        formData.set('confirmation', confirmation)
+        formData.set('password', password)
+        formData.set('confirmEmail', confirmEmail)
 
         const result = await deleteAccount(formData)
         if (result?.error) {
             setError(result.error)
             setIsDeleting(false)
         }
-        // If successful, the server action redirects
+        // Bei Erfolg leitet die Server Action weiter
     }
 
     return (
@@ -111,26 +131,53 @@ export function AccountDangerZone() {
                             <AlertTriangle className="h-5 w-5 text-red-500 shrink-0 mt-0.5" />
                             <div>
                                 <p className="text-sm font-medium text-red-700">
-                                    Bist du sicher?
+                                    Das wird unwiderruflich gelöscht:
                                 </p>
-                                <p className="text-xs text-red-600 mt-1">
-                                    Alle deine Temperatureinträge, Periodeneinträge und dein Konto werden unwiderruflich gelöscht. Diese Aktion kann nicht rückgängig gemacht werden.
+                                <ul className="text-xs text-red-600 mt-1.5 space-y-1 list-disc list-inside">
+                                    {GELOESCHTE_DATEN.map((eintrag) => (
+                                        <li key={eintrag}>{eintrag}</li>
+                                    ))}
+                                </ul>
+                                <p className="text-xs text-red-600 mt-2">
+                                    Diese Aktion kann nicht rückgängig gemacht werden. Ein einmal
+                                    gekaufter Premium-Zugang wird dabei nicht erstattet.
                                 </p>
                             </div>
                         </div>
 
                         <div>
-                            <label className="text-xs font-medium text-red-600 block mb-1.5">
-                                Gib &quot;LÖSCHEN&quot; ein, um zu bestätigen:
+                            <label htmlFor="konto-loeschen-passwort" className="text-xs font-medium text-red-600 block mb-1.5">
+                                Aktuelles Passwort:
                             </label>
                             <input
-                                type="text"
-                                value={confirmation}
+                                id="konto-loeschen-passwort"
+                                type="password"
+                                autoComplete="current-password"
+                                value={password}
                                 onChange={(e) => {
-                                    setConfirmation(e.target.value)
+                                    setPassword(e.target.value)
                                     setError(null)
                                 }}
-                                placeholder="LÖSCHEN"
+                                placeholder="Dein Passwort"
+                                className="w-full px-3 py-2 rounded-xl border border-red-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
+                                style={{ color: 'var(--text)' }}
+                            />
+                        </div>
+
+                        <div>
+                            <label htmlFor="konto-loeschen-email" className="text-xs font-medium text-red-600 block mb-1.5">
+                                Tippe zur Bestätigung deine E-Mail-Adresse ({email}):
+                            </label>
+                            <input
+                                id="konto-loeschen-email"
+                                type="email"
+                                autoComplete="off"
+                                value={confirmEmail}
+                                onChange={(e) => {
+                                    setConfirmEmail(e.target.value)
+                                    setError(null)
+                                }}
+                                placeholder={email}
                                 className="w-full px-3 py-2 rounded-xl border border-red-200 text-sm focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
                                 style={{ color: 'var(--text)' }}
                             />
@@ -143,18 +190,14 @@ export function AccountDangerZone() {
                         <div className="flex gap-2">
                             <button
                                 onClick={handleDelete}
-                                disabled={isDeleting || confirmation !== 'LÖSCHEN'}
+                                disabled={!canSubmit}
                                 className="flex-1 flex items-center justify-center gap-2 p-3 rounded-xl bg-red-500 text-white font-medium text-sm hover:bg-red-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                                 <Trash2 className="h-4 w-4" />
                                 {isDeleting ? 'Wird gelöscht...' : 'Endgültig löschen'}
                             </button>
                             <button
-                                onClick={() => {
-                                    setShowDeleteConfirm(false)
-                                    setConfirmation('')
-                                    setError(null)
-                                }}
+                                onClick={resetForm}
                                 className="px-4 py-3 rounded-xl border border-[var(--border)] text-sm font-medium hover:bg-[var(--surface-hover)] transition-colors"
                                 style={{ color: 'var(--text-secondary)' }}
                             >
