@@ -96,6 +96,15 @@ export async function GET(request: Request) {
             // /onboarding weiter; der Bestätigungszweig in lib/actions/auth.ts
             // ist nur eine Absicherung, falls die Einstellung gehostet abweicht.
             emailConfirmationRequired: false,
+            // What the confirmation mail must look like. GoTrue falls back to its
+            // own unbranded default whenever the configured template fails to load,
+            // and the link keeps working — so the flow would pass while every user
+            // gets a mail from nobody. brandedMarker appears only in ours.
+            mail: {
+              fromAddress: 'info@basaltemperatur.online',
+              subject: 'E-Mail-Adresse bestätigen · Basaltemperatur',
+              brandedMarker: '© 2026 Basaltemperatur · Zykluswissen, klar und privat.',
+            },
         },
         gating: {
             surface: '/statistiken',

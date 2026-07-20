@@ -59,6 +59,29 @@ export type QaAuth = {
   passwordResetPath: string | null;
   /** True when signup requires clicking a link in an email before the account works. */
   emailConfirmationRequired: boolean;
+  /**
+   * What the confirmation mail must look like.
+   *
+   * A confirmation link that works is not enough: GoTrue falls back to its own
+   * unbranded default template whenever the configured one fails to load, and
+   * the link still works — so the flow passes while every user receives a mail
+   * that looks like it came from nobody. The test therefore asserts on the mail
+   * itself, and needs to know what to expect.
+   */
+  mail: QaMailExpectation | null;
+};
+
+export type QaMailExpectation = {
+  /** Address the confirmation mail is sent from, e.g. "noreply@example.com". */
+  fromAddress: string | null;
+  /** Subject line the branded template produces, matched exactly. */
+  subject: string | null;
+  /**
+   * A distinctive string that appears ONLY in the branded template — a wordmark,
+   * a brand colour, a footer line. Its absence means the default template was
+   * used, which is the failure this check exists to catch.
+   */
+  brandedMarker: string | null;
 };
 
 export type QaGating = {
