@@ -85,10 +85,14 @@ export async function POST(request: Request) {
     }
 
     const supabase = bearerToken ? createAdminClient() : await createClient()
+    // upsert statt update: sollte die Profilzeile fehlen (z. B. wenn der
+    // on_auth_user_created-Trigger auf auth.users nicht greift), würde ein
+    // reines UPDATE 0 Zeilen treffen — onboarding_completed bliebe false und
+    // der Nutzer steckte im Onboarding-Redirect fest. Der Insert-Pfad ist per
+    // RLS erlaubt (policy "Users can insert own profile": auth.uid() = id).
     const { error } = await supabase
         .from('profiles')
-        .update(profileUpdate)
-        .eq('id', user.id)
+        .upsert({ id: user.id, ...profileUpdate }, { onConflict: 'id' })
 
     if (error) {
         return NextResponse.json({ error: error.message }, { status: 500 })
