@@ -7,9 +7,12 @@ import Stripe from 'stripe'
 import { trackConversion } from '@/lib/seo-autopilot/attribution'
 
 export async function POST(request: Request) {
-    const stripeSecretKey = process.env.STRIPE_SECRET_KEY
-    const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET
-    const expectedPriceId = process.env.STRIPE_PRICE_ID
+    // .trim(): the deployed STRIPE_WEBHOOK_SECRET carried a trailing newline, which
+    // makes constructEvent reject every signature ("The provided signing secret
+    // contains whitespace") and turned this endpoint into a 100% failure rate.
+    const stripeSecretKey = process.env.STRIPE_SECRET_KEY?.trim()
+    const stripeWebhookSecret = process.env.STRIPE_WEBHOOK_SECRET?.trim()
+    const expectedPriceId = process.env.STRIPE_PRICE_ID?.trim()
 
     if (!stripeSecretKey || !stripeWebhookSecret) {
         return NextResponse.json(
