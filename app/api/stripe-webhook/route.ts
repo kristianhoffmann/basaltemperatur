@@ -50,25 +50,33 @@ export async function POST(request: Request) {
 
     if (event.type === 'checkout.session.completed' || event.type === 'checkout.session.async_payment_succeeded') {
         const session = event.data.object as Stripe.Checkout.Session
-        const userId = session.metadata?.user_id || session.client_reference_id
 
         if (session.mode !== 'payment' || session.payment_status !== 'paid') {
             return NextResponse.json({ received: true })
         }
 
-        if (!userId) {
-            console.error('Webhook checkout.session.completed without user_id/client_reference_id')
-            return NextResponse.json({ error: 'Missing user reference' }, { status: 400 })
-        }
-
+        // CROSS-PROJECT GUARD: this Stripe account is shared with several other
+        // products, so this endpoint also receives their checkouts. The price is
+        // the reliable discriminator, so it has to be checked BEFORE anything
+        // that assumes the session is ours.
         if (expectedPriceId) {
             const lineItems = await stripe.checkout.sessions.listLineItems(session.id, { limit: 10 })
             const hasExpectedPrice = lineItems.data.some((item) => item.price?.id === expectedPriceId)
 
             if (!hasExpectedPrice) {
-                console.warn(`Ignoring checkout session ${session.id}: expected price ${expectedPriceId} not found.`)
-                return NextResponse.json({ received: true })
+                console.info(`Ignoring checkout session ${session.id}: belongs to another product.`)
+                return NextResponse.json({ received: true, ignored: true })
             }
+        }
+
+        const userId = session.metadata?.user_id || session.client_reference_id
+
+        if (!userId) {
+            // This used to answer 400. A retry can never add a missing reference,
+            // so that only pinned the event in Stripe's retry queue forever and
+            // drove the error rate. Ack it and make the gap loud in the logs.
+            console.error(`Checkout session ${session.id} matched our price but carries no user reference.`)
+            return NextResponse.json({ received: true, unmapped: true })
         }
 
         const { error } = await supabaseAdmin
