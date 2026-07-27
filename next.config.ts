@@ -1,6 +1,17 @@
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
+    // Streaming-Metadata: Next.js schiebt <title>/<meta> normalerweise erst spaet in
+    // den Body und verlaesst sich darauf, dass der Client sie in den <head> hebt.
+    // Fuer die hier gelisteten Bots wird stattdessen blockierend gerendert, d.h. die
+    // Metadaten stehen direkt im <head>.
+    //
+    // Next.js deckt Social-Scraper (Slackbot, Twitterbot, facebookexternalhit) und
+    // bingbot bereits ab — KI-Crawler aber nicht. Die fuehren kein JavaScript aus und
+    // saehen sonst eine Seite voellig ohne Titel und Description.
+    htmlLimitedBots:
+        /GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Perplexity-User|CCBot|Google-Extended|Applebot-Extended|Bytespider|Amazonbot|meta-externalagent|cohere-ai|Diffbot|omgili/i,
+
     // Bilder von Supabase Storage erlauben
     images: {
         remotePatterns: [

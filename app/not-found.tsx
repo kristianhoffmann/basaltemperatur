@@ -1,8 +1,24 @@
 // app/not-found.tsx
-'use client'
+//
+// Server Component, damit `metadata` exportiert werden kann: Das Root-Layout setzt
+// robots auf "index, follow", und nur ein Metadata-Export ueberschreibt das sauber
+// (statt einen zweiten, widerspruechlichen robots-Tag danebenzustellen).
+//
+// Hintergrund: Next.js streamt die Antwort, deshalb steht der HTTP-Status beim ersten
+// Flush fest — ein notFound() aus einer Server Component kann ihn nicht mehr auf 404
+// drehen, die Seite kommt mit 200 zurueck. Ungueltige Blog-Locales faengt darum der
+// Proxy per 308 ab; alles Uebrige (z. B. erfundene Artikel-Slugs) landet hier und wird
+// wenigstens zuverlaessig auf noindex gesetzt.
 
+import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Home, ArrowLeft, Search } from 'lucide-react'
+import { Home, Newspaper, Search } from 'lucide-react'
+
+export const metadata: Metadata = {
+  title: { absolute: 'Seite nicht gefunden | Basaltemperatur' },
+  description: 'Die gesuchte Seite existiert nicht oder wurde verschoben.',
+  robots: { index: false, follow: true },
+}
 
 export default function NotFound() {
   return (
@@ -25,10 +41,10 @@ export default function NotFound() {
             <Home className="w-4 h-4" />
             Zur Startseite
           </Link>
-          <button onClick={() => window.history.back()} className="btn-secondary">
-            <ArrowLeft className="w-4 h-4" />
-            Zurück
-          </button>
+          <Link href="/de/blog" className="btn-secondary">
+            <Newspaper className="w-4 h-4" />
+            Zum Blog
+          </Link>
         </div>
       </div>
     </div>

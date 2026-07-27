@@ -72,7 +72,7 @@ export function BlogFooter() {
               <li><Link href="/#faq" className="transition-colors hover:text-[var(--rose)]">FAQ</Link></li>
               <li><Link href="/#pricing" className="transition-colors hover:text-[var(--rose)]">Preis</Link></li>
               <li><Link href="/#testimonials" className="transition-colors hover:text-[var(--rose)]">Erfahrungen</Link></li>
-              <li><Link href="/blog" className="transition-colors hover:text-[var(--rose)]">Blog</Link></li>
+              <li><Link href="/de/blog" className="transition-colors hover:text-[var(--rose)]">Blog</Link></li>
               <li>
                 <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 transition-colors hover:text-[var(--rose)]">
                   App Store (bald)

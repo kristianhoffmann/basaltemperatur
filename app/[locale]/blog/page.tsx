@@ -4,9 +4,8 @@ import type { Metadata } from 'next'
 import Link from 'next/link'
 import { listPosts } from '@/lib/seo-autopilot/storage'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { BLOG_LOCALES, isBlogLocale } from '@/lib/blog-locales'
 import { BlogFooter, BlogHeader } from './BlogChrome'
-
-const SUPPORTED_LOCALES = ['de']
 
 const getCachedPosts = (locale: string) =>
   unstable_cache(() => listPosts(locale), [`blog-index-${locale}`], {
@@ -18,11 +17,21 @@ interface Props {
   params: Promise<{ locale: string }>
 }
 
+export function generateStaticParams() {
+  return BLOG_LOCALES.map((locale) => ({ locale }))
+}
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
+
+  // Vor dem ersten Flush pruefen, sonst bleibt die Antwort auf 200 stehen und
+  // /<beliebig>/blog waere eine unbegrenzte, indexierbare URL-Flaeche.
+  if (!isBlogLocale(locale)) notFound()
+
   return {
-    title: 'Blog | Basaltemperatur',
-    description: 'Alle Artikel rund um Basaltemperatur und Zyklusgesundheit.',
+    // absolute: sonst haengt das Root-Layout ein zweites " | Basaltemperatur" an.
+    title: { absolute: 'Blog | Basaltemperatur' },
+    description: 'Alle Artikel rund um Basaltemperatur, Zyklusgesundheit und NFP.',
     alternates: {
       canonical: `${getSeoSiteUrl()}/${locale}/blog`,
     },
@@ -32,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function BlogIndexPage({ params }: Props) {
   const { locale } = await params
 
-  if (!SUPPORTED_LOCALES.includes(locale)) notFound()
+  if (!isBlogLocale(locale)) notFound()
 
   const posts = await getCachedPosts(locale)
 
@@ -44,7 +53,7 @@ export default async function BlogIndexPage({ params }: Props) {
           <div className="mx-auto max-w-6xl px-4 py-14 sm:px-6 md:py-20">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-500">Basaltemperatur Blog</p>
             <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight sm:text-6xl">
-              Wissen fuer Zyklustracking, NFP und Temperaturkurven.
+              Wissen für Zyklustracking, NFP und Temperaturkurven.
             </h1>
             <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-600">
               Praxisnahe Artikel rund um Basaltemperatur, App-Vergleiche und sichere digitale Zyklusdokumentation.
@@ -70,6 +79,10 @@ export default async function BlogIndexPage({ params }: Props) {
                     <img
                       src={post.hero_image_url}
                       alt={post.hero_image_alt ?? post.title}
+                      width={1792}
+                      height={1024}
+                      loading="lazy"
+                      decoding="async"
                       className="aspect-[16/9] w-full object-cover transition duration-300 group-hover:scale-[1.02]"
                     />
                   )}

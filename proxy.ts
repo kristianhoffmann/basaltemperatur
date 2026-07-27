@@ -7,8 +7,30 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { isConfiguredAdminEmail } from '@/lib/adminAccess'
+import { BLOG_LOCALES, isBlogLocale } from '@/lib/blog-locales'
+
+const DEFAULT_BLOG_LOCALE = BLOG_LOCALES[0]
+
+// /<irgendwas>/blog... hat frueher 200 geliefert — beliebig viele indexierbare,
+// praktisch leere Seiten mit Selbst-Canonical. notFound() in der Page reicht nicht:
+// Next.js streamt, der Status steht beim ersten Flush fest und bleibt auf 200.
+// Der Proxy laeuft davor und kann noch sauber umleiten.
+function redirectUnknownBlogLocale(request: NextRequest) {
+  const match = request.nextUrl.pathname.match(/^\/([^/]+)\/blog(\/.*)?$/)
+  if (!match) return null
+
+  const [, locale, rest = ''] = match
+  if (isBlogLocale(locale)) return null
+
+  const target = new URL(`/${DEFAULT_BLOG_LOCALE}/blog${rest}`, request.url)
+  target.search = request.nextUrl.search
+  return NextResponse.redirect(target, 308)
+}
 
 export async function proxy(request: NextRequest) {
+  const unknownLocaleRedirect = redirectUnknownBlogLocale(request)
+  if (unknownLocaleRedirect) return unknownLocaleRedirect
+
   let supabaseResponse = NextResponse.next({
     request,
   })
