@@ -1,6 +1,27 @@
 import type { NextConfig } from 'next'
 
+const supabaseStorageHostname = (() => {
+    const value = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
+    if (!value) return undefined
+
+    try {
+        const url = new URL(value)
+        return url.protocol === 'https:' ? url.hostname : undefined
+    } catch {
+        return undefined
+    }
+})()
+
 const nextConfig: NextConfig = {
+    output: 'standalone',
+
+    outputFileTracingIncludes: {
+        '/*': [
+            'node_modules/sharp/**/*',
+            'node_modules/@img/sharp-*/**/*',
+        ],
+    },
+
     // Streaming-Metadata: Next.js schiebt <title>/<meta> normalerweise erst spaet in
     // den Body und verlaesst sich darauf, dass der Client sie in den <head> hebt.
     // Fuer die hier gelisteten Bots wird stattdessen blockierend gerendert, d.h. die
@@ -20,6 +41,13 @@ const nextConfig: NextConfig = {
                 hostname: '*.supabase.co',
                 pathname: '/storage/v1/object/public/**',
             },
+            ...(supabaseStorageHostname
+                ? [{
+                    protocol: 'https' as const,
+                    hostname: supabaseStorageHostname,
+                    pathname: '/storage/v1/object/public/**',
+                }]
+                : []),
         ],
     },
 

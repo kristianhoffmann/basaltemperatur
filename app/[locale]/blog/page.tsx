@@ -2,13 +2,19 @@ import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { listPosts } from '@/lib/seo-autopilot/storage'
+import {
+  hasStorageCredentials,
+  listPosts,
+} from '@/lib/seo-autopilot/storage'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import { BLOG_LOCALES, isBlogLocale } from '@/lib/blog-locales'
 import { BlogFooter, BlogHeader } from './BlogChrome'
 
 const getCachedPosts = (locale: string) =>
-  unstable_cache(() => listPosts(locale), [`blog-index-${locale}`], {
+  unstable_cache(async () => {
+    if (!hasStorageCredentials()) return []
+    return listPosts(locale)
+  }, [`blog-index-${locale}`], {
     tags: [`blog-index:${locale}`],
     revalidate: false,
   })()

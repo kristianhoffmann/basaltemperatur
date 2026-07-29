@@ -51,6 +51,9 @@ export default async function AdminOverviewPage() {
     }
   }
 
+  // This force-dynamic server component intentionally measures request-relative
+  // admin windows; the value is not part of a reusable client render.
+  // eslint-disable-next-line react-hooks/purity
   const now = Date.now()
   const cutoff7d = now - 7 * DAY
   const cutoff30d = now - 30 * DAY

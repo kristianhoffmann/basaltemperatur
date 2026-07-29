@@ -31,6 +31,8 @@ export type QaAuthKind =
 export type QaBillingRuntime =
   /** Checkout/portal/webhook run in this app, so this app's env decides the mode. */
   | 'vercel'
+  /** Checkout/portal/webhook run in the self-hosted Node.js application. */
+  | 'hostinger'
   /** They run in a Supabase Edge Function with its OWN secret — this app's env says nothing. */
   | 'edge-function';
 

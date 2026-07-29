@@ -1,0 +1,14 @@
+basaltemperatur.online {
+	tls {
+		on_demand
+	}
+	redir https://www.basaltemperatur.online{uri} permanent
+}
+
+www.basaltemperatur.online {
+	tls {
+		on_demand
+	}
+	encode zstd gzip
+	reverse_proxy basaltemperatur-app:3000
+}

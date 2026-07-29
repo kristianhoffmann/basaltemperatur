@@ -1,5 +1,7 @@
 .env.local
 .env.production
+.env.hostinger
+!.env.hostinger.example
 node_modules
 .next/
 .DS_Store

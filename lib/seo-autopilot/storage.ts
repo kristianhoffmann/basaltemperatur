@@ -1,13 +1,33 @@
 import { createClient } from '@supabase/supabase-js'
 import type { PublishPayload } from './schema'
 
+function firstNonBlank(...values: Array<string | undefined>) {
+  return values.map((value) => value?.trim()).find(Boolean)
+}
+
+function storageCredentials() {
+  return {
+    url: firstNonBlank(
+      process.env.SEO_AUTOPILOT_SUPABASE_URL,
+      process.env.NEXT_PUBLIC_SUPABASE_URL,
+    ),
+    key: firstNonBlank(
+      process.env.SEO_AUTOPILOT_SUPABASE_SERVICE_ROLE_KEY,
+      process.env.SUPABASE_SERVICE_ROLE_KEY,
+    ),
+  }
+}
+
+export function hasStorageCredentials(): boolean {
+  const { url, key } = storageCredentials()
+  return Boolean(url && key)
+}
+
 function adminClient() {
-  const url =
-    process.env.SEO_AUTOPILOT_SUPABASE_URL ||
-    process.env.NEXT_PUBLIC_SUPABASE_URL!
-  const key =
-    process.env.SEO_AUTOPILOT_SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+  const { url, key } = storageCredentials()
+  if (!url || !key) {
+    throw new Error('SEO Autopilot Supabase credentials are required.')
+  }
   return createClient(url, key)
 }
 

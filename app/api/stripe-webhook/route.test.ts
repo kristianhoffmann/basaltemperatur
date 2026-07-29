@@ -89,7 +89,7 @@ describe('POST /api/stripe-webhook', () => {
     const response = await POST(webhookRequest({ 'stripe-signature': 'sig' }))
 
     expect(response.status).toBe(200)
-    expect(await response.json()).toEqual({ received: true })
+    expect(await response.json()).toEqual({ received: true, ignored: true })
     expect(update).not.toHaveBeenCalled()
   })
 

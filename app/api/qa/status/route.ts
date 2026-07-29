@@ -73,12 +73,14 @@ export async function GET(request: Request) {
     // in dieser App. Die einzige Edge Function des Projekts (delete-account)
     // fasst Stripe nicht an — der Schlüssel hier ist also der, der abrechnet.
     const keyMode = classifyStripeKey(process.env.STRIPE_SECRET_KEY)
+    const billingRuntime =
+        process.env.APP_RUNTIME === 'hostinger' ? 'hostinger' : 'vercel'
 
     const contract: QaContract = {
         contractVersion: QA_CONTRACT_VERSION,
         product: PRODUCT,
         billing: {
-            runtime: 'vercel',
+            runtime: billingRuntime,
             keyMode,
             chargesRealMoney: chargesRealMoney(keyMode),
         },
