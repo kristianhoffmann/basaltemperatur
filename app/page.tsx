@@ -679,7 +679,16 @@ export default function LandingPage() {
             </div>
           </div>
           <div className="mt-12 pt-8 border-t border-[var(--card-border)] text-center text-sm text-[var(--text-muted)]">
-            <p>© {new Date().getFullYear()} Basaltemperatur. Alle Rechte vorbehalten.</p>
+            <p>
+              © {new Date().getFullYear()} Basaltemperatur. Ein Projekt von{' '}
+              <a
+                href="https://www.kristianhoffmann.de"
+                className="underline underline-offset-2 transition-colors hover:text-gray-900 dark:hover:text-white"
+              >
+                Kristian Hoffmann
+              </a>
+              .
+            </p>
           </div>
         </div>
       </footer>

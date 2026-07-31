@@ -1,4 +1,4 @@
-export const LEGAL_LAST_UPDATED = '26. Mai 2026';
+export const LEGAL_LAST_UPDATED = '31. Juli 2026';
 
 export type LegalCompany = {
   name: string;
@@ -57,9 +57,9 @@ export function getMissingCompanyFields(company: LegalCompany): string[] {
 
 export function getLegalInfrastructure(): LegalInfrastructure {
   return {
-    webProvider: process.env.NEXT_PUBLIC_WEB_HOSTING_PROVIDER?.trim() || 'Vercel Inc.',
-    webLocation: process.env.NEXT_PUBLIC_WEB_HOSTING_LOCATION?.trim() || 'weltweites Edge-Netzwerk; technische Server-Logs koennen ausserhalb Deutschlands verarbeitet werden',
-    dbProvider: process.env.NEXT_PUBLIC_DB_PROVIDER?.trim() || 'Supabase',
-    dbLocation: process.env.NEXT_PUBLIC_DB_LOCATION?.trim() || 'Frankfurt am Main, Deutschland',
+    webProvider: process.env.NEXT_PUBLIC_WEB_HOSTING_PROVIDER?.trim() || 'Hostinger International Ltd., 61 Lordou Vironos Street, 6023 Larnaca, Zypern',
+    webLocation: process.env.NEXT_PUBLIC_WEB_HOSTING_LOCATION?.trim() || 'ein Server in Deutschland; die Auslieferung erfolgt ausschließlich von dort',
+    dbProvider: process.env.NEXT_PUBLIC_DB_PROVIDER?.trim() || 'uns selbst, auf demselben Server (eingesetzte Software: Supabase, selbst gehostet)',
+    dbLocation: process.env.NEXT_PUBLIC_DB_LOCATION?.trim() || 'Deutschland',
   };
 }

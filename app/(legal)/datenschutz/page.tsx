@@ -206,9 +206,10 @@ export default function DatenschutzPage() {
 
       <h2>8b. GitHub</h2>
       <p>
-        Der Quellcode wird über GitHub verwaltet und mit Vercel-Deployments verbunden.
-        GitHub verarbeitet dabei insbesondere technische Account-, Repository- und
-        Deployment-Metadaten, jedoch keine App-Inhaltsdaten aus der Supabase-Datenbank.
+        Der Quellcode wird über GitHub verwaltet. GitHub verarbeitet dabei ausschließlich
+        technische Account-, Repository- und Versionsdaten der Entwicklung, jedoch
+        <strong> keine</strong> Inhaltsdaten aus Ihrem Nutzerkonto. Ihre in der App
+        gespeicherten Daten verlassen den Server in Deutschland hierfür nicht.
       </p>
 
       <h2>9. Zahlungsdienstleister</h2>
@@ -247,6 +248,10 @@ export default function DatenschutzPage() {
         gegen die DSGVO verstößt, haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde
         zu beschweren. Sie können sich insbesondere an die Aufsichtsbehörde Ihres Wohnsitzes,
         Ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes wenden.
+      </p>
+      <p>
+        Für uns als Verantwortlichen ist zuständig: Die Landesbeauftragte für den
+        Datenschutz Niedersachsen, Prinzenstraße 5, 30159 Hannover.
       </p>
 
       <hr className="my-8" />
