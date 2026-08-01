@@ -37,7 +37,10 @@ export default function ImpressumPage() {
       <h2>Kontakt</h2>
       <p>
         {company.phone && <>{`Telefon: ${company.phone}`}<br /></>}
-        E-Mail: <span>{company.email.replace('@', ' [at] ')}</span>
+        {/* Klartext statt "[at]"-Schreibweise: § 5 DDG verlangt eine unmittelbar
+            erreichbare Kontaktmöglichkeit, und eine Adresse, die erst manuell
+            umgeschrieben werden muss, erfüllt das nicht zuverlässig. */}
+        E-Mail: <a href={`mailto:${company.email}`}>{company.email}</a>
       </p>
 
       <h2>Umsatzsteuer</h2>
