@@ -2,7 +2,7 @@
 
 import Foundation
 
-struct TemperatureEntry: Identifiable, Codable {
+struct TemperatureEntry: Identifiable, Codable, Sendable {
     let id: String
     let userId: String
     let date: String
@@ -16,6 +16,9 @@ struct TemperatureEntry: Identifiable, Codable {
     let excludeFromAnalysis: Bool
     let createdAt: String?
     let updatedAt: String?
+
+    /// Parsed once (not in CodingKeys) to avoid re-parsing the date string on every access.
+    let dateObject: Date
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -67,6 +70,7 @@ struct TemperatureEntry: Identifiable, Codable {
         self.excludeFromAnalysis = excludeFromAnalysis
         self.createdAt = createdAt
         self.updatedAt = updatedAt
+        self.dateObject = Self.dateFormatter.date(from: date) ?? Date()
     }
 
     init(from decoder: Decoder) throws {
@@ -84,12 +88,9 @@ struct TemperatureEntry: Identifiable, Codable {
         excludeFromAnalysis = try c.decodeIfPresent(Bool.self, forKey: .excludeFromAnalysis) ?? false
         createdAt = try c.decodeIfPresent(String.self, forKey: .createdAt)
         updatedAt = try c.decodeIfPresent(String.self, forKey: .updatedAt)
+        dateObject = Self.dateFormatter.date(from: date) ?? Date()
     }
-    
-    var dateObject: Date {
-        Self.dateFormatter.date(from: date) ?? Date()
-    }
-    
+
     var formattedTemperature: String {
         String(format: "%.2f°C", temperature)
     }
@@ -117,12 +118,15 @@ enum CervicalMucusType: String, Codable, CaseIterable {
     }
 }
 
-struct PeriodEntry: Identifiable, Codable {
+struct PeriodEntry: Identifiable, Codable, Sendable {
     let id: String
     let userId: String
     let date: String
     let flowIntensity: FlowIntensity
     let createdAt: String?
+
+    /// Parsed once (not in CodingKeys) to avoid re-parsing the date string on every access.
+    let dateObject: Date
 
     private static let dateFormatter: DateFormatter = {
         let formatter = DateFormatter()
@@ -150,6 +154,7 @@ struct PeriodEntry: Identifiable, Codable {
         self.date = date
         self.flowIntensity = flowIntensity
         self.createdAt = createdAt
+        self.dateObject = Self.dateFormatter.date(from: date) ?? Date()
     }
 
     init(from decoder: Decoder) throws {
@@ -159,10 +164,7 @@ struct PeriodEntry: Identifiable, Codable {
         date = try c.decode(String.self, forKey: .date)
         flowIntensity = try c.decodeIfPresent(FlowIntensity.self, forKey: .flowIntensity) ?? .medium
         createdAt = try c.decodeIfPresent(String.self, forKey: .createdAt)
-    }
-
-    var dateObject: Date {
-        Self.dateFormatter.date(from: date) ?? Date()
+        dateObject = Self.dateFormatter.date(from: date) ?? Date()
     }
 }
 

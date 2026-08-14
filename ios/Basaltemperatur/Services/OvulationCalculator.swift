@@ -3,7 +3,7 @@
 
 import Foundation
 
-struct OvulationResult {
+struct OvulationResult: Sendable {
     let ovulationDate: String?
     let coverLineTemp: Double?
     let phase: CyclePhase
@@ -24,7 +24,7 @@ struct OvulationResult {
     }
 }
 
-struct FertilityWindow {
+struct FertilityWindow: Sendable {
     let start: String
     let end: String
     let peakStart: String

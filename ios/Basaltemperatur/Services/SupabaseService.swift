@@ -99,6 +99,12 @@ class SupabaseService: ObservableObject {
         let decoder = JSONDecoder()
         return decoder
     }()
+    private let encoder = JSONEncoder()
+    private let queryDateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
     
     init() {
         self.supabaseUrl = Config.supabaseUrl
@@ -121,7 +127,7 @@ class SupabaseService: ObservableObject {
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         
         let body = ["email": email, "password": password]
-        request.httpBody = try JSONEncoder().encode(body)
+        request.httpBody = try encoder.encode(body)
         
         let (data, _) = try await URLSession.shared.data(for: request)
         let response = try decoder.decode(AuthResponse.self, from: data)
@@ -208,7 +214,7 @@ class SupabaseService: ObservableObject {
         request.setValue(supabaseAnonKey, forHTTPHeaderField: "apikey")
         
         let body = ["refresh_token": rt]
-        request.httpBody = try JSONEncoder().encode(body)
+        request.httpBody = try encoder.encode(body)
         
         let (data, response) = try await URLSession.shared.data(for: request)
         
@@ -238,9 +244,7 @@ class SupabaseService: ObservableObject {
         var urlStr = "\(supabaseUrl)/rest/v1/temperature_entries?select=*&order=date.asc"
         if days > 0 {
             let startDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            urlStr += "&date=gte.\(formatter.string(from: startDate))"
+            urlStr += "&date=gte.\(queryDateFormatter.string(from: startDate))"
         }
         let url = URL(string: urlStr)!
         let data = try await authenticatedRequest(url: url)
@@ -313,11 +317,9 @@ class SupabaseService: ObservableObject {
         var urlStr = "\(supabaseUrl)/rest/v1/period_entries?select=*&order=date.asc"
         if days > 0 {
             let startDate = Calendar.current.date(byAdding: .day, value: -days, to: Date())!
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            urlStr += "&date=gte.\(formatter.string(from: startDate))"
+            urlStr += "&date=gte.\(queryDateFormatter.string(from: startDate))"
         }
-        
+
         let url = URL(string: urlStr)!
         let data = try await authenticatedRequest(url: url)
         return try decoder.decode([PeriodEntry].self, from: data)

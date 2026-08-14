@@ -4,6 +4,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @EnvironmentObject private var supabase: SupabaseService
+    @StateObject private var dashboardViewModel = DashboardViewModel()
     @State private var selectedTab = 0
     @State private var showGuideSheet = false
     @State private var isCheckingSensitiveDataConsent = true
@@ -56,22 +57,21 @@ struct MainTabView: View {
                     Text("Kalender")
                 }
                 .tag(1)
-            
+
             StatisticsView()
                 .tabItem {
                     Image(systemName: "chart.bar")
                     Text("Statistik")
                 }
-                .environmentObject(supabase)
                 .tag(2)
 
-            EntryView()
+            EntryView(onSave: reloadDashboardData)
                 .tabItem {
                     Image(systemName: "plus.circle.fill")
                     Text("Eintrag")
                 }
                 .tag(3)
-            
+
             SettingsView()
                 .tabItem {
                     Image(systemName: "gearshape")
@@ -80,6 +80,11 @@ struct MainTabView: View {
                 .tag(4)
         }
         .tint(Color("AppPrimary"))
+        // Single shared view model: load the (expensive) data once here instead of once per tab.
+        .environmentObject(dashboardViewModel)
+        .task {
+            await dashboardViewModel.loadData(supabase: supabase)
+        }
         .onAppear {
             if !hasSeenGuide {
                 showGuideSheet = true
@@ -100,6 +105,10 @@ struct MainTabView: View {
                     }
             }
         }
+    }
+
+    private func reloadDashboardData() {
+        Task { await dashboardViewModel.loadData(supabase: supabase) }
     }
 
     @MainActor

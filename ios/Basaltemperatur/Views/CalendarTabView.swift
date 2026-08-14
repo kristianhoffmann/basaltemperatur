@@ -5,11 +5,11 @@ import SwiftUI
 
 struct CalendarTabView: View {
     @EnvironmentObject var supabase: SupabaseService
-    @StateObject private var viewModel = DashboardViewModel()
+    @EnvironmentObject var viewModel: DashboardViewModel
     @State private var selectedDate = Date()
     @State private var showingEntry = false
-    
-    private let dateFormatter: DateFormatter = {
+
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
         return f
@@ -29,7 +29,7 @@ struct CalendarTabView: View {
                     )
                     
                     // Zusammenfassung für den gewählten Tag
-                    let dateStr = dateFormatter.string(from: selectedDate)
+                    let dateStr = Self.dateFormatter.string(from: selectedDate)
                     let entry = viewModel.entries.first { $0.date == dateStr }
                     let period = viewModel.periodEntries.first { $0.date == dateStr }
                     let isPredictedPeriod = viewModel.hasLifetimeAccess
@@ -180,7 +180,7 @@ struct CalendarTabView: View {
             .navigationTitle("Kalender")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $showingEntry) {
-                let dateStr = dateFormatter.string(from: selectedDate)
+                let dateStr = Self.dateFormatter.string(from: selectedDate)
                 let entry = viewModel.entries.first { $0.date == dateStr }
                 let period = viewModel.periodEntries.first { $0.date == dateStr }
                 
@@ -198,9 +198,6 @@ struct CalendarTabView: View {
                     excludeFromAnalysis: entry?.excludeFromAnalysis ?? false
                 )
                 .environmentObject(supabase)
-            }
-            .task {
-                await viewModel.loadData(supabase: supabase)
             }
             .onChange(of: showingEntry) { _, isPresented in
                 if !isPresented {
@@ -221,13 +218,13 @@ struct CalendarGridView: View {
     let fertilityWindows: [FertilityWindow]
     
     @State private var displayedMonth = Date()
-    
-    private let dateFormatter: DateFormatter = {
+
+    private static let dateFormatter: DateFormatter = {
         let f = DateFormatter()
         f.dateFormat = "yyyy-MM-dd"
         return f
     }()
-    
+
     private let weekDays = ["Mo", "Di", "Mi", "Do", "Fr", "Sa", "So"]
     
     private var entryDates: Set<String> {
@@ -294,7 +291,7 @@ struct CalendarGridView: View {
                 }
                 
                 ForEach(days, id: \.self) { day in
-                    let dateStr = dateFormatter.string(from: day)
+                    let dateStr = Self.dateFormatter.string(from: day)
                     let hasEntry = entryDates.contains(dateStr)
                     let isPeriod = periodDates.contains(dateStr)
                     let isPredictedPeriod = !isPeriod && predictedPeriodDates.contains(dateStr)

@@ -5,8 +5,26 @@ import Charts
 
 struct DashboardView: View {
     @EnvironmentObject var supabase: SupabaseService
-    @StateObject private var viewModel = DashboardViewModel()
-    
+    @EnvironmentObject var viewModel: DashboardViewModel
+
+    private static let isoParser: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    private static let dayMonthDE: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d. MMM"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
+    private static func dayMonth(fromISO dateStr: String) -> String? {
+        guard let date = isoParser.date(from: dateStr) else { return nil }
+        return dayMonthDE.string(from: date)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -23,7 +41,7 @@ struct DashboardView: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        NavigationLink(destination: EntryView()) {
+                        NavigationLink(destination: EntryView(onSave: { Task { await viewModel.loadData(supabase: supabase) } })) {
                             Label("Eintrag", systemImage: "plus.circle.fill")
                                 .font(.subheadline.weight(.bold))
                                 .foregroundStyle(.white)
@@ -87,25 +105,9 @@ struct DashboardView: View {
                                     if viewModel.isOvulationConfirmed {
                                         return "Temperaturanstieg bestätigt"
                                     } else if viewModel.predictionBaselineReady, let ov = viewModel.currentOvulation, let ovDate = ov.ovulationDate {
-                                        let f = DateFormatter()
-                                        f.dateFormat = "yyyy-MM-dd"
-                                        if let d = f.date(from: ovDate) {
-                                            let display = DateFormatter()
-                                            display.dateFormat = "d. MMM"
-                                            display.locale = Locale(identifier: "de_DE")
-                                            return display.string(from: d)
-                                        }
-                                        return "Voraussichtlich"
+                                        return Self.dayMonth(fromISO: ovDate) ?? "Voraussichtlich"
                                     } else if viewModel.predictionBaselineReady, let nextOv = viewModel.nextOvulationDate, viewModel.daysUntilOvulation != nil {
-                                        let f = DateFormatter()
-                                        f.dateFormat = "yyyy-MM-dd"
-                                        if let d = f.date(from: nextOv) {
-                                            let display = DateFormatter()
-                                            display.dateFormat = "d. MMM"
-                                            display.locale = Locale(identifier: "de_DE")
-                                            return display.string(from: d)
-                                        }
-                                        return "voraussichtlich"
+                                        return Self.dayMonth(fromISO: nextOv) ?? "voraussichtlich"
                                     }
                                     return viewModel.predictionBaselineReady ? "Nicht genug Daten" : "3 Zyklen nötig"
                                 }(),
@@ -117,15 +119,9 @@ struct DashboardView: View {
                                 title: "Nächste Periode",
                                 value: viewModel.daysUntilPeriod.map { "~\($0)d" } ?? "–",
                                 subtitle: {
-                                    if let next = viewModel.nextPeriodDate, viewModel.daysUntilPeriod != nil {
-                                        let f = DateFormatter()
-                                        f.dateFormat = "yyyy-MM-dd"
-                                        if let d = f.date(from: next) {
-                                            let display = DateFormatter()
-                                            display.dateFormat = "d. MMM"
-                                            display.locale = Locale(identifier: "de_DE")
-                                            return display.string(from: d)
-                                        }
+                                    if let next = viewModel.nextPeriodDate, viewModel.daysUntilPeriod != nil,
+                                       let formatted = Self.dayMonth(fromISO: next) {
+                                        return formatted
                                     }
                                     return "Nicht genug Daten"
                                 }(),
@@ -178,7 +174,7 @@ struct DashboardView: View {
 
                     // Quick Entry Prompt
                     if !viewModel.todayHasEntry {
-                        QuickEntryPrompt()
+                        QuickEntryPrompt(onSave: { Task { await viewModel.loadData(supabase: supabase) } })
                     }
                 }
                 .padding(.vertical)
@@ -186,9 +182,6 @@ struct DashboardView: View {
             .navigationTitle("Dashboard")
             .navigationBarTitleDisplayMode(.inline)
             .refreshable {
-                await viewModel.loadData(supabase: supabase)
-            }
-            .task {
                 await viewModel.loadData(supabase: supabase)
             }
         }
@@ -265,6 +258,8 @@ struct FertilityBanner: View {
 // MARK: - Quick Entry Prompt
 
 struct QuickEntryPrompt: View {
+    var onSave: (() -> Void)? = nil
+
     var body: some View {
         VStack(spacing: 14) {
             Image(systemName: "thermometer.medium")
@@ -275,7 +270,7 @@ struct QuickEntryPrompt: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            NavigationLink(destination: EntryView()) {
+            NavigationLink(destination: EntryView(onSave: onSave)) {
                 Label("Jetzt eintragen", systemImage: "plus.circle.fill")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
@@ -374,34 +369,50 @@ struct TemperatureChartView: View {
     @State private var lastZoomScale: CGFloat = 1.0
     @State private var panOffset: TimeInterval = 0
     @State private var lastPanOffset: TimeInterval = 0
-    
-    /// Filtered entries for the dashboard chart based on selectedRange
-    private var entries: [TemperatureEntry] {
-        guard let months = selectedRange.months else { return allEntries }
-        let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let startStr = formatter.string(from: startDate)
-        return allEntries.filter { $0.date >= startStr }
-    }
-    
-    private var periodEntries: [PeriodEntry] {
-        guard let months = selectedRange.months else { return allPeriodEntries }
-        let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let startStr = formatter.string(from: startDate)
-        return allPeriodEntries.filter { $0.date >= startStr }
-    }
-    
+
+    // Cached, range-filtered data. Recomputed only when the source data or range changes —
+    // NOT on every pan/zoom frame (which only mutates zoomScale/panOffset).
+    @State private var filteredEntriesCache: [TemperatureEntry] = []
+    @State private var filteredPeriodCache: [PeriodEntry] = []
+    @State private var yDomainCache: ClosedRange<Double> = 35.8...37.5
+
+    private static let isoFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
+    private static let longDateDE: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d. MMM yyyy"
+        f.locale = Locale(identifier: "de_DE")
+        return f
+    }()
+
+    private var entries: [TemperatureEntry] { filteredEntriesCache }
+    private var periodEntries: [PeriodEntry] { filteredPeriodCache }
+
     private var periodDates: Set<String> {
         Set(periodEntries.map { $0.date })
     }
 
-    private var yDomain: ClosedRange<Double> {
-        temperatureChartYDomain(entries: entries, ovulations: ovulations)
+    private var yDomain: ClosedRange<Double> { yDomainCache }
+
+    private static func filter<T>(_ items: [T], range: DashboardViewModel.ChartRange, date: (T) -> String) -> [T] {
+        guard let months = range.months else { return items }
+        let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
+        let startStr = isoFormatter.string(from: startDate)
+        return items.filter { date($0) >= startStr }
     }
-    
+
+    private func refilter() {
+        let e = Self.filter(allEntries, range: selectedRange) { $0.date }
+        let p = Self.filter(allPeriodEntries, range: selectedRange) { $0.date }
+        filteredEntriesCache = e
+        filteredPeriodCache = p
+        yDomainCache = temperatureChartYDomain(entries: e, ovulations: ovulations)
+    }
+
     /// Visible date range based on zoom level + pan offset
     private var zoomedDateRange: ClosedRange<Date> {
         guard let first = entries.first?.dateObject,
@@ -431,34 +442,25 @@ struct TemperatureChartView: View {
         var cycleStarts: [String] = []
         for i in 0..<sorted.count {
             if i == 0 { cycleStarts.append(sorted[i]); continue }
-            let formatter = DateFormatter()
-            formatter.dateFormat = "yyyy-MM-dd"
-            guard let prev = formatter.date(from: sorted[i-1]),
-                  let curr = formatter.date(from: sorted[i]) else { continue }
+            guard let prev = Self.isoFormatter.date(from: sorted[i-1]),
+                  let curr = Self.isoFormatter.date(from: sorted[i]) else { continue }
             let diff = Calendar.current.dateComponents([.day], from: prev, to: curr).day ?? 0
             if diff > 2 { cycleStarts.append(sorted[i]) }
         }
-        
+
         // Find the last cycle start before or on this date
         let relevantStarts = cycleStarts.filter { $0 <= date }
         guard let lastStart = relevantStarts.last else { return nil }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let startDate = formatter.date(from: lastStart),
-              let entryDate = formatter.date(from: date) else { return nil }
+
+        guard let startDate = Self.isoFormatter.date(from: lastStart),
+              let entryDate = Self.isoFormatter.date(from: date) else { return nil }
         let days = Calendar.current.dateComponents([.day], from: startDate, to: entryDate).day ?? 0
         return days + 1
     }
-    
+
     private func formattedDate(_ dateStr: String) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        guard let date = formatter.date(from: dateStr) else { return dateStr }
-        let display = DateFormatter()
-        display.locale = Locale(identifier: "de_DE")
-        display.dateFormat = "d. MMM yyyy"
-        return display.string(from: date)
+        guard let date = Self.isoFormatter.date(from: dateStr) else { return dateStr }
+        return Self.longDateDE.string(from: date)
     }
     
     var body: some View {
@@ -505,8 +507,12 @@ struct TemperatureChartView: View {
         }
         .padding()
         .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 16))
+        .onAppear { refilter() }
+        .onChange(of: selectedRange) { _, _ in refilter() }
+        .onChange(of: allEntries.count) { _, _ in refilter() }
+        .onChange(of: allPeriodEntries.count) { _, _ in refilter() }
     }
-    
+
     func chartContent(height: CGFloat, scrollable: Bool = false) -> some View {
         Chart {
             // Period backgrounds
@@ -745,7 +751,18 @@ struct TemperatureChartFullscreenView: View {
     @State private var lastZoomScale: CGFloat = 1.0
     @State private var panOffset: TimeInterval = 0
     @State private var lastPanOffset: TimeInterval = 0
-    
+
+    // Cached range-filtered data — recomputed only on range change, not per pan/zoom frame.
+    @State private var filteredEntriesCache: [TemperatureEntry] = []
+    @State private var filteredPeriodCache: [PeriodEntry] = []
+    @State private var yDomainCache: ClosedRange<Double> = 35.8...37.5
+
+    private static let isoFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "yyyy-MM-dd"
+        return f
+    }()
+
     /// Visible date range based on zoom level + pan offset
     private var zoomedDateRange: ClosedRange<Date> {
         guard let first = filteredEntries.first?.dateObject,
@@ -760,29 +777,28 @@ struct TemperatureChartFullscreenView: View {
         let clampedEnd = min(max(zoomedEnd, first.addingTimeInterval(visibleInterval)), last)
         return clampedStart...clampedEnd
     }
-    
-    var filteredEntries: [TemperatureEntry] {
-        guard let months = selectedRange.months else { return entries }
-        let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let startStr = formatter.string(from: startDate)
-        return entries.filter { $0.date >= startStr }
-    }
-    
-    var filteredPeriodEntries: [PeriodEntry] {
-        guard let months = selectedRange.months else { return periodEntries }
-        let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        let startStr = formatter.string(from: startDate)
-        return periodEntries.filter { $0.date >= startStr }
+
+    var filteredEntries: [TemperatureEntry] { filteredEntriesCache }
+    var filteredPeriodEntries: [PeriodEntry] { filteredPeriodCache }
+    private var yDomain: ClosedRange<Double> { yDomainCache }
+
+    private func refilter() {
+        let filtered: [TemperatureEntry]
+        let filteredPeriods: [PeriodEntry]
+        if let months = selectedRange.months {
+            let startDate = Calendar.current.date(byAdding: .month, value: -months, to: Date())!
+            let startStr = Self.isoFormatter.string(from: startDate)
+            filtered = entries.filter { $0.date >= startStr }
+            filteredPeriods = periodEntries.filter { $0.date >= startStr }
+        } else {
+            filtered = entries
+            filteredPeriods = periodEntries
+        }
+        filteredEntriesCache = filtered
+        filteredPeriodCache = filteredPeriods
+        yDomainCache = temperatureChartYDomain(entries: filtered, ovulations: ovulations)
     }
 
-    private var yDomain: ClosedRange<Double> {
-        temperatureChartYDomain(entries: filteredEntries, ovulations: ovulations)
-    }
-    
     var body: some View {
         NavigationStack {
             GeometryReader { geo in
@@ -828,6 +844,7 @@ struct TemperatureChartFullscreenView: View {
                 }
             }
             .onAppear {
+                refilter()
                 OrientationManager.shared.allowLandscape = true
                 DispatchQueue.main.async {
                     guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }
@@ -838,6 +855,7 @@ struct TemperatureChartFullscreenView: View {
                     topVC?.setNeedsUpdateOfSupportedInterfaceOrientations()
                 }
             }
+            .onChange(of: selectedRange) { _, _ in refilter() }
             .onDisappear {
                 OrientationManager.shared.allowLandscape = false
                 guard let scene = UIApplication.shared.connectedScenes.first as? UIWindowScene else { return }

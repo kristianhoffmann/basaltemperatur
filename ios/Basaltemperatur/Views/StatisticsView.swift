@@ -6,7 +6,7 @@ import Charts
 
 struct StatisticsView: View {
     @EnvironmentObject var supabase: SupabaseService
-    @StateObject private var viewModel = DashboardViewModel()
+    @EnvironmentObject var viewModel: DashboardViewModel
     
     var body: some View {
         NavigationStack {
@@ -261,9 +261,6 @@ struct StatisticsView: View {
             }
             .navigationTitle("Statistiken")
             .navigationBarTitleDisplayMode(.inline)
-            .task {
-                await viewModel.loadData(supabase: supabase)
-            }
         }
     }
     
@@ -282,34 +279,43 @@ struct StatisticsView: View {
             "\(Self.shortFormat(start)) – \(Self.shortFormat(end))"
         }
         
+        private static let inputFormatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "yyyy-MM-dd"
+            return f
+        }()
+
+        private static let longOutputFormatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "d. MMM yyyy"
+            f.locale = Locale(identifier: "de_DE")
+            return f
+        }()
+
+        private static let shortOutputFormatter: DateFormatter = {
+            let f = DateFormatter()
+            f.dateFormat = "d. MMM"
+            f.locale = Locale(identifier: "de_DE")
+            return f
+        }()
+
         private static func format(_ dateStr: String) -> String {
-            let input = DateFormatter()
-            input.dateFormat = "yyyy-MM-dd"
-            let output = DateFormatter()
-            output.dateFormat = "d. MMM yyyy"
-            output.locale = Locale(identifier: "de_DE")
-            guard let date = input.date(from: dateStr) else { return dateStr }
-            return output.string(from: date)
+            guard let date = inputFormatter.date(from: dateStr) else { return dateStr }
+            return longOutputFormatter.string(from: date)
         }
-        
+
         private static func shortFormat(_ dateStr: String) -> String {
-            let input = DateFormatter()
-            input.dateFormat = "yyyy-MM-dd"
-            let output = DateFormatter()
-            output.dateFormat = "d. MMM"
-            output.locale = Locale(identifier: "de_DE")
-            guard let date = input.date(from: dateStr) else { return dateStr }
-            return output.string(from: date)
+            guard let date = inputFormatter.date(from: dateStr) else { return dateStr }
+            return shortOutputFormatter.string(from: date)
         }
     }
     
     private var cycleDetails: [CycleDetail] {
         let starts = cycleStarts
         guard starts.count >= 2 else { return [] }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        
+
+        let formatter = Self.inputFormatter
+
         var details: [CycleDetail] = []
         for i in 0..<(starts.count - 1) {
             guard let s = formatter.date(from: starts[i]),
@@ -341,9 +347,8 @@ struct StatisticsView: View {
             .map { $0.date }
             .sorted()
         var starts: [String] = []
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        
+        let formatter = Self.inputFormatter
+
         for (i, date) in periodDates.enumerated() {
             if i == 0 {
                 starts.append(date)
@@ -361,10 +366,9 @@ struct StatisticsView: View {
     private var cycleLengths: [Int] {
         let starts = cycleStarts
         guard starts.count >= 2 else { return [] }
-        
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd"
-        
+
+        let formatter = Self.inputFormatter
+
         var lengths: [Int] = []
         for i in 0..<(starts.count - 1) {
             guard let s = formatter.date(from: starts[i]),

@@ -17,6 +17,8 @@ struct EntryView: View {
     private let existingDisturbed: Bool
     private let existingDisturbanceReason: String?
     private let existingExcludeFromAnalysis: Bool
+    /// Called after a successful save so the shared dashboard data can be reloaded.
+    private let onSave: (() -> Void)?
 
     @State private var date = Date()
     @State private var temperatureText = ""
@@ -48,7 +50,7 @@ struct EntryView: View {
         Color("AppPrimary")
     }
 
-    init() {
+    init(onSave: (() -> Void)? = nil) {
         self.editDate = nil
         self.existingTemperature = nil
         self.existingNotes = nil
@@ -60,6 +62,7 @@ struct EntryView: View {
         self.existingDisturbed = false
         self.existingDisturbanceReason = nil
         self.existingExcludeFromAnalysis = false
+        self.onSave = onSave
     }
 
     init(
@@ -73,7 +76,8 @@ struct EntryView: View {
         sleepHours: Double? = nil,
         disturbed: Bool = false,
         disturbanceReason: String? = nil,
-        excludeFromAnalysis: Bool = false
+        excludeFromAnalysis: Bool = false,
+        onSave: (() -> Void)? = nil
     ) {
         self.editDate = date
         self.existingTemperature = temperature
@@ -86,6 +90,7 @@ struct EntryView: View {
         self.existingDisturbed = disturbed
         self.existingDisturbanceReason = disturbanceReason
         self.existingExcludeFromAnalysis = excludeFromAnalysis
+        self.onSave = onSave
     }
 
     var body: some View {
@@ -504,6 +509,9 @@ struct EntryView: View {
                 isSaving = false
                 showSuccess = true
             }
+
+            // Trigger a single shared reload instead of relying on per-tab refetches.
+            onSave?()
 
             try? await Task.sleep(nanoseconds: 1_200_000_000)
             dismiss()
