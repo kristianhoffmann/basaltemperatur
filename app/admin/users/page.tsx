@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { createClient } from '@supabase/supabase-js'
 import { ArrowLeft, BadgeCheck, Crown, Users } from 'lucide-react'
 import { requireAdmin } from '@/lib/admin'
+import { DeleteUserForm } from './delete-user-form'
 
 export const dynamic = 'force-dynamic'
 
@@ -135,6 +136,7 @@ export default async function AdminUsersPage() {
                   <th className="py-2 pr-3">Registriert</th>
                   <th className="py-2 pr-3">Letzter Login</th>
                   <th className="py-2 pr-3">Bestätigt</th>
+                  <th className="py-2 pr-3">Aktion</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/10">
@@ -164,6 +166,9 @@ export default async function AdminUsersPage() {
                       ) : (
                         <span className="text-slate-500">Nein</span>
                       )}
+                    </td>
+                    <td className="py-2 pr-3">
+                      <DeleteUserForm userId={row.id} email={row.email} />
                     </td>
                   </tr>
                 ))}

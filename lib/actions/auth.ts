@@ -332,7 +332,7 @@ const SETTLED_SUBSCRIPTION_STATUSES = new Set(['canceled', 'incomplete_expired']
  * Kunden-E-Mail. Ist Stripe nicht konfiguriert oder existiert kein Kunde,
  * ist das Ergebnis schlicht leer — das ist der Normalfall, kein Fehler.
  */
-async function findActiveSubscriptionIds(email: string): Promise<string[]> {
+export async function findActiveSubscriptionIds(email: string): Promise<string[]> {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY
   if (!stripeSecretKey) return []
 
@@ -364,7 +364,7 @@ async function findActiveSubscriptionIds(email: string): Promise<string[]> {
  * gelten als erledigt; jeder andere Fehler wird geworfen, damit der Aufrufer
  * abbrechen kann.
  */
-async function cancelSubscription(subscriptionId: string): Promise<void> {
+export async function cancelSubscription(subscriptionId: string): Promise<void> {
   const stripeSecretKey = process.env.STRIPE_SECRET_KEY
   if (!stripeSecretKey) return
 
