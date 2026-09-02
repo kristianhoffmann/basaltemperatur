@@ -25,7 +25,7 @@ export default function robots(): MetadataRoute.Robots {
           // Gesperrt werden nur die Bundles. /_next/static/css/ und /_next/image
           // bleiben abrufbar, damit Google Layout und Bilder weiterhin bewerten kann —
           // die Inhalte stehen ohnehin serverseitig im HTML.
-          '/_next/static/chunks/',
+          '/_next/static/chunks/*.js$',
           '/dashboard',
           '/eintrag',
           '/kalender',
