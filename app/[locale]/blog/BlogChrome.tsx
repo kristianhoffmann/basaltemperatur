@@ -87,7 +87,8 @@ export function BlogFooter() {
               <li><Link href="/impressum" className="transition-colors hover:text-[var(--rose)]">Impressum</Link></li>
               <li><Link href="/datenschutz" className="transition-colors hover:text-[var(--rose)]">Datenschutz</Link></li>
               <li><Link href="/agb" className="transition-colors hover:text-[var(--rose)]">AGB</Link></li>
-              <li><Link href="/widerruf" className="transition-colors hover:text-[var(--rose)]">Widerruf</Link></li>
+              <li><Link href="/widerruf" className="transition-colors hover:text-[var(--rose)]">Widerrufsbelehrung</Link></li>
+              <li><Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] transition-colors hover:underline">Vertrag widerrufen</Link></li>
             </ul>
           </div>
           <div>

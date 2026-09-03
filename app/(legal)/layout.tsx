@@ -68,7 +68,11 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
           </Link>
           <span className="text-slate-300">|</span>
           <Link href="/widerruf" className="hover:text-slate-900 transition-colors">
-            Widerruf
+            Widerrufsbelehrung
+          </Link>
+          <span className="text-slate-300">|</span>
+          <Link href="/widerruf-ausueben" className="font-semibold text-sky-700 transition-colors hover:underline">
+            Vertrag widerrufen
           </Link>
           <span className="text-slate-300">|</span>
           <Link href="/support" className="hover:text-slate-900 transition-colors">

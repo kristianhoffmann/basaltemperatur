@@ -664,7 +664,8 @@ export default function LandingPage() {
                 <li><Link href="/impressum" className="hover:text-[var(--rose)] transition-colors">Impressum</Link></li>
                 <li><Link href="/datenschutz" className="hover:text-[var(--rose)] transition-colors">Datenschutz</Link></li>
                 <li><Link href="/agb" className="hover:text-[var(--rose)] transition-colors">AGB</Link></li>
-                <li><Link href="/widerruf" className="hover:text-[var(--rose)] transition-colors">Widerruf</Link></li>
+                <li><Link href="/widerruf" className="hover:text-[var(--rose)] transition-colors">Widerrufsbelehrung</Link></li>
+                <li><Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] hover:underline transition-colors">Vertrag widerrufen</Link></li>
               </ul>
             </div>
             <div>

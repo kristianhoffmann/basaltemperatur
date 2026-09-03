@@ -51,7 +51,8 @@ export default function AuthLayout({
           <Link href="/impressum" className="hover:text-rose-400 transition-colors">Impressum</Link>
           <Link href="/datenschutz" className="hover:text-rose-400 transition-colors">Datenschutz</Link>
           <Link href="/agb" className="hover:text-rose-400 transition-colors">AGB</Link>
-          <Link href="/widerruf" className="hover:text-rose-400 transition-colors">Widerruf</Link>
+          <Link href="/widerruf" className="hover:text-rose-400 transition-colors">Widerrufsbelehrung</Link>
+          <Link href="/widerruf-ausueben" className="font-semibold text-rose-400 hover:underline transition-colors">Vertrag widerrufen</Link>
         </div>
       </footer>
     </div>

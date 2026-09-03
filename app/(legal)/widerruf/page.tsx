@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
 import { getLegalCompany, getMissingCompanyFields, LEGAL_LAST_UPDATED } from '@/app/(legal)/legalConfig';
 
@@ -49,6 +50,11 @@ export default function WiderrufPage() {
                 nicht vorgeschrieben ist.
             </p>
             <p>
+                Sie können Ihr Widerrufsrecht auch online unter{' '}
+                <Link href="/widerruf-ausueben">www.basaltemperatur.online/widerruf-ausueben</Link>{' '}
+                ausüben. Wir bestätigen den Eingang unverzüglich auf einem dauerhaften Datenträger.
+            </p>
+            <p>
                 Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die
                 Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.
             </p>
@@ -64,22 +70,26 @@ export default function WiderrufPage() {
                 dieser Rückzahlung Entgelte berechnet.
             </p>
 
-            <h2>Besonderer Hinweis zum vorzeitigen Erlöschen des Widerrufsrechts</h2>
+            <h2>Vorzeitiger Beginn und Wertersatz</h2>
             <p>
-                Das Widerrufsrecht erlischt bei einem Vertrag über die Lieferung von nicht auf
-                einem körperlichen Datenträger befindlichen digitalen Inhalten, wenn der Anbieter
-                mit der Ausführung des Vertrags begonnen hat, nachdem der Verbraucher
+                Wir stellen Ihnen laufend einen Zugang bereit, in dem Sie Ihre Zyklusdaten
+                speichern und auswerten. Rechtlich ist das eine digitale Dienstleistung. Bei
+                Dienstleistungen erlischt das Widerrufsrecht nach § 356 Abs. 5 BGB erst mit der{' '}
+                <strong>vollständigen Erbringung</strong> der Leistung — bei einem dauerhaften
+                Zugang tritt das innerhalb der vierzehn Tage nicht ein.
             </p>
-            <ul>
-                <li>
-                    ausdrücklich zugestimmt hat, dass der Anbieter mit der Ausführung des Vertrags
-                    vor Ablauf der Widerrufsfrist beginnt, und
-                </li>
-                <li>
-                    seine Kenntnis davon bestätigt hat, dass er durch seine Zustimmung mit Beginn
-                    der Ausführung des Vertrags sein Widerrufsrecht verliert.
-                </li>
-            </ul>
+            <p>
+                <strong>
+                    Ihr Widerrufsrecht bleibt deshalb für die vollen vierzehn Tage bestehen — auch
+                    dann, wenn Sie die App in dieser Zeit bereits genutzt haben.
+                </strong>
+            </p>
+            <p>
+                Haben Sie beim Kauf ausdrücklich verlangt, dass wir vor Ablauf der Widerrufsfrist
+                mit der Leistung beginnen, so schulden Sie uns bei einem Widerruf einen anteiligen
+                Betrag für den bis dahin bereitgestellten Zeitraum (§ 357a BGB). Den Rest erstatten
+                wir Ihnen.
+            </p>
 
             <hr className="my-8" />
 
