@@ -2,10 +2,17 @@
 //
 // Ein einzelnes Konto entfernen, angestossen aus dem zentralen Fleet-Dashboard.
 //
-// WARUM DAS NICHT EIN AUFRUF GEGEN DIE AUTH-API IST: In dieser Datenbank haengt
-// keine Tabelle mit `on delete cascade` an `auth.users` — geprueft am
-// 08.09.2026, null Fremdschluessel. Wer nur das Konto entfernt, laesst Zyklen,
-// Temperatur- und Periodeneintraege als Waisen zurueck.
+// KORREKTUR ZUM URSPRUENGLICHEN COMMIT: Dort stand, an `auth.users` haenge
+// keine Tabelle mit `on delete cascade`. Das war falsch — die Behauptung kam
+// aus einer Abfrage, deren Fehlermeldung nach /dev/null lief. Tatsaechlich
+// haengen ALLE vier Tabellen (cycles, period_entries, temperature_entries,
+// profiles) per CASCADE am Konto; die Datenbank raeumt selbst auf.
+//
+// Das explizite Loeschen bleibt trotzdem stehen, aus zwei Gruenden: Es macht
+// im Plan sichtbar, WAS verschwindet — sonst zeigt der Bestaetigungsdialog
+// eine leere Liste und der Umfang bleibt unsichtbar. Und es haelt die
+// Loeschung unabhaengig davon, ob eine spaetere Migration einen dieser
+// Fremdschluessel wieder entfernt. Doppelt geloeschte Zeilen kosten nichts.
 //
 // WAS BLEIBT: `withdrawal_declarations`. Eingegangene Widerrufserklaerungen
 // sind kaufmaennische Belege, keine Profildaten, und sie haengen an der
