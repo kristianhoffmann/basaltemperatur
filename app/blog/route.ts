@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
-export function GET(request: Request) {
-  return NextResponse.redirect(new URL('/de/blog', request.url), 308)
+/** Siehe app/blog/[slug]/route.ts: das Ziel darf nicht aus `request.url` kommen. */
+export function GET() {
+  return NextResponse.redirect(new URL('/de/blog', getSeoSiteUrl()), 308)
 }
