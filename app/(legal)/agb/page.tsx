@@ -10,12 +10,12 @@ import {
 
 // ============================================================================
 // ALLGEMEINE GESCHÄFTSBEDINGUNGEN
-// Basaltemperatur App – Einmalzahlung 9,99 € (Lifetime)
+// Basaltemperatur App – kostenlose Basisnutzung, Analyse einmalig 9,99 €
 // WICHTIG: Von einem Anwalt prüfen lassen vor Produktivbetrieb!
 // ============================================================================
 
 export const metadata: Metadata = {
-  title: 'AGB – Basaltemperatur',
+  title: 'AGB',
   description: 'Allgemeine Geschäftsbedingungen für die Basaltemperatur App',
   alternates: {
     canonical: '/agb',
@@ -32,223 +32,226 @@ export default function AGBPage() {
       <h1>Allgemeine Geschäftsbedingungen</h1>
       <LegalDataWarning missingFields={missingFields} />
 
-      <h2>§ 1 Geltungsbereich</h2>
+      <h2>§ 1 Geltungsbereich und Anbieter</h2>
       <p>
-        (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB“) gelten für alle
-        Verträge, die zwischen {company.name} (nachfolgend „Anbieter“) und der nutzenden
-        Person (nachfolgend „Kunde“) über die Nutzung der Web- und Mobilanwendung
-        „Basaltemperatur“ (nachfolgend „App“) geschlossen werden.
+        (1) Diese Allgemeinen Geschäftsbedingungen (nachfolgend „AGB“) gelten für alle Verträge
+        zwischen {company.name}, {company.street}, {company.city} (nachfolgend „Anbieter“) und
+        den Nutzerinnen und Nutzern (nachfolgend „Kunde“) über die Nutzung der Webanwendung unter
+        www.basaltemperatur.online und der iOS-App „Basaltemperatur“ (zusammen „App“).
       </p>
       <p>
-        (2) Es gelten ausschließlich diese AGB. Abweichende Bedingungen des Kunden werden
-        nicht anerkannt, es sei denn, der Anbieter stimmt ihrer Geltung ausdrücklich
-        schriftlich zu.
+        (2) Abweichende Bedingungen des Kunden werden nicht Vertragsbestandteil, es sei denn,
+        der Anbieter stimmt ihrer Geltung ausdrücklich zu.
       </p>
       <p>
-        (3) Der Kunde ist Verbraucher im Sinne des § 13 BGB, soweit der Zweck der Nutzung
-        nicht seiner gewerblichen oder selbständigen beruflichen Tätigkeit zugerechnet
-        werden kann.
+        (3) Die App richtet sich an Verbraucher im Sinne des § 13 BGB. Die Nutzung ist Personen
+        ab 16 Jahren gestattet.
       </p>
 
-      <h2>§ 2 Vertragsgegenstand</h2>
+      <h2>§ 2 Leistungen</h2>
       <p>
-        (1) Gegenstand des Vertrages ist die Bereitstellung der Basaltemperatur App als
-        webbasierte Anwendung (SaaS) und als iOS-App zur persönlichen Zyklusbeobachtung.
+        (1) <strong>Kostenlose Basisnutzung:</strong> Nach der Registrierung kann der Kunde
+        kostenlos Basaltemperaturwerte und Periodentage eintragen, bearbeiten und ansehen.
       </p>
       <p>
-        (2) Die App ermöglicht die Aufzeichnung von Basaltemperaturwerten, die Dokumentation
-        der Periodenblutung, die rückblickende Auswertung von Temperaturanstiegen sowie
-        statistische Zyklusauswertungen.
+        (2) <strong>Kostenpflichtige Freischaltung („Analyse“):</strong> Gegen eine einmalige
+        Zahlung erhält der Kunde Zugang zu den auf der Website beschriebenen erweiterten
+        Funktionen, derzeit insbesondere rückblickende Auswertungen, Statistiken, Zyklus- und
+        Periodenprognosen, Zyklusvergleich und Export.
       </p>
       <p>
-        (3) <strong>Medizinischer Haftungsausschluss:</strong> Die App ist ein persönliches
-        Zyklustagebuch zur Selbstbeobachtung. Sie ist <strong>kein</strong> Medizinprodukt
-        im Sinne der EU-Verordnung 2017/745 (MDR), kein Verhütungsmittel und kein
-        Diagnosewerkzeug. Algorithmische Vorhersagen zu fruchtbaren Tagen, Zykluslänge
-        und Periodenbeginn sind Schätzungen und können individuell abweichen. Für medizinische Entscheidungen
-        ist ärztlicher Rat einzuholen.
-      </p>
-
-      <h2>§ 3 Vertragsschluss und Registrierung</h2>
-      <p>
-        (1) Der Vertrag kommt durch die Registrierung des Kunden in der App und die
-        Bestätigung der E-Mail-Adresse zustande.
+        (3) <strong>Medizinischer Hinweis:</strong> Die App ist ein persönliches Zyklustagebuch
+        zur Selbstbeobachtung. Sie ist <strong>kein</strong> Medizinprodukt im Sinne der
+        Verordnung (EU) 2017/745 (MDR), kein Verhütungsmittel und kein Diagnosewerkzeug.
+        Rückblickende Auswertungen und Prognosen, etwa zu Zyklusphasen und zum Periodenbeginn,
+        sind statistische Schätzungen und können individuell abweichen. Sie sind nicht zur
+        Verhütung und nicht als Grundlage medizinischer Entscheidungen bestimmt; dafür ist
+        ärztlicher Rat einzuholen.
       </p>
       <p>
-        (2) Mit der Registrierung bestätigt der Kunde, dass er die AGB und die{' '}
-        <Link href="/datenschutz">
-          Datenschutzerklärung
-        </Link>{' '}
-        gelesen hat und diesen zustimmt.
+        (4) Der Anbieter stellt die App mit einer angestrebten Verfügbarkeit von 99 % im
+        Jahresmittel bereit. Ausgenommen sind angekündigte Wartungsarbeiten und Störungen, die
+        außerhalb seines Einflussbereichs liegen. Der Anbieter führt regelmäßige Datensicherungen
+        durch.
       </p>
       <p>
-        (3) Der Kunde erteilt bei der Registrierung eine ausdrückliche Einwilligung in die
-        Verarbeitung seiner Gesundheitsdaten gemäß Art. 9 Abs. 2 lit. a DSGVO.
-      </p>
-      <p>
-        (4) Der Kunde muss bei der Registrierung wahrheitsgemäße Angaben machen und ist
-        verpflichtet, seine Zugangsdaten geheim zu halten.
+        (5) Der Anbieter darf die App ändern, wenn dafür ein triftiger Grund besteht, etwa die
+        Anpassung an eine neue technische Umgebung, an gesetzliche Vorgaben oder aus
+        Sicherheitsgründen, dem Kunden dadurch keine zusätzlichen Kosten entstehen und er klar
+        und verständlich über die Änderung informiert wird. Beeinträchtigt eine Änderung die
+        Nutzbarkeit der bezahlten Funktionen mehr als nur unerheblich, stehen dem Kunden die
+        Rechte aus § 327r BGB zu.
       </p>
 
-      <h2>§ 4 Leistungen und Verfügbarkeit</h2>
+      <h2>§ 3 Registrierung (kostenloser Nutzungsvertrag)</h2>
       <p>
-        (1) Der Anbieter stellt die App mit einer angestrebten Verfügbarkeit von 99 % im
-        Jahresmittel bereit. Ausgenommen sind geplante Wartungsarbeiten, Störungen außerhalb
-        des Einflussbereichs des Anbieters sowie technische Probleme auf Seiten des Kunden.
+        (1) Die Darstellung der App auf der Website ist kein rechtlich bindendes Angebot.
       </p>
       <p>
-        (2) Der Anbieter ist berechtigt, die App weiterzuentwickeln und den Funktionsumfang
-        zu erweitern oder anzupassen, soweit dies für den Kunden zumutbar ist.
+        (2) Der Kunde füllt das Registrierungsformular aus, akzeptiert diese AGB und gibt mit
+        Klick auf „Registrieren“ ein Angebot auf Abschluss eines kostenlosen Nutzungsvertrags
+        ab. Vor dem Absenden kann er seine Eingaben jederzeit im Formular prüfen und
+        korrigieren. Der Vertrag kommt zustande, sobald das Konto angelegt ist und der Kunde
+        Zugriff darauf erhält.
       </p>
       <p>
-        (3) Der Anbieter führt regelmäßige Datensicherungen durch. Dies entbindet den
-        Kunden nicht von einer eigenen Sicherung seiner Daten.
-      </p>
-
-      <h2>§ 5 Vergütung</h2>
-      <p>
-        (1) Die Nutzung der App erfordert eine <strong>einmalige Zahlung von 9,99 €</strong>.
-        Es handelt sich um eine Einmalzahlung – es entstehen
-        keine wiederkehrenden Kosten oder Abonnements.
+        (3) Die Verarbeitung von Gesundheitsdaten erfolgt nur mit einer gesonderten,
+        ausdrücklichen Einwilligung nach Art. 9 Abs. 2 lit. a DSGVO. Der Kunde kann sie
+        jederzeit in den Einstellungen widerrufen; ohne Einwilligung können keine neuen
+        Einträge gespeichert werden. Einzelheiten stehen in der{' '}
+        <Link href="/datenschutz">Datenschutzerklärung</Link>.
       </p>
       <p>
-        (1a) Gemäß § 19 UStG wird keine Umsatzsteuer berechnet und nicht ausgewiesen.
-      </p>
-      <p>
-        (2) Nach erfolgreicher Zahlung erhält der Kunde zeitlich unbegrenzten Zugang zu
-        allen Funktionen der App einschließlich zukünftiger Updates („Lifetime-Zugang“).
-      </p>
-      <p>
-        (3) Die Zahlung erfolgt über den Zahlungsdienstleister Stripe. Der Kunde wählt bei
-        der Zahlung eine der angebotenen Zahlungsmethoden (Kreditkarte, SEPA-Lastschrift o.ä.).
+        (4) Der Kunde macht bei der Registrierung wahrheitsgemäße Angaben, hält seine
+        Zugangsdaten geheim und gibt sein Konto nicht an Dritte weiter.
       </p>
 
-      <h2>§ 6 Widerrufsrecht für Verbraucher</h2>
+      <h2>§ 4 Kauf der Analyse</h2>
       <p>
-        (1) Verbraucher haben das Recht, binnen <strong>vierzehn Tagen</strong> ohne Angabe von Gründen
-        diesen Vertrag zu widerrufen. Die Widerrufsfrist beträgt 14 Tage ab dem Tag des
-        Vertragsschlusses.
+        (1) <strong>Kauf in der Webanwendung:</strong> Der Kunde wählt im eingeloggten Bereich
+        „Jetzt kaufen“, bestätigt, dass die Freischaltung sofort beginnen soll, und wird zur
+        Zahlungsseite des Zahlungsdienstleisters Stripe weitergeleitet. Dort wählt er eine der
+        angebotenen Zahlungsarten und kann seine Angaben vor dem Absenden prüfen und
+        korrigieren oder den Vorgang abbrechen. Mit Klick auf die Schaltfläche „Bezahlen“ gibt
+        der Kunde ein verbindliches Angebot ab. Der Vertrag kommt zustande, sobald die Zahlung
+        bestätigt ist; die Freischaltung erfolgt unmittelbar danach.
       </p>
       <p>
-        (2) Um Ihr Widerrufsrecht auszuüben, müssen Sie uns ({company.name}, E-Mail:{' '}
-        <a href={`mailto:${company.email}`}>{company.email}</a>) mittels einer eindeutigen
-        Erklärung (z.B. per E-Mail) über Ihren Entschluss, diesen Vertrag zu widerrufen,
-        informieren. Sie können dafür das{' '}
-        <Link href="/widerruf">
-          Muster-Widerrufsformular
-        </Link>{' '}
-        verwenden.
+        (2) <strong>Kauf in der iOS-App:</strong> Käufe in der iOS-App werden über den App Store
+        von Apple abgewickelt. Für Bezahlung, Belege und Erstattungen gelten zusätzlich die
+        Bedingungen von Apple; Erstattungen und Widerrufe von App-Store-Käufen laufen über
+        Apple.
       </p>
       <p>
-        (3) Zur Wahrung der Widerrufsfrist reicht es aus, dass Sie die Mitteilung über die
-        Ausübung des Widerrufsrechts vor Ablauf der Widerrufsfrist absenden.
+        (3) Der Preis beträgt <strong>einmalig 9,99 €</strong>. Es handelt sich um einen
+        Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer berechnet und ausgewiesen. Es
+        entstehen keine wiederkehrenden Kosten und es wird kein Abonnement abgeschlossen.
       </p>
       <p>
-        (4) Wenn Sie diesen Vertrag widerrufen, haben wir Ihnen alle Zahlungen unverzüglich
-        und spätestens binnen 14 Tagen ab dem Tag zurückzuzahlen, an dem die Mitteilung über
-        Ihren Widerruf bei uns eingegangen ist.
+        (4) Nach erfolgreicher Zahlung erhält der Kunde zeitlich unbegrenzten Zugang zu den
+        freigeschalteten Funktionen einschließlich künftiger Updates („Lifetime-Zugang“). Die
+        Freischaltung ist an das Konto gebunden, mit dem gekauft wurde.
       </p>
       <p>
-        (5) <strong>Vorzeitiges Erlöschen des Widerrufsrechts:</strong> Das Widerrufsrecht
-        erlischt bei einem Vertrag über die Lieferung von digitalen Inhalten, die nicht auf
-        einem körperlichen Datenträger geliefert werden, wenn der Anbieter mit der Ausführung
-        des Vertrags begonnen hat, nachdem der Kunde ausdrücklich zugestimmt hat, dass der
-        Anbieter mit der Ausführung des Vertrags vor Ablauf der Widerrufsfrist beginnt, und
-        der Kunde seine Kenntnis davon bestätigt hat, dass er durch seine Zustimmung mit
-        Beginn der Ausführung des Vertrags sein Widerrufsrecht verliert (§ 356 Abs. 5 BGB).
+        (5) Der Anbieter speichert den Vertragstext nicht gesondert. Die jeweils geltenden AGB
+        sind jederzeit unter <Link href="/agb">www.basaltemperatur.online/agb</Link> abrufbar
+        und können gespeichert und ausgedruckt werden. Vertragssprache ist Deutsch.
       </p>
 
-      <h2>§ 7 Pflichten des Kunden</h2>
-      <p>(1) Der Kunde verpflichtet sich:</p>
+      <h2>§ 5 Widerrufsrecht</h2>
+      <p>
+        (1) Verbrauchern steht beim Kauf der Analyse ein Widerrufsrecht zu. Einzelheiten
+        regelt die <Link href="/widerruf">Widerrufsbelehrung</Link>. Der Widerruf kann
+        jederzeit online unter <Link href="/widerruf-ausueben">Vertrag widerrufen</Link>{' '}
+        erklärt werden.
+      </p>
+      <p>
+        (2) Die Widerrufsfrist beträgt vierzehn Tage ab Vertragsschluss und bleibt auch dann
+        bestehen, wenn der Kunde die Analyse in dieser Zeit bereits nutzt. Hat der Kunde
+        verlangt, dass die Freischaltung vor Ablauf der Widerrufsfrist beginnt, schuldet er bei
+        einem Widerruf einen angemessenen Betrag für den bis dahin bereitgestellten Zeitraum
+        (§ 357a Abs. 2 BGB).
+      </p>
+
+      <h2>§ 6 Pflichten des Kunden</h2>
+      <p>(1) Der Kunde verpflichtet sich,</p>
       <ul>
-        <li>Die App nur im Rahmen der geltenden Gesetze zu nutzen</li>
-        <li>Keine rechtswidrigen oder schädlichen Inhalte einzustellen</li>
-        <li>Die Sicherheit der App nicht zu gefährden</li>
-        <li>Keine automatisierten Abfragen oder Bots einzusetzen</li>
+        <li>die App nur im Rahmen der geltenden Gesetze zu nutzen,</li>
+        <li>keine rechtswidrigen oder schädlichen Inhalte einzustellen,</li>
+        <li>die Sicherheit der App nicht zu gefährden und</li>
+        <li>keine automatisierten Abfragen oder Bots einzusetzen.</li>
       </ul>
       <p>
-        (2) Bei Verstößen ist der Anbieter berechtigt, den Zugang zur App zu sperren.
+        (2) Bei erheblichen Verstößen darf der Anbieter den Zugang nach vorheriger Abmahnung
+        sperren; bei schwerwiegenden Verstößen auch ohne Abmahnung.
       </p>
 
-      <h2>§ 8 Datenschutz</h2>
+      <h2>§ 7 Datenschutz</h2>
       <p>
-        (1) Der Anbieter verarbeitet personenbezogene Daten des Kunden gemäß den
-        gesetzlichen Bestimmungen und der{' '}
-        <Link href="/datenschutz">
-          Datenschutzerklärung
-        </Link>.
+        (1) Der Anbieter verarbeitet personenbezogene Daten nach den gesetzlichen Bestimmungen.
+        Einzelheiten stehen in der <Link href="/datenschutz">Datenschutzerklärung</Link>.
       </p>
       <p>
-        (2) Die bei der Nutzung der App eingegebenen Gesundheitsdaten werden entsprechend
-        der aktuellen Infrastruktur gespeichert (derzeit: {infrastructure.webProvider} /
-        {infrastructure.dbProvider}; Datenstandort: {infrastructure.webLocation} bzw.
-        {infrastructure.dbLocation}).
-      </p>
-      <p>
-        (3) Der Kunde bleibt für die Richtigkeit der von ihm eingegebenen Daten
-        verantwortlich.
+        (2) Die eingegebenen Gesundheitsdaten werden auf der derzeitigen Infrastruktur
+        gespeichert ({infrastructure.webProvider} / {infrastructure.dbProvider};
+        Datenstandort: {infrastructure.webLocation} bzw. {infrastructure.dbLocation}).
       </p>
 
-      <h2>§ 9 Nutzungsrechte</h2>
+      <h2>§ 8 Nutzungsrechte</h2>
       <p>
         (1) Der Anbieter räumt dem Kunden ein einfaches, nicht übertragbares Recht zur
         persönlichen Nutzung der App ein.
       </p>
       <p>
-        (2) Alle Rechte an der App, einschließlich Software, Design und Marken, verbleiben
-        beim Anbieter.
-      </p>
-      <p>
-        (3) Der Kunde behält alle Rechte an seinen Inhalten und Daten.
+        (2) Alle Rechte an der App, einschließlich Software, Design und Marken, verbleiben beim
+        Anbieter. Der Kunde behält alle Rechte an seinen Einträgen und Daten.
       </p>
 
-      <h2>§ 10 Gewährleistung und Haftung</h2>
+      <h2>§ 9 Gewährleistung</h2>
       <p>
-        (1) Der Anbieter haftet unbeschränkt für Schäden aus der Verletzung des Lebens, des
-        Körpers oder der Gesundheit sowie für Vorsatz und grobe Fahrlässigkeit.
-      </p>
-      <p>
-        (2) Bei leichter Fahrlässigkeit haftet der Anbieter nur bei Verletzung wesentlicher
-        Vertragspflichten. Die Haftung ist auf den vorhersehbaren, typischerweise
-        eintretenden Schaden begrenzt.
-      </p>
-      <p>
-        (3) Eine Haftung für die <strong>Richtigkeit algorithmischer Vorhersagen</strong> (fruchtbare Tage,
-        Zykluslänge, Periodenbeginn) ist ausgeschlossen. Diese dienen der
-        Selbstbeobachtung und ersetzen keine medizinische Beratung.
+        Es gelten die gesetzlichen Vorschriften über Mängel digitaler Produkte (§§ 327 ff.
+        BGB), einschließlich der Pflicht zur Bereitstellung von Aktualisierungen.
       </p>
 
-      <h2>§ 11 Konto-Löschung</h2>
+      <h2>§ 10 Haftung</h2>
       <p>
-        (1) Da es sich um einen Lifetime-Zugang handelt, gibt es keine Vertragslaufzeit
-        oder Kündigungsfrist.
+        (1) Der Anbieter haftet unbeschränkt bei Vorsatz und grober Fahrlässigkeit, für Schäden
+        aus der Verletzung des Lebens, des Körpers oder der Gesundheit, nach dem
+        Produkthaftungsgesetz sowie im Umfang einer übernommenen Garantie.
       </p>
       <p>
-        (2) Der Kunde kann sein Konto jederzeit über die Einstellungen in der App oder
-        per E-Mail an {company.email} löschen lassen.
+        (2) Bei leichter Fahrlässigkeit haftet der Anbieter nur für die Verletzung wesentlicher
+        Vertragspflichten, also solcher Pflichten, deren Erfüllung die ordnungsgemäße
+        Durchführung des Vertrags erst ermöglicht und auf deren Einhaltung der Kunde vertrauen
+        darf. In diesem Fall ist die Haftung auf den vorhersehbaren, vertragstypischen Schaden
+        begrenzt.
       </p>
       <p>
-        (3) Bei Konto-Löschung werden alle personenbezogenen Daten einschließlich
-        Gesundheitsdaten unwiderruflich gelöscht. Eine Erstattung des Kaufpreises
-        erfolgt nicht (es sei denn, das Widerrufsrecht ist noch nicht erloschen).
+        (3) Rückblickende Auswertungen und statistische Prognosen beruhen auf den Eingaben des
+        Kunden; der Anbieter übernimmt keine Gewähr dafür, dass sie auf den individuellen
+        Zyklus zutreffen (siehe § 2 Abs. 3). Absatz 1 bleibt unberührt.
+      </p>
+      <p>
+        (4) Die vorstehenden Haftungsbeschränkungen gelten auch zugunsten der Erfüllungsgehilfen
+        des Anbieters.
+      </p>
+
+      <h2>§ 11 Laufzeit, Kündigung und Konto-Löschung</h2>
+      <p>
+        (1) Der Nutzungsvertrag läuft auf unbestimmte Zeit. Der Kunde kann ihn jederzeit ohne
+        Frist beenden, indem er sein Konto in den Einstellungen löscht oder die Löschung per
+        E-Mail an <a href={`mailto:${company.email}`}>{company.email}</a> verlangt.
+      </p>
+      <p>
+        (2) Das Recht beider Seiten zur außerordentlichen Kündigung aus wichtigem Grund bleibt
+        unberührt.
+      </p>
+      <p>
+        (3) Bei der Konto-Löschung werden alle personenbezogenen Daten einschließlich der
+        Gesundheitsdaten unwiderruflich gelöscht, soweit keine gesetzlichen
+        Aufbewahrungspflichten entgegenstehen (etwa für Zahlungsbelege oder
+        Widerrufserklärungen).
+      </p>
+      <p>
+        (4) Mit der Löschung endet auch die Freischaltung. Eine Erstattung des Kaufpreises
+        erfolgt nur im Rahmen des Widerrufsrechts oder gesetzlicher Ansprüche.
       </p>
 
       <h2>§ 12 Schlussbestimmungen</h2>
       <p>
         (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des
-        UN-Kaufrechts.
+        UN-Kaufrechts. Bei Verbrauchern gilt diese Rechtswahl nur, soweit ihnen dadurch nicht
+        der Schutz entzogen wird, den die zwingenden Bestimmungen des Staates ihres
+        gewöhnlichen Aufenthalts gewähren.
       </p>
       <p>
-        (2) Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, so berührt
-        dies nicht die Wirksamkeit der übrigen Bestimmungen.
+        (2) Sollten einzelne Bestimmungen dieser AGB unwirksam sein oder werden, bleibt die
+        Wirksamkeit der übrigen Bestimmungen unberührt.
       </p>
       <p>
         (3) Die frühere EU-Plattform zur Online-Streitbeilegung (OS-Plattform) wurde zum
-        <strong> 20. Juli 2025</strong> eingestellt (Verordnung (EU) 2024/3228). Eine
-        Streitbeilegung über diese Plattform ist nicht mehr möglich.
-      </p>
-      <p>
-        Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer
+        <strong> 20. Juli 2025</strong> eingestellt (Verordnung (EU) 2024/3228). Der Anbieter
+        ist nicht bereit und nicht verpflichtet, an Streitbeilegungsverfahren vor einer
         Verbraucherschlichtungsstelle teilzunehmen.
       </p>
 

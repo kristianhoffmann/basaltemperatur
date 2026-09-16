@@ -7,6 +7,8 @@ import { describe, expect, it } from 'vitest'
 const root = process.cwd()
 
 const productionEnvironmentNames = [
+  'BREVO_API_KEY',
+  'BREVO_SENDER_EMAIL',
   'NEXT_PUBLIC_APP_NAME',
   'NEXT_PUBLIC_APP_STORE_URL',
   'NEXT_PUBLIC_APP_URL',
@@ -15,6 +17,7 @@ const productionEnvironmentNames = [
   'NEXT_PUBLIC_COMPANY_NAME',
   'NEXT_PUBLIC_COMPANY_PHONE',
   'NEXT_PUBLIC_COMPANY_STREET',
+  'NEXT_PUBLIC_GOOGLE_AUTH_ENABLED',
   'NEXT_PUBLIC_SUPABASE_ANON_KEY',
   'NEXT_PUBLIC_SUPABASE_URL',
   'QA_PROBE_SECRET',
@@ -34,6 +37,7 @@ const productionEnvironmentNames = [
   'STRIPE_SECRET_KEY',
   'STRIPE_WEBHOOK_SECRET',
   'SUPABASE_SERVICE_ROLE_KEY',
+  'TRAFFIC_HASH_SALT',
 ].sort()
 
 describe('Hostinger deployment contract', () => {
@@ -190,7 +194,7 @@ describe('Hostinger deployment contract', () => {
     )
   })
 
-  it('tracks exactly the 27 production names plus runtime metadata without values', async () => {
+  it('tracks exactly the production names plus runtime metadata without values', async () => {
     const example = await readProjectFile('.env.hostinger.example')
     const ignoreCheck = spawnSync(
       'git',

@@ -1,5 +1,5 @@
 // app/(dashboard)/kalender/page.tsx
-// Kalender-Ansicht mit Monatsübersicht und Fruchtbarkeitsfenster
+// Kalender-Ansicht mit Monatsübersicht und Zyklusphasen
 
 export const dynamic = 'force-dynamic'
 

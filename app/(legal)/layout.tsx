@@ -2,6 +2,7 @@ import { ReactNode } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { Logo } from '@/components/shared/Logo';
+import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink';
 
 // ============================================================================
 // LEGAL LAYOUT
@@ -15,7 +16,7 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
       <header className="bg-white border-b border-slate-200">
         <div className="max-w-4xl mx-auto px-4 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Logo className="h-8 w-8" />
+            <Logo size="sm" />
             <span className="font-semibold text-slate-900">
               {process.env.NEXT_PUBLIC_APP_NAME || 'Basaltemperatur'}
             </span>
@@ -78,6 +79,8 @@ export default function LegalLayout({ children }: { children: ReactNode }) {
           <Link href="/support" className="hover:text-slate-900 transition-colors">
             Support
           </Link>
+          <span className="text-slate-300">|</span>
+          <ConsentSettingsLink className="hover:text-slate-900 transition-colors" />
         </nav>
         <p className="text-center text-xs text-slate-500 mt-4">
           © {new Date().getFullYear()} {process.env.NEXT_PUBLIC_COMPANY_NAME || 'Basaltemperatur'}. Alle Rechte vorbehalten.

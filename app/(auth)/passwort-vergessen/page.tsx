@@ -7,7 +7,7 @@ import { Logo } from '@/components/shared/Logo';
 import { ArrowLeft, CheckCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
-  title: 'Passwort vergessen | Basaltemperatur',
+  title: 'Passwort vergessen',
   description: 'Setzen Sie Ihr Passwort zurück.',
 };
 

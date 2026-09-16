@@ -1,9 +1,10 @@
 import { Metadata } from 'next'
+import Link from 'next/link'
 import { getLegalCompany } from '@/app/(legal)/legalConfig'
 
 export const metadata: Metadata = {
-  title: 'Support – Basaltemperatur',
-  description: 'Support und Kontakt fuer Basaltemperatur.',
+  title: 'Support',
+  description: 'Support und Kontakt für Basaltemperatur.',
   alternates: {
     canonical: '/support',
   },
@@ -17,8 +18,8 @@ export default function SupportPage() {
       <h1>Support</h1>
 
       <p>
-        Wenn Sie Hilfe zu Konto, Eintraegen, Premium-Freischaltung, Datenexport oder
-        Datenschutz brauchen, erreichen Sie uns per E-Mail.
+        Wenn Sie Hilfe zu Konto, Einträgen, der Freischaltung der Analyse, dem Datenexport oder
+        dem Datenschutz brauchen, erreichen Sie uns per E-Mail.
       </p>
 
       <h2>Kontakt</h2>
@@ -26,11 +27,18 @@ export default function SupportPage() {
         E-Mail: <a href={`mailto:${company.email}`}>{company.email}</a>
       </p>
 
+      <h2>Kauf widerrufen</h2>
+      <p>
+        Einen Kauf können Sie innerhalb von vierzehn Tagen ohne Angabe von Gründen widerrufen —
+        am einfachsten online unter <Link href="/widerruf-ausueben">Vertrag widerrufen</Link>.
+        Einzelheiten stehen in der <Link href="/widerruf">Widerrufsbelehrung</Link>.
+      </p>
+
       <h2>Wichtiger Hinweis</h2>
       <p>
-        Basaltemperatur ist ein persoenliches Zyklustagebuch mit rueckblickender
+        Basaltemperatur ist ein persönliches Zyklustagebuch mit rückblickender
         Temperaturauswertung und statistischen Prognosen. Die App ist kein
-        Medizinprodukt, kein Verhuetungsmittel und kein Diagnosewerkzeug.
+        Medizinprodukt, kein Verhütungsmittel und kein Diagnosewerkzeug.
       </p>
     </>
   )

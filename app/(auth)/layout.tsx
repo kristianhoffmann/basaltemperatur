@@ -4,6 +4,7 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { Logo } from '@/components/shared/Logo'
+import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 export const metadata: Metadata = {
   robots: {
@@ -53,6 +54,7 @@ export default function AuthLayout({
           <Link href="/agb" className="hover:text-rose-400 transition-colors">AGB</Link>
           <Link href="/widerruf" className="hover:text-rose-400 transition-colors">Widerrufsbelehrung</Link>
           <Link href="/widerruf-ausueben" className="font-semibold text-rose-400 hover:underline transition-colors">Vertrag widerrufen</Link>
+          <ConsentSettingsLink className="hover:text-rose-400 transition-colors" />
         </div>
       </footer>
     </div>

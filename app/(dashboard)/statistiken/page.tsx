@@ -282,7 +282,7 @@ export default async function StatisticsPage() {
                 )}
                 <p className="mt-4 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
                     Die Statistik bewertet nur deine Eingaben. Sie ist keine Diagnose und sagt nicht sicher voraus,
-                    wann fruchtbare Tage oder die nächste Periode eintreten.
+                    wann eine Zyklusphase oder die nächste Periode eintritt.
                 </p>
             </div>
 

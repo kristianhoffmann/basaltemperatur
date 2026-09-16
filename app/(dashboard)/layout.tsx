@@ -9,6 +9,8 @@ import { Settings } from 'lucide-react'
 import { NotificationPrompt } from '@/components/features/NotificationPrompt'
 import { SidebarNav } from '@/components/layout/SidebarNav'
 import { MobileNav } from '@/components/layout/MobileNav'
+import { Logo } from '@/components/shared/Logo'
+import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 export const metadata: Metadata = {
   robots: {
@@ -41,7 +43,7 @@ export default async function DashboardLayout({
       <aside className="sidebar hidden lg:flex">
         {/* Logo */}
         <div className="sidebar-logo">
-          <div className="sidebar-logo-icon">🌡️</div>
+          <Logo />
           <span className="sidebar-logo-text">Basaltemperatur</span>
         </div>
 
@@ -84,6 +86,20 @@ export default async function DashboardLayout({
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <NotificationPrompt />
           {children}
+
+          {/* § 356a BGB: the withdrawal function must stay visible where the purchase happens. */}
+          <footer className="mt-12 border-t border-[var(--border-subtle)] pt-5 pb-2">
+            <nav className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-[var(--text-muted)]">
+              <Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] hover:underline">
+                Vertrag widerrufen
+              </Link>
+              <Link href="/widerruf" className="hover:text-[var(--text)]">Widerrufsbelehrung</Link>
+              <Link href="/agb" className="hover:text-[var(--text)]">AGB</Link>
+              <Link href="/datenschutz" className="hover:text-[var(--text)]">Datenschutz</Link>
+              <Link href="/impressum" className="hover:text-[var(--text)]">Impressum</Link>
+              <ConsentSettingsLink className="hover:text-[var(--text)]" />
+            </nav>
+          </footer>
         </div>
       </main>
 

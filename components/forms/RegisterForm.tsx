@@ -33,7 +33,7 @@ export function RegisterForm() {
     setError(null);
 
     if (!formData.acceptTerms) {
-      setError('Bitte akzeptiere die AGB und Datenschutzrichtlinien.');
+      setError('Bitte akzeptiere die AGB.');
       return;
     }
 
@@ -200,14 +200,16 @@ export function RegisterForm() {
           Ich akzeptiere die{' '}
           <a href="/agb" className="text-primary-600 hover:underline" target="_blank">
             AGB
-          </a>,{' '}
+          </a>{' '}
+          und habe die{' '}
           <a href="/datenschutz" className="text-primary-600 hover:underline" target="_blank">
             Datenschutzerklärung
           </a>{' '}
-          und{' '}
+          sowie die{' '}
           <a href="/widerruf" className="text-primary-600 hover:underline" target="_blank">
             Widerrufsbelehrung
-          </a>.
+          </a>{' '}
+          zur Kenntnis genommen.
         </label>
       </div>
 

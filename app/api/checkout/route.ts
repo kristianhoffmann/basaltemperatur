@@ -14,7 +14,20 @@ const stripe = new Stripe(stripeSecretKey || '', {
     apiVersion: '2023-10-16',
 })
 
-export async function POST() {
+// Bump when the wording of the early-start request in UpgradeBanner changes.
+const EARLY_START_TEXT_VERSION = '2026-09-16'
+
+export async function POST(request: Request) {
+    const body = await request.json().catch(() => null) as { earlyStartRequested?: unknown } | null
+    // § 357a Abs. 2 BGB: without a recorded express request there is no claim to
+    // proportional payment after a withdrawal, so the request is part of the order.
+    if (body?.earlyStartRequested !== true) {
+        return NextResponse.json(
+            { error: 'Bitte bestätige zuerst den sofortigen Beginn der Freischaltung.' },
+            { status: 400 },
+        )
+    }
+
     if (!stripeSecretKey || !stripePriceId) {
         return NextResponse.json(
             { error: 'Stripe ist nicht vollständig konfiguriert (STRIPE_SECRET_KEY / STRIPE_PRICE_ID).' },
@@ -65,6 +78,8 @@ export async function POST() {
     const metadata: Record<string, string> = {
         user_id: user.id,
         entitlement: 'lifetime_access',
+        early_start_requested_at: new Date().toISOString(),
+        early_start_text_version: EARLY_START_TEXT_VERSION,
     }
     if (attribution.postId) metadata.seo_post_id = attribution.postId.slice(0, 500)
     if (attribution.slug) metadata.seo_slug = attribution.slug.slice(0, 500)
@@ -73,6 +88,8 @@ export async function POST() {
 
     const session = await stripe.checkout.sessions.create({
         mode: 'payment',
+        locale: 'de',
+        submit_type: 'pay',
         line_items: [
             {
                 price: stripePriceId,

@@ -7,6 +7,7 @@ import { Metadata } from 'next'
 import Link from 'next/link'
 import { LoginForm } from '@/components/forms/LoginForm'
 import { SocialLogin } from '@/components/auth/SocialLogin'
+import { googleAuthEnabled } from '@/lib/auth-providers'
 
 export const metadata: Metadata = {
   title: 'Anmelden',
@@ -50,20 +51,22 @@ export default function LoginPage({
       {/* Login Form */}
       <LoginForm redirectTo={searchParams.redirect} />
 
-      {/* Divider */}
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full" style={{ borderTop: '1px solid var(--border)' }} />
-        </div>
-        <div className="relative flex justify-center text-sm">
-          <span className="px-4" style={{ backgroundColor: 'var(--bg)', color: 'var(--text-muted)' }}>oder</span>
-        </div>
-      </div>
+      {googleAuthEnabled && (
+        <>
+          <div className="relative">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full" style={{ borderTop: '1px solid var(--border)' }} />
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-4" style={{ backgroundColor: 'var(--bg)', color: 'var(--text-muted)' }}>oder</span>
+            </div>
+          </div>
 
-      {/* OAuth Buttons */}
-      <div className="space-y-3">
-        <SocialLogin />
-      </div>
+          <div className="space-y-3">
+            <SocialLogin />
+          </div>
+        </>
+      )}
 
       {/* Register Link */}
       <p className="text-center text-sm" style={{ color: 'var(--text-secondary)' }}>

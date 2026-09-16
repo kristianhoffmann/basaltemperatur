@@ -22,7 +22,11 @@ export function UpgradeBanner() {
         setLoading(true)
         setError(null)
         try {
-            const res = await fetch('/api/checkout', { method: 'POST' })
+            const res = await fetch('/api/checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ earlyStartRequested: true }),
+            })
             const data = await res.json()
             if (data.url) {
                 window.location.href = data.url
@@ -84,8 +88,8 @@ export function UpgradeBanner() {
                 />
                 <span>
                     Ich verlange ausdrücklich, dass die Freischaltung sofort und vor Ablauf der
-                    Widerrufsfrist erfolgt. Mir ist bekannt, dass ich bei einem Widerruf anteiligen
-                    Wertersatz für den bereits genutzten Zeitraum schulde. Mein{' '}
+                    Widerrufsfrist erfolgt. Mir ist bekannt, dass ich bei einem Widerruf einen
+                    anteiligen Betrag für den bis dahin bereitgestellten Zeitraum schulde. Mein{' '}
                     <a href="/widerruf" target="_blank" rel="noreferrer" className="underline">
                         Widerrufsrecht
                     </a>{' '}

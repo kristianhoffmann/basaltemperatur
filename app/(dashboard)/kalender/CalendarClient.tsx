@@ -1,5 +1,5 @@
 // app/(dashboard)/kalender/CalendarClient.tsx
-// Client-seitige Kalender-Komponente mit Fruchtbarkeitsfenster
+// Client-seitige Kalender-Komponente mit Zyklusphasen
 'use client'
 
 import { useState, useMemo, type CSSProperties } from 'react'
@@ -204,11 +204,11 @@ export function CalendarClient({
                         </span>
                         <span className="flex items-center gap-1.5">
                             <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(209, 250, 229, 0.12)', borderColor: 'rgba(16, 185, 129, 0.25)' }} />
-                            Fruchtbare Tage
+                            Vor Zyklusmitte
                         </span>
                         <span className="flex items-center gap-1.5">
                             <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(254, 243, 199, 0.12)', borderColor: 'rgba(245, 158, 11, 0.25)' }} />
-                            Peak ⚡
+                            Zyklusmitte ⚡
                         </span>
                     </>
                 )}
@@ -220,12 +220,12 @@ export function CalendarClient({
 
             {!hasLifetimeAccess && (
                 <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Prognosen zu fruchtbaren Tagen, Peak und Periode sind im Vollzugang enthalten.
+                    Perioden- und Zyklusprognosen sind im Vollzugang enthalten.
                 </div>
             )}
             {hasLifetimeAccess && !predictionBaselineReady && (
                 <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen.
+                    Zyklus- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen.
                     Aktuell auswertbar: {completedCycleCount}.
                 </div>
             )}

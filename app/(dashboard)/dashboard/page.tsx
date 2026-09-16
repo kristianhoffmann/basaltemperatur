@@ -223,7 +223,7 @@ export default async function DashboardPage() {
                 Prognosen bleiben ausgeblendet
               </p>
               <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
-                Fruchtbarkeits- und Periodenprognosen erscheinen erst, wenn die Datenbasis belastbar genug ist.
+                Zyklus- und Periodenprognosen erscheinen erst, wenn die Datenbasis belastbar genug ist.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {predictionReadiness.reasons.map((reason) => (
@@ -256,12 +256,10 @@ export default async function DashboardPage() {
                   {fertilityStatus === 'peak' ? '⚡' : '🔥'}
                 </span>
                 <p className="font-bold text-sm mt-1.5" style={{ color: fertilityStatus === 'peak' ? '#b45309' : '#047857' }}>
-                  {fertilityStatus === 'peak' ? 'Peak-Fruchtbarkeit (Prognose)' : 'Fruchtbares Fenster (Prognose)'}
+                  {fertilityStatus === 'peak' ? 'Zyklusmitte (Prognose)' : 'Vor der Zyklusmitte (Prognose)'}
                 </p>
                 <p className="text-xs mt-0.5" style={{ color: fertilityStatus === 'peak' ? '#92400e' : '#065f46' }}>
-                  {fertilityStatus === 'peak'
-                    ? 'Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen'
-                    : 'Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen'}
+                  Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen
                 </p>
               </div>
             </div>
@@ -296,7 +294,7 @@ export default async function DashboardPage() {
           <div className="text-center pb-2 pt-2 px-4">
             <p className="text-xs text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
               <strong>Hinweis:</strong> Eine temperaturbasierte Auswertung kann einen Anstieg erst rückblickend bestätigen.
-              Prognosen zu fruchtbaren Tagen und Periode sind Schätzungen und können abweichen.
+              Angezeigte Zyklusphasen und Periodenprognosen sind Schätzungen und können abweichen.
               Diese App dient <u>nicht</u> zur Verhütung und ersetzt keinen ärztlichen Rat.
             </p>
           </div>

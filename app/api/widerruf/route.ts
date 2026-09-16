@@ -1,8 +1,9 @@
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { createHash } from 'node:crypto'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import { formatDeclarationSummary, validateWithdrawal } from '@/lib/withdrawal'
 import { sendWithdrawalAcknowledgement } from '@/lib/withdrawal-mail'
+import { anonymizeIp, pruneExpiredRecords } from '@/lib/retention'
 
 /**
  * POST /api/widerruf — die elektronische Widerrufsfunktion nach § 356a BGB.
@@ -31,10 +32,17 @@ function checkRateLimit(key: string): boolean {
     return true
 }
 
-function clientKey(request: Request): string {
+function clientIp(request: Request): string {
     const forwarded = request.headers.get('x-forwarded-for') ?? ''
-    const ip = forwarded.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown'
-    return createHash('sha256').update(ip).digest('hex').slice(0, 32)
+    return forwarded.split(',')[0]?.trim() || request.headers.get('x-real-ip') || 'unknown'
+}
+
+function clientKey(request: Request): string {
+    return createHash('sha256').update(clientIp(request)).digest('hex').slice(0, 32)
+}
+
+function storedIpHash(request: Request): string {
+    return createHash('sha256').update(anonymizeIp(clientIp(request))).digest('hex').slice(0, 32)
 }
 
 export async function POST(request: Request) {
@@ -81,7 +89,7 @@ export async function POST(request: Request) {
             contract_date: declaration.contractDate,
             message: declaration.message,
             receipt_summary: summary,
-            source_ip_hash: clientKey(request),
+            source_ip_hash: storedIpHash(request),
             user_agent: request.headers.get('user-agent')?.slice(0, 300) ?? null,
         })
         .select('id')
@@ -108,6 +116,8 @@ export async function POST(request: Request) {
         .from('withdrawal_declarations')
         .update({ acknowledgement_sent: sent.ok, acknowledgement_error: sent.ok ? null : sent.code })
         .eq('id', data.id)
+
+    after(() => pruneExpiredRecords(supabase))
 
     return NextResponse.json({
         ok: true,

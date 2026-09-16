@@ -27,7 +27,7 @@ const SignUpSchema = z.object({
   companyName: z.string().optional(),
   ownerName: z.string().min(1, 'Bitte gib deinen Namen ein.'),
   termsAccepted: z.literal('true', {
-    errorMap: () => ({ message: 'Bitte akzeptiere die AGB und Datenschutzrichtlinien.' }),
+    errorMap: () => ({ message: 'Bitte akzeptiere die AGB.' }),
   }),
   sensitiveDataConsent: z.literal('true', {
     errorMap: () => ({ message: 'Bitte willige in die Verarbeitung deiner Gesundheitsdaten ein.' }),

@@ -36,3 +36,9 @@ export async function POST(req: NextRequest) {
   })
   return res
 }
+
+export async function DELETE() {
+  const res = NextResponse.json({ ok: true })
+  res.cookies.delete(COOKIE_NAME)
+  return res
+}

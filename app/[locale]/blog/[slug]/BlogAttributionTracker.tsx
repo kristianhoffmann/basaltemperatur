@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import { useStatisticsConsent } from '@/lib/analytics-consent'
 
 interface Props {
   postId: string
@@ -9,7 +10,11 @@ interface Props {
 }
 
 export function BlogAttributionTracker({ postId, slug, locale }: Props) {
+  const consent = useStatisticsConsent()
+
   useEffect(() => {
+    // The attribution cookie is marketing measurement, not strictly necessary (§ 25 TDDDG).
+    if (consent !== 'granted') return
     const params = new URLSearchParams(window.location.search)
     const keyword = params.get('kw') ?? undefined
 
@@ -18,7 +23,7 @@ export function BlogAttributionTracker({ postId, slug, locale }: Props) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ postId, slug, locale, keyword }),
     }).catch(() => {})
-  }, [postId, slug, locale])
+  }, [postId, slug, locale, consent])
 
   return null
 }

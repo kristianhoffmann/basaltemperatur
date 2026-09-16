@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { createHmac } from 'crypto'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { isConfiguredAdminEmail } from '@/lib/adminAccess'
@@ -11,6 +11,7 @@ import {
   toNumber,
   truncate,
 } from '@/lib/traffic'
+import { pruneExpiredRecords } from '@/lib/retention'
 
 export const dynamic = 'force-dynamic'
 
@@ -130,6 +131,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error('traffic insert failed', error.message)
     }
+    after(() => pruneExpiredRecords(admin))
   } catch (error) {
     console.error('traffic route failed', error)
   }

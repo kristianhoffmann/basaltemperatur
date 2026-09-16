@@ -140,6 +140,18 @@ export default async function SettingsPage() {
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Support</span>
                         <Link href="/support" className="text-sm font-medium text-rose-400 hover:underline">Kontakt</Link>
                     </div>
+                    <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>AGB</span>
+                        <Link href="/agb" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</Link>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Widerrufsbelehrung</span>
+                        <Link href="/widerruf" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</Link>
+                    </div>
+                    <div className="flex justify-between items-center py-2 border-b border-[var(--border-subtle)]">
+                        <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Kauf widerrufen</span>
+                        <Link href="/widerruf-ausueben" className="text-sm font-semibold text-rose-500 hover:underline">Vertrag widerrufen</Link>
+                    </div>
                     <div className="flex justify-between items-center py-2">
                         <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Impressum</span>
                         <Link href="/impressum" className="text-sm font-medium text-rose-400 hover:underline">Ansehen</Link>

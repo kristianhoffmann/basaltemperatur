@@ -60,6 +60,13 @@
    ============================================================ */
 
 @layer base {
+  /* The blurred decorative orbs widen the layout viewport on phones even inside
+     overflow:hidden sections. clip (unlike hidden) keeps position: sticky working. */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
   html {
     scroll-behavior: smooth;
   }
@@ -137,18 +144,6 @@
     align-items: center;
     gap: 12px;
     padding: 28px 24px 24px;
-  }
-
-  .sidebar-logo-icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 12px;
-    background: linear-gradient(135deg, var(--rose) 0%, var(--violet) 100%);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: var(--glow-rose);
-    font-size: 16px;
   }
 
   .sidebar-logo-text {

@@ -1,257 +1,329 @@
 import { Metadata } from 'next';
+import Link from 'next/link';
 import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
-import { AnalyticsOptOut } from '@/app/(legal)/AnalyticsOptOut';
+import { StatisticsConsentSettings } from '@/app/(legal)/StatisticsConsentSettings';
 import {
   getLegalCompany,
   getLegalInfrastructure,
   getMissingCompanyFields,
   LEGAL_LAST_UPDATED,
 } from '@/app/(legal)/legalConfig';
+import { TRAFFIC_RETENTION_MONTHS, WITHDRAWAL_RETENTION_YEARS } from '@/lib/retention';
 
 // ============================================================================
 // DATENSCHUTZERKLÄRUNG
-// DSGVO-konforme Datenschutzerklärung für Basaltemperatur App
 // Besonderheit: Verarbeitung von Gesundheitsdaten (Art. 9 DSGVO)
-// Infrastrukturangaben werden aus Environment-Variablen gezogen
+// Jede Verarbeitung hier muss es im Code geben und umgekehrt — beim Einbau eines
+// neuen Dienstes, Cookies oder Speicher-Keys diese Seite mitziehen.
 // ============================================================================
 
 export const metadata: Metadata = {
-  title: 'Datenschutzerklärung – Basaltemperatur',
+  title: 'Datenschutzerklärung',
   description: 'Informationen zum Datenschutz und zur Verarbeitung Ihrer personenbezogenen Daten',
   alternates: {
     canonical: '/datenschutz',
   },
 };
 
+const STORAGE_ROWS: Array<[name: string, kind: string, purpose: string, basis: string, duration: string]> = [
+  ['sb-…-auth-token', 'Cookie', 'Anmeldung und Sitzung', 'notwendig', 'bis zur Abmeldung bzw. Ablauf der Sitzung'],
+  ['bt_statistics_consent_v2', 'Local Storage', 'speichert Ihre Auswahl zur Statistik', 'notwendig', 'bis Sie den Browser-Speicher löschen'],
+  ['theme, notification-*, pwa-install-dismissed', 'Local Storage', 'Darstellung, selbst gewählte Erinnerungen, ausgeblendete Hinweise', 'notwendig', 'bis Sie den Browser-Speicher löschen'],
+  ['Service-Worker-Cache', 'Cache Storage', 'schnelleres Laden und Offline-Seite', 'notwendig', 'bis zur nächsten App-Version'],
+  ['bt_visitor_id', 'Local Storage', 'pseudonyme Besucherkennung der eigenen Statistik', 'Einwilligung', 'bis zum Widerruf oder Löschen des Browser-Speichers'],
+  ['bt_session_id, bt_last_url', 'Session Storage', 'Sitzungskennung und vorherige Seite der eigenen Statistik', 'Einwilligung', 'bis zum Schließen des Tabs'],
+  ['seo_autopilot_attribution', 'Cookie', 'merkt sich, über welchen Blogartikel Sie gekommen sind', 'Einwilligung', '30 Tage'],
+  ['_ga, _ga_*', 'Cookie', 'Google Analytics', 'Einwilligung', 'bis zu 2 Jahre'],
+];
+
 export default function DatenschutzPage() {
   const company = getLegalCompany();
   const infrastructure = getLegalInfrastructure();
   const missingFields = getMissingCompanyFields(company);
+  const mail = <a href={`mailto:${company.email}`}>{company.email}</a>;
 
   return (
     <>
       <h1>Datenschutzerklärung</h1>
       <LegalDataWarning missingFields={missingFields} />
 
-      <h2>1. Datenschutz auf einen Blick</h2>
-
-      <h3>Allgemeine Hinweise</h3>
-      <p>
-        Die folgenden Hinweise geben einen einfachen Überblick darüber, was mit Ihren
-        personenbezogenen Daten passiert, wenn Sie die Basaltemperatur App nutzen.
-        Personenbezogene Daten sind alle Daten, mit denen Sie persönlich identifiziert
-        werden können.
-      </p>
-
-      <h3>Datenerfassung in dieser App</h3>
-      <p><strong>Wer ist verantwortlich für die Datenerfassung?</strong></p>
-      <p>
-        Die Datenverarbeitung erfolgt durch den Betreiber der App. Dessen
-        Kontaktdaten können Sie dem Abschnitt „Verantwortliche Stelle“ in dieser
-        Datenschutzerklärung entnehmen.
-      </p>
-
-      <p><strong>Welche Daten werden erfasst?</strong></p>
-      <p>
-        Bei der Nutzung dieser App werden insbesondere folgende Daten verarbeitet:
-      </p>
-      <ul>
-        <li><strong>Registrierungsdaten:</strong> Name, E-Mail-Adresse, Passwort-Hash</li>
-        <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte, Periodendaten (Datum, Stärke), Zyklusnotizen</li>
-        <li><strong>Nutzungsdaten:</strong> Zykluseinstellungen, Profilpräferenzen</li>
-        <li><strong>Technische Daten:</strong> IP-Adresse, Browsertyp, Zugriffszeiten (Server-Logs)</li>
-        <li><strong>Nutzungsanalyse:</strong> besuchte Seiten, Referrer, Geräte-/Browserdaten, Sprache, Zeitzone, pseudonyme Besucher- und Sitzungskennungen</li>
-      </ul>
-
-      <p><strong>Wofür nutzen wir Ihre Daten?</strong></p>
-      <p>
-        Ihre Daten werden ausschließlich zur Bereitstellung der App-Funktionen verwendet:
-        Temperaturkurve, rückblickende Auswertung von Temperaturanstiegen, Zyklusstatistiken
-        und Periodenvorhersagen.
-        Es erfolgt <strong>keine</strong> Weitergabe an Dritte zu Werbezwecken.
-      </p>
-
-      <h2>2. Besondere Kategorien personenbezogener Daten (Art. 9 DSGVO)</h2>
-      <p>
-        Die Basaltemperatur App verarbeitet <strong>Gesundheitsdaten</strong>, die nach
-        Art. 9 Abs. 1 DSGVO zu den besonderen Kategorien personenbezogener Daten gehören.
-        Hierzu zählen:
-      </p>
-      <ul>
-        <li>Basaltemperaturmessungen</li>
-        <li>Periodendaten (Datum und Intensität der Blutung)</li>
-        <li>Zyklusbezogene Notizen (z.B. Krankheit, Schlafstörungen)</li>
-        <li>Daraus abgeleitete Informationen (Temperaturanstiege, Zyklusphase, statistische Fruchtbarkeitsfenster)</li>
-      </ul>
-      <p>
-        Die Verarbeitung erfolgt ausschließlich auf Grundlage Ihrer <strong>ausdrücklichen
-          Einwilligung</strong> gemäß Art. 9 Abs. 2 lit. a DSGVO, die Sie bei der Registrierung
-        erteilen. Sie können diese Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen,
-        indem Sie in den Einstellungen die Einwilligung widerrufen, Ihr Konto löschen oder
-        uns per E-Mail kontaktieren.
-      </p>
-
-      <h2>3. Hosting und Datenspeicherung</h2>
-
-      <h3>Webhosting</h3>
-      <p>
-        Die Web-App wird bei <strong>{infrastructure.webProvider}</strong> gehostet.
-        Datenstandort: <strong>{infrastructure.webLocation}</strong>.
-      </p>
-      <p>
-        Beim Zugriff auf die Website werden automatisch technische Daten in Server-Log-Dateien
-        erfasst (IP-Adresse, Browsertyp, Zugriffszeit). Diese Daten werden nicht mit anderen
-        Datenquellen zusammengeführt.
-      </p>
-
-      <h3>Datenbank</h3>
-      <p>
-        Ihre Nutzerdaten (Registrierung, Temperatureinträge, Periodendaten) werden in einer
-        Datenbank bei <strong>{infrastructure.dbProvider}</strong> gespeichert.
-        Datenstandort: <strong>{infrastructure.dbLocation}</strong>.
-      </p>
-      <p>
-        Sofern ein Anbieter Daten außerhalb der EU/des EWR verarbeitet, erfolgt dies nur
-        auf Basis geeigneter Garantien gemäß Art. 44 ff. DSGVO (z.B. EU-Standardvertragsklauseln).
-      </p>
-      <p>
-        Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung) und
-        Art. 28 DSGVO (Auftragsverarbeitung).
-      </p>
-
-      <h2>4. Ihre Rechte</h2>
-      <p>Ihnen stehen folgende Rechte zu:</p>
-      <ul>
-        <li><strong>Auskunftsrecht (Art. 15 DSGVO):</strong> Sie können Auskunft über Ihre gespeicherten Daten verlangen.</li>
-        <li><strong>Recht auf Berichtigung (Art. 16 DSGVO):</strong> Sie können die Berichtigung unrichtiger Daten verlangen.</li>
-        <li><strong>Recht auf Löschung (Art. 17 DSGVO):</strong> Sie können die Löschung Ihrer Daten verlangen. Die Konto-Löschung ist direkt in der App unter „Einstellungen“ möglich.</li>
-        <li><strong>Recht auf Einschränkung (Art. 18 DSGVO):</strong> Sie können die Einschränkung der Verarbeitung verlangen.</li>
-        <li><strong>Recht auf Datenübertragbarkeit (Art. 20 DSGVO):</strong> Sie können Ihre Daten in einem maschinenlesbaren Format erhalten.</li>
-        <li><strong>Widerspruchsrecht (Art. 21 DSGVO):</strong> Sie können der Verarbeitung Ihrer Daten widersprechen.</li>
-        <li><strong>Widerruf der Einwilligung:</strong> Die Einwilligung zur Verarbeitung von Gesundheitsdaten kann jederzeit widerrufen werden.</li>
-      </ul>
-      <p>
-        Zur Ausübung Ihrer Rechte wenden Sie sich bitte an: <span>{company.email.replace('@', ' [at] ')}</span>
-      </p>
-
-      <h2>5. Verantwortliche Stelle</h2>
-      <p>Die verantwortliche Stelle für die Datenverarbeitung ist:</p>
+      <h2>1. Verantwortlicher</h2>
       <p>
         {company.name}<br />
         {company.street}<br />
-        {company.city}
+        {company.city}<br />
+        {company.country}<br />
+        E-Mail: {mail}
       </p>
       <p>
-        E-Mail: <span>{company.email.replace('@', ' [at] ')}</span>
-      </p>
-
-      <h2>6. Registrierung und Benutzerkonto</h2>
-      <p>
-        Bei der Registrierung erheben wir Ihren Namen, Ihre E-Mail-Adresse und ein
-        selbstgewähltes Passwort. Das Passwort wird ausschließlich als kryptografischer
-        Hash gespeichert. Wir haben keinen Zugriff auf Ihr Klartext-Passwort.
-      </p>
-      <p>
-        Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
+        Ein Datenschutzbeauftragter ist nicht benannt, da keine gesetzliche Pflicht dazu besteht.
+        Bei Fragen zum Datenschutz schreiben Sie uns einfach an die oben genannte Adresse.
       </p>
 
-      <h2>7. Cookies</h2>
+      <h2>2. Überblick</h2>
+      <p>Bei der Nutzung von Website und App verarbeiten wir insbesondere:</p>
+      <ul>
+        <li><strong>Kontodaten:</strong> Name, E-Mail-Adresse, Passwort-Hash, Zeitpunkte von Registrierung, Anmeldung und Einwilligungen</li>
+        <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte, Periodendaten, Zyklusnotizen und daraus berechnete Auswertungen</li>
+        <li><strong>Kaufdaten:</strong> Freischaltungsstatus, Zahlungsreferenz, Zeitpunkt Ihres Verlangens nach sofortigem Beginn</li>
+        <li><strong>Technische Daten:</strong> IP-Adresse, Browser- und Geräteangaben, Zugriffszeiten (Server-Logs)</li>
+        <li><strong>Statistikdaten</strong> – nur mit Ihrer Einwilligung, siehe Abschnitt 9</li>
+      </ul>
       <p>
-        Die App verwendet technisch notwendige Cookies für die Session-Verwaltung
-        (Anmeldestatus). Für die unten beschriebene Nutzungsanalyse werden keine
-        Drittanbieter-Cookies gesetzt; die pseudonyme Besucherkennung wird im lokalen
-        Browser-Speicher gespeichert.
-      </p>
-      <p>
-        Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der
-        technischen Funktionsfähigkeit).
-      </p>
-
-      <h2>8. Nutzungsanalyse</h2>
-      <p>
-        Wir erfassen einfache technische Nutzungsdaten, um Fehler, Reichweite und
-        Nutzung der App nachvollziehen zu können. Dabei werden insbesondere Seitenpfad,
-        vollständige URL, Referrer, Seitentitel, Sprache, Zeitzone, Bildschirmgröße,
-        Browser-/Betriebssysteminformationen, pseudonyme Besucher- und Sitzungskennungen
-        sowie ein gehashter IP-Wert verarbeitet. Die Analyse erfolgt auf unserer eigenen
-        Infrastruktur und nicht zu Werbezwecken.
-      </p>
-      <p>
-        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Unser berechtigtes Interesse
-        liegt im sicheren und wirtschaftlichen Betrieb der App. Sie können die
-        Nutzungsanalyse für diesen Browser deaktivieren; außerdem respektiert die App
-        die Browser-Einstellung „Do Not Track“, sofern sie gesetzt ist.
-      </p>
-      <p>
-        In der iOS-App wird diese Nutzungsanalyse nur gesendet, wenn Sie sie in den
-        Einstellungen ausdrücklich aktivieren. Sie können diese Einstellung dort
-        jederzeit wieder deaktivieren.
-      </p>
-      <AnalyticsOptOut />
-
-      <h2>8a. Google Analytics 4</h2>
-      <p>
-        Zusätzlich nutzen wir Google Analytics 4 (Google Ireland Limited, Gordon House,
-        Barrow Street, Dublin 4, Irland) ausschließlich nach vorheriger Einwilligung.
-        Ohne Einwilligung wird der Google-Analytics-Tag nicht geladen. Nach Zustimmung
-        verarbeitet Google insbesondere Seitenaufrufe, technische Geräteinformationen,
-        Referrer, ungefähre Standortdaten und pseudonyme Nutzungskennungen. Google Analytics
-        speichert laut Google keine einzelnen IP-Adressen von EU-Nutzern.
-      </p>
-      <p>
-        Rechtsgrundlage ist Art. 6 Abs. 1 lit. a DSGVO in Verbindung mit § 25 Abs. 1 TDDDG.
-        Die Einwilligung kann durch Löschen der lokalen Browser-Auswahl oder über künftige
-        Consent-Einstellungen widerrufen werden.
+        Wir verwenden Ihre Daten, um die App bereitzustellen, Käufe abzuwickeln, den Betrieb
+        abzusichern und – nur mit Einwilligung – die Nutzung auszuwerten. Wir verkaufen keine
+        Daten und geben sie nicht zu Werbezwecken weiter. Eine automatisierte
+        Entscheidungsfindung im Sinne von Art. 22 DSGVO findet nicht statt; Zyklusauswertungen
+        und Prognosen sind rein rechnerische Anzeigen ohne rechtliche Wirkung für Sie.
       </p>
 
-      <h2>8b. GitHub</h2>
+      <h2>3. Gesundheitsdaten (Art. 9 DSGVO)</h2>
       <p>
-        Der Quellcode wird über GitHub verwaltet. GitHub verarbeitet dabei ausschließlich
-        technische Account-, Repository- und Versionsdaten der Entwicklung, jedoch
-        <strong> keine</strong> Inhaltsdaten aus Ihrem Nutzerkonto. Ihre in der App
-        gespeicherten Daten verlassen den Server in Deutschland hierfür nicht.
+        Basaltemperatur, Periodendaten (Datum und Stärke der Blutung), Zyklusnotizen (z. B.
+        Krankheit, Schlafstörungen) und die daraus berechneten Angaben (Temperaturanstiege,
+        Zyklusphasen, Prognosen) sind Gesundheitsdaten. Wir verarbeiten sie ausschließlich auf
+        Grundlage Ihrer <strong>ausdrücklichen Einwilligung</strong> nach Art. 9 Abs. 2 lit. a
+        DSGVO, die Sie bei der Registrierung bzw. beim ersten Einrichten der App gesondert
+        erteilen. Zeitpunkt und Fassung der Einwilligung speichern wir als Nachweis.
+      </p>
+      <p>
+        Sie können die Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen – in den
+        Einstellungen der App, durch Löschen Ihres Kontos oder per E-Mail. Danach können keine
+        neuen Einträge mehr gespeichert werden. Ihre Gesundheitsdaten werden nur für die
+        Funktionen der App verwendet und nicht an Dritte weitergegeben.
       </p>
 
-      <h2>9. Zahlungsdienstleister</h2>
+      <h2>4. Hosting, Datenbank und Server-Logs</h2>
+      <p>
+        Website, App-Backend und Datenbank laufen bei <strong>{infrastructure.webProvider}</strong>{' '}
+        ({infrastructure.webLocation}). Mit Hostinger besteht ein Vertrag zur
+        Auftragsverarbeitung nach Art. 28 DSGVO. Die Datenbank betreiben wir selbst
+        ({infrastructure.dbProvider}); Datenstandort: {infrastructure.dbLocation}.
+      </p>
+      <p>
+        Bei jedem Aufruf speichert unser Webserver ein Zugriffsprotokoll mit vollständiger
+        IP-Adresse, Datum und Uhrzeit, aufgerufener Adresse, Referrer, Browserkennung
+        (User-Agent) und Statuscode. Das dient dem sicheren Betrieb, der Fehlersuche und der
+        Erkennung von Missbrauch sowie automatisierter Zugriffe (z. B. Suchmaschinen- und
+        KI-Crawler). Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO. Die Protokolle werden nach
+        spätestens 90 Tagen automatisch gelöscht und nicht mit anderen Daten zusammengeführt.
+      </p>
 
-      <h3>Stripe</h3>
+      <h2>5. Registrierung und Benutzerkonto</h2>
       <p>
-        Für die Zahlungsabwicklung nutzen wir Stripe (Stripe Payments Europe, Ltd.,
-        1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irland).
-        Bei der Zahlung werden Ihre Zahlungsdaten direkt an Stripe übermittelt.
-        Wir speichern <strong>keine</strong> Kreditkartennummern oder Bankdaten.
+        Für ein Konto benötigen wir Ihren Namen, Ihre E-Mail-Adresse und ein Passwort, das nur
+        als kryptografischer Hash gespeichert wird. Ohne diese Angaben ist keine Nutzung
+        möglich. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO. Die Daten bleiben gespeichert,
+        solange Ihr Konto besteht.
+      </p>
+
+      <h2>6. E-Mail-Versand (Brevo)</h2>
+      <p>
+        Kontobezogene E-Mails (z. B. Passwort zurücksetzen) und die Eingangsbestätigung eines
+        Widerrufs versenden wir über Brevo (Sendinblue SAS, 17 rue de Salneuve, 75017 Paris,
+        Frankreich; deutsche Niederlassung: Brevo GmbH, Köpenicker Str. 126, 10179 Berlin).
+        Dabei werden E-Mail-Adresse, Name, Inhalt der Nachricht sowie Versand- und
+        Zustellinformationen verarbeitet. Brevo handelt als Auftragsverarbeiter nach Art. 28
+        DSGVO. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, für die Widerrufsbestätigung
+        Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit § 356a BGB.
+      </p>
+
+      <h2>7. Kauf in der Webanwendung (Stripe)</h2>
+      <p>
+        Zahlungen in der Webanwendung wickelt Stripe ab (Stripe Payments Europe, Ltd.,
+        1 Grand Canal Street Lower, Grand Canal Dock, Dublin, D02 H210, Irland). Ihre
+        Zahlungsdaten geben Sie direkt bei Stripe ein; wir speichern keine Kartennummern oder
+        Bankdaten. An Stripe übermitteln wir Ihre E-Mail-Adresse, eine interne Nutzerkennung zur
+        Zuordnung der Freischaltung, den Zeitpunkt, zu dem Sie den sofortigen Beginn verlangt
+        haben, und – nur wenn Sie der Statistik zugestimmt haben – den Blogartikel, über den Sie
+        gekommen sind. Stripe verarbeitet Zahlungsdaten zur Betrugsprävention und wegen
+        gesetzlicher Pflichten auch in eigener Verantwortung und kann dabei Daten in die USA
+        übermitteln (Stripe, Inc. ist nach dem EU-U.S. Data Privacy Framework zertifiziert).
       </p>
       <p>
-        Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Vertragserfüllung).
-      </p>
-      <p>
-        Datenschutzerklärung von Stripe:{' '}
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b und c DSGVO. Kaufbelege bewahren wir nach
+        § 147 AO und § 257 HGB bis zu 10 Jahre auf. Datenschutzerklärung von Stripe:{' '}
         <a href="https://stripe.com/de/privacy" target="_blank" rel="noopener noreferrer">
-          https://stripe.com/de/privacy
+          stripe.com/de/privacy
         </a>
       </p>
 
-      <h2>10. Speicherdauer</h2>
+      <h2>8. iOS-App und Käufe über Apple</h2>
       <p>
-        Ihre Gesundheitsdaten werden gespeichert, solange Ihr Benutzerkonto besteht.
-        Bei Löschung Ihres Kontos werden alle personenbezogenen Daten einschließlich
-        Temperatureinträge und Periodendaten unwiderruflich gelöscht.
+        Käufe in der iOS-App laufen über den App Store von Apple (Apple Distribution
+        International Ltd., Hollyhill Industrial Estate, Hollyhill, Cork, Irland), das dafür
+        eigenverantwortlich handelt. Wir erhalten von Apple nur signierte Kaufinformationen
+        (Transaktionskennung, Produkt, Kaufzeitpunkt, Status), um die Analyse freizuschalten –
+        keine Zahlungsdaten. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO.
       </p>
       <p>
-        Steuer- und handelsrechtliche Aufbewahrungspflichten (z.B. für Rechnungsdaten)
-        bleiben hiervon unberührt (Aufbewahrungsfrist: bis zu 10 Jahre).
+        Die iOS-App sendet Nutzungsstatistik (siehe Abschnitt 9) nur, wenn Sie das in den
+        Einstellungen der App ausdrücklich einschalten; Sie können es dort jederzeit wieder
+        ausschalten.
       </p>
 
-      <h2>11. Beschwerderecht bei der Aufsichtsbehörde</h2>
+      <h2 id="statistik">9. Statistik und Reichweitenmessung (nur mit Einwilligung)</h2>
       <p>
-        Wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten
-        gegen die DSGVO verstößt, haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde
-        zu beschweren. Sie können sich insbesondere an die Aufsichtsbehörde Ihres Wohnsitzes,
-        Ihres Arbeitsplatzes oder des Orts des mutmaßlichen Verstoßes wenden.
+        Nur wenn Sie im Einwilligungsbanner „Statistik erlauben“ wählen, setzen wir die folgenden
+        Verfahren ein. Ohne Einwilligung wird dafür nichts in Ihrem Browser gespeichert oder
+        ausgelesen und nichts übertragen. Rechtsgrundlage ist § 25 Abs. 1 TDDDG in Verbindung
+        mit Art. 6 Abs. 1 lit. a DSGVO.
+      </p>
+      <h3>Eigene Statistik</h3>
+      <p>
+        Auf unserem eigenen Server erfassen wir Seitenpfad und Adresse (ohne sensible
+        Parameter), Seitentitel, Referrer, Kampagnenparameter, Sprache, Zeitzone, Bildschirm- und
+        Fenstergröße, Farbschema, Verbindungstyp, Browser- und Geräteangaben, eine pseudonyme
+        Besucher- und Sitzungskennung, bei angemeldeten Personen die Nutzerkennung sowie einen
+        mit geheimem Schlüssel gebildeten Hashwert der IP-Adresse (die IP-Adresse selbst wird
+        dafür nicht gespeichert). Die Einträge werden nach {TRAFFIC_RETENTION_MONTHS} Monaten
+        gelöscht. Die Einstellung „Do Not Track“ Ihres Browsers wird zusätzlich beachtet.
+      </p>
+      <h3>Google Analytics 4</h3>
+      <p>
+        Anbieter ist Google Ireland Limited, Gordon House, Barrow Street, Dublin 4, Irland. Google
+        verarbeitet Seitenaufrufe, Geräte- und Browserangaben, Referrer, ungefähre Standortdaten
+        und pseudonyme Kennungen; Google Signals und Werbefunktionen sind deaktiviert. Dabei
+        können Daten an Google LLC in den USA übermittelt werden; Google LLC ist nach dem
+        EU-U.S. Data Privacy Framework zertifiziert (Art. 45 DSGVO). Daten auf Nutzer- und
+        Ereignisebene werden in Google Analytics höchstens 14 Monate aufbewahrt.
+        Datenschutzerklärung von Google:{' '}
+        <a href="https://policies.google.com/privacy" target="_blank" rel="noopener noreferrer">
+          policies.google.com/privacy
+        </a>
+      </p>
+      <h3>Zuordnung von Käufen zu Blogartikeln</h3>
+      <p>
+        Wenn Sie über einen Blogartikel kommen, merkt sich ein Cookie für 30 Tage den Artikel und
+        ggf. das Suchstichwort aus dem Link. Kaufen Sie in dieser Zeit, wird diese Angabe dem
+        Kauf bei Stripe beigefügt, und unser Redaktionssystem (Abschnitt 10) erhält eine
+        Zählmeldung ohne Personenbezug.
+      </p>
+      <h3>Einwilligung ändern oder widerrufen</h3>
+      <p>
+        Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen – hier
+        oder über „Cookie-Einstellungen“ im Seitenfuß. Beim Widerruf löschen wir die genannten
+        Kennungen und Cookies in Ihrem Browser.
+      </p>
+      <StatisticsConsentSettings />
+
+      <h2>10. Blog und Redaktionssystem</h2>
+      <p>
+        Blogartikel und ihre Bilder stammen aus unserem Redaktionssystem „SEO Autopilot“, das wir
+        selbst auf demselben Server in Deutschland betreiben. Die Bilder lädt Ihr Browser direkt
+        von der Adresse supabase.seoautopilot.cloud; dabei werden technisch bedingt IP-Adresse,
+        Browserkennung und die aufgerufene Seite übertragen und wie in Abschnitt 4 protokolliert.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO (Darstellung unserer Inhalte).
       </p>
       <p>
-        Für uns als Verantwortlichen ist zuständig: Die Landesbeauftragte für den
-        Datenschutz Niedersachsen, Prinzenstraße 5, 30159 Hannover.
+        Über dasselbe System verwalten wir unsere Apps. Dafür übermitteln wir für jedes Konto
+        E-Mail-Adresse, Registrierungsdatum, letzte Anmeldung und Freischaltungsstatus, damit wir
+        Support-Anfragen und Löschwünsche zentral bearbeiten können. Rechtsgrundlage ist Art. 6
+        Abs. 1 lit. b und f DSGVO.
+      </p>
+
+      <h2>11. Widerruf eines Kaufs über die Online-Funktion</h2>
+      <p>
+        Wenn Sie unter <Link href="/widerruf-ausueben">Vertrag widerrufen</Link> einen Widerruf
+        erklären, speichern wir Name, E-Mail-Adresse, Angaben zum Vertrag, Ihre Mitteilung,
+        Datum und Uhrzeit des Eingangs, die Browserkennung sowie einen Hashwert der gekürzten
+        IP-Adresse. Wir benötigen die Daten, um den Widerruf zu bearbeiten, Ihnen die gesetzlich
+        vorgeschriebene Eingangsbestätigung per E-Mail zu senden (Abschnitt 6) und den Eingang
+        nachweisen zu können. Rechtsgrundlage ist Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit
+        § 356a BGB sowie Art. 6 Abs. 1 lit. f DSGVO. Die Daten werden
+        {' '}{WITHDRAWAL_RETENTION_YEARS} Jahre nach Ende des Jahres ihres Eingangs gelöscht
+        (Verjährungsfrist) und auch bei einer Konto-Löschung bis dahin aufbewahrt.
+      </p>
+
+      <h2>12. Kontakt per E-Mail</h2>
+      <p>
+        Wenn Sie uns schreiben, verarbeiten wir Ihre Angaben, um die Anfrage zu beantworten.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, sofern es um Ihr Konto oder einen Kauf
+        geht, sonst Art. 6 Abs. 1 lit. f DSGVO. Wir löschen die Nachrichten, wenn die Anfrage
+        erledigt ist und keine Aufbewahrungspflichten bestehen.
+      </p>
+
+      <h2>13. Cookies und Speicher im Browser</h2>
+      <p>
+        Notwendige Einträge setzen wir auf Grundlage von § 25 Abs. 2 Nr. 2 TDDDG, weil die App
+        sonst nicht funktioniert oder Ihre Auswahl nicht behält (Art. 6 Abs. 1 lit. b und f
+        DSGVO). Alle übrigen Einträge setzen wir nur mit Ihrer Einwilligung (Abschnitt 9).
+      </p>
+      <div className="my-4 overflow-x-auto">
+        <table className="w-full min-w-[640px] border-collapse text-left text-sm">
+          <thead>
+            <tr className="border-b border-slate-300">
+              <th className="py-2 pr-3 font-semibold">Name</th>
+              <th className="py-2 pr-3 font-semibold">Art</th>
+              <th className="py-2 pr-3 font-semibold">Zweck</th>
+              <th className="py-2 pr-3 font-semibold">Grundlage</th>
+              <th className="py-2 font-semibold">Dauer</th>
+            </tr>
+          </thead>
+          <tbody>
+            {STORAGE_ROWS.map(([name, kind, purpose, basis, duration]) => (
+              <tr key={name} className="border-b border-slate-200 align-top">
+                <td className="py-2 pr-3 font-mono text-xs">{name}</td>
+                <td className="py-2 pr-3">{kind}</td>
+                <td className="py-2 pr-3">{purpose}</td>
+                <td className="py-2 pr-3">{basis}</td>
+                <td className="py-2">{duration}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      <h2>14. Empfänger und Drittländer</h2>
+      <p>
+        Personenbezogene Daten erhalten nur die in dieser Erklärung genannten Stellen: Hostinger
+        und Brevo als Auftragsverarbeiter, Stripe und Apple in eigener Verantwortung für die
+        Zahlungsabwicklung sowie – nur mit Einwilligung – Google. Eine Übermittlung in Drittländer
+        erfolgt nur bei Stripe und Google in die USA, jeweils auf Grundlage des EU-U.S. Data
+        Privacy Framework.
+      </p>
+      <p>
+        Den Quellcode verwalten wir bei GitHub. Dorthin gelangen keine Daten aus Ihrem
+        Benutzerkonto.
+      </p>
+
+      <h2>15. Speicherdauer im Überblick</h2>
+      <ul>
+        <li>Konto- und Gesundheitsdaten: bis zur Löschung Ihres Kontos, danach unwiderruflich gelöscht</li>
+        <li>Server-Logs: höchstens 90 Tage</li>
+        <li>Eigene Statistik: {TRAFFIC_RETENTION_MONTHS} Monate</li>
+        <li>Widerrufserklärungen: {WITHDRAWAL_RETENTION_YEARS} Jahre nach Ende des Eingangsjahres</li>
+        <li>Kaufbelege: bis zu 10 Jahre (§ 147 AO, § 257 HGB)</li>
+      </ul>
+
+      <h2>16. Ihre Rechte</h2>
+      <ul>
+        <li><strong>Auskunft (Art. 15 DSGVO)</strong> über Ihre gespeicherten Daten</li>
+        <li><strong>Berichtigung (Art. 16 DSGVO)</strong> unrichtiger Daten</li>
+        <li><strong>Löschung (Art. 17 DSGVO)</strong> – die Konto-Löschung ist direkt in den Einstellungen möglich</li>
+        <li><strong>Einschränkung der Verarbeitung (Art. 18 DSGVO)</strong></li>
+        <li><strong>Datenübertragbarkeit (Art. 20 DSGVO)</strong> in einem maschinenlesbaren Format</li>
+        <li><strong>Widerruf von Einwilligungen (Art. 7 Abs. 3 DSGVO)</strong> mit Wirkung für die Zukunft</li>
+      </ul>
+      <div className="my-4 rounded-lg border border-slate-300 bg-slate-50 p-4">
+        <p className="!mt-0 font-semibold">Widerspruchsrecht (Art. 21 DSGVO)</p>
+        <p className="!mb-0">
+          Soweit wir Daten auf Grundlage berechtigter Interessen (Art. 6 Abs. 1 lit. f DSGVO)
+          verarbeiten, können Sie aus Gründen, die sich aus Ihrer besonderen Situation ergeben,
+          jederzeit widersprechen. Wir verarbeiten die Daten dann nicht mehr, es sei denn, wir
+          können zwingende schutzwürdige Gründe nachweisen, die Ihre Interessen überwiegen, oder
+          die Verarbeitung dient der Geltendmachung, Ausübung oder Verteidigung von
+          Rechtsansprüchen.
+        </p>
+      </div>
+      <p>Zur Ausübung Ihrer Rechte genügt eine E-Mail an {mail}.</p>
+
+      <h2>17. Beschwerderecht bei einer Aufsichtsbehörde</h2>
+      <p>
+        Sie können sich bei jeder Datenschutz-Aufsichtsbehörde beschweren, insbesondere in dem
+        Mitgliedstaat Ihres Aufenthalts, Ihres Arbeitsplatzes oder des mutmaßlichen Verstoßes.
+        Für uns zuständig ist die Landesbeauftragte für den Datenschutz Niedersachsen,
+        Prinzenstraße 5, 30159 Hannover.
       </p>
 
       <hr className="my-8" />

@@ -21,6 +21,8 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { Logo } from '@/components/shared/Logo'
+import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
@@ -231,9 +233,7 @@ export default function LandingPage() {
         <nav className="relative z-20 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-5">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-400 to-violet-500 shadow-lg shadow-rose-500/20">
-                <span className="text-white text-sm">🌡️</span>
-              </div>
+              <Logo />
               <span className="font-bold text-white text-sm tracking-tight">Basaltemperatur</span>
             </div>
             <div className="hidden md:flex items-center gap-6">
@@ -244,22 +244,22 @@ export default function LandingPage() {
               <Link href="/de/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
               <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">App Store (bald)</a>
               <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Anmelden</Link>
-              <Link href="/registrieren">
-                <button className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">Kostenlos starten</button>
+              <Link href="/registrieren" className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">
+                Kostenlos starten
               </Link>
             </div>
             <div className="md:hidden flex flex-col items-end gap-2">
               <div className="flex items-center gap-3">
                 <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
-                <Link href="/registrieren">
-                  <button className="btn btn-sm text-white border border-white/15 bg-white/5">Kostenlos starten</button>
+                <Link href="/registrieren" className="btn btn-sm !px-3 text-white border border-white/15 bg-white/5">
+                  Kostenlos starten
                 </Link>
               </div>
               <a
                 href={appStoreInfoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70"
+                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/70"
               >
                 <Smartphone className="h-3.5 w-3.5" />
                 App Store bald verfügbar
@@ -633,9 +633,7 @@ export default function LandingPage() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
             <div>
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-xl flex items-center justify-center bg-gradient-to-br from-rose-400 to-violet-500 shadow-md">
-                  <span className="text-white text-[11px]">🌡️</span>
-                </div>
+                <Logo size="sm" />
                 <span className="font-bold text-sm text-[var(--text)]">Basaltemperatur</span>
               </div>
               <p className="mt-4 text-sm text-[var(--text-muted)]">
@@ -666,6 +664,7 @@ export default function LandingPage() {
                 <li><Link href="/agb" className="hover:text-[var(--rose)] transition-colors">AGB</Link></li>
                 <li><Link href="/widerruf" className="hover:text-[var(--rose)] transition-colors">Widerrufsbelehrung</Link></li>
                 <li><Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] hover:underline transition-colors">Vertrag widerrufen</Link></li>
+                <li><ConsentSettingsLink className="hover:text-[var(--rose)] transition-colors" /></li>
               </ul>
             </div>
             <div>

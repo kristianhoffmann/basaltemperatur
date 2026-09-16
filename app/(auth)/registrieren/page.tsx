@@ -4,10 +4,11 @@ import { Metadata } from 'next';
 import Link from 'next/link';
 import { RegisterForm } from '@/components/forms/RegisterForm';
 import { SocialLogin } from '@/components/auth/SocialLogin';
+import { googleAuthEnabled } from '@/lib/auth-providers';
 import { Logo } from '@/components/shared/Logo';
 
 export const metadata: Metadata = {
-  title: 'Registrieren | Basaltemperatur',
+  title: 'Registrieren',
   description: 'Erstellen Sie Ihr Basaltemperatur-Konto und starten Sie noch heute.',
 };
 
@@ -52,18 +53,20 @@ export default function RegisterPage({ searchParams }: PageProps) {
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
         <RegisterForm />
 
-        {/* Divider */}
-        <div className="relative my-6">
-          <div className="absolute inset-0 flex items-center">
-            <div className="w-full border-t border-gray-200" />
-          </div>
-          <div className="relative flex justify-center text-sm">
-            <span className="px-4 bg-white text-gray-500">oder</span>
-          </div>
-        </div>
+        {googleAuthEnabled && (
+          <>
+            <div className="relative my-6">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-gray-200" />
+              </div>
+              <div className="relative flex justify-center text-sm">
+                <span className="px-4 bg-white text-gray-500">oder</span>
+              </div>
+            </div>
 
-        {/* OAuth Buttons */}
-        <SocialLogin label="Mit Google registrieren" />
+            <SocialLogin label="Mit Google registrieren" />
+          </>
+        )}
 
         {/* Login Link */}
         <p className="mt-6 text-center text-sm text-gray-600">
@@ -79,15 +82,15 @@ export default function RegisterPage({ searchParams }: PageProps) {
 
       {/* Terms */}
       <p className="mt-6 text-center text-xs text-gray-500">
-        Mit der Registrierung stimmen Sie unseren{' '}
+        Es gelten unsere{' '}
         <Link href="/agb" className="text-primary-600 hover:underline">
           AGB
-        </Link>{' '}
-        und{' '}
+        </Link>
+        . Wie wir mit deinen Daten umgehen, steht in der{' '}
         <Link href="/datenschutz" className="text-primary-600 hover:underline">
-          Datenschutzrichtlinien
-        </Link>{' '}
-        zu.
+          Datenschutzerklärung
+        </Link>
+        .
       </p>
     </div>
   );

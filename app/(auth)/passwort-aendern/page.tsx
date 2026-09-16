@@ -8,7 +8,7 @@ import { Logo } from '@/components/shared/Logo'
 import { ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Neues Passwort | Basaltemperatur',
+  title: 'Neues Passwort',
   description: 'Legen Sie Ihr neues Passwort fest.',
 }
 

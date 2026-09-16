@@ -10,7 +10,7 @@ import { getLegalCompany, getMissingCompanyFields, LEGAL_LAST_UPDATED } from '@/
 // ============================================================================
 
 export const metadata: Metadata = {
-  title: 'Impressum – Basaltemperatur',
+  title: 'Impressum',
   description: 'Impressum und Anbieterkennzeichnung für die Basaltemperatur App',
   alternates: {
     canonical: '/impressum',
@@ -76,9 +76,9 @@ export default function ImpressumPage() {
         Diagnosewerkzeug. Sie ersetzt keine ärztliche Beratung oder Untersuchung.
       </p>
       <p>
-        Algorithmenbasierte Vorhersagen (z.B. zu fruchtbaren Tagen und Zyklusverläufen) sind
-        Schätzungen und können individuell abweichen. Für medizinische Entscheidungen
-        konsultieren Sie bitte Ihre Ärztin oder Ihren Arzt.
+        Rückblickende Auswertungen und statistische Prognosen (z.B. zu Zyklusphasen und zum
+        Periodenbeginn) sind Schätzungen und können individuell abweichen. Für medizinische
+        Entscheidungen konsultieren Sie bitte Ihre Ärztin oder Ihren Arzt.
       </p>
 
       <h2>Haftung für Inhalte</h2>
