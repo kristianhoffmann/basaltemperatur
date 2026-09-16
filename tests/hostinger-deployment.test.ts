@@ -47,12 +47,12 @@ describe('Hostinger deployment contract', () => {
       devDependencies?: Record<string, string>
       overrides?: Record<string, string>
     }
-    expect(packageJson.dependencies?.next).toBe('16.2.12')
+    expect(packageJson.dependencies?.next).toBe('16.3.5')
     expect(packageJson.dependencies?.['@supabase/supabase-js']).toBe('2.111.0')
-    expect(packageJson.dependencies?.sharp).toBe('0.35.3')
+    expect(packageJson.dependencies?.sharp).toBe('0.35.4')
     expect(packageJson.devDependencies?.eslint).toBe('10.8.0')
     expect(packageJson.devDependencies?.['@eslint/js']).toBe('10.0.1')
-    expect(packageJson.devDependencies?.['@next/eslint-plugin-next']).toBe('16.2.12')
+    expect(packageJson.devDependencies?.['@next/eslint-plugin-next']).toBe('16.3.5')
     expect(packageJson.devDependencies?.['eslint-plugin-react-hooks']).toBe('7.1.1')
     expect(packageJson.devDependencies?.globals).toBe('17.8.0')
     expect(packageJson.devDependencies?.['typescript-eslint']).toBe('8.65.0')
