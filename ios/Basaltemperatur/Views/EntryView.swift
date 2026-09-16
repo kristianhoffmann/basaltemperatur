@@ -4,6 +4,7 @@ import SwiftUI
 
 struct EntryView: View {
     @EnvironmentObject var supabase: SupabaseService
+    @EnvironmentObject var viewModel: DashboardViewModel
     @Environment(\.dismiss) private var dismiss
 
     private let editDate: Date?
@@ -17,8 +18,6 @@ struct EntryView: View {
     private let existingDisturbed: Bool
     private let existingDisturbanceReason: String?
     private let existingExcludeFromAnalysis: Bool
-    /// Called after a successful save so the shared dashboard data can be reloaded.
-    private let onSave: (() -> Void)?
 
     @State private var date = Date()
     @State private var temperatureText = ""
@@ -50,7 +49,7 @@ struct EntryView: View {
         Color("AppPrimary")
     }
 
-    init(onSave: (() -> Void)? = nil) {
+    init() {
         self.editDate = nil
         self.existingTemperature = nil
         self.existingNotes = nil
@@ -62,7 +61,6 @@ struct EntryView: View {
         self.existingDisturbed = false
         self.existingDisturbanceReason = nil
         self.existingExcludeFromAnalysis = false
-        self.onSave = onSave
     }
 
     init(
@@ -76,8 +74,7 @@ struct EntryView: View {
         sleepHours: Double? = nil,
         disturbed: Bool = false,
         disturbanceReason: String? = nil,
-        excludeFromAnalysis: Bool = false,
-        onSave: (() -> Void)? = nil
+        excludeFromAnalysis: Bool = false
     ) {
         self.editDate = date
         self.existingTemperature = temperature
@@ -90,7 +87,6 @@ struct EntryView: View {
         self.existingDisturbed = disturbed
         self.existingDisturbanceReason = disturbanceReason
         self.existingExcludeFromAnalysis = excludeFromAnalysis
-        self.onSave = onSave
     }
 
     var body: some View {
@@ -486,7 +482,7 @@ struct EntryView: View {
         withAnimation { isSaving = true }
 
         do {
-            try await supabase.saveTemperatureEntry(
+            async let temperatureSaveResult = supabase.saveTemperatureEntry(
                 date: dateStr,
                 temperature: temp,
                 notes: notes.isEmpty ? nil : notes,
@@ -498,20 +494,27 @@ struct EntryView: View {
                 excludeFromAnalysis: excludeFromAnalysis
             )
 
-            if hasPeriod {
-                try await supabase.savePeriodEntry(date: dateStr, flowIntensity: flowIntensity)
-            } else {
-                try await supabase.deletePeriodEntry(date: dateStr)
-            }
+            // Independent write — runs concurrently with the temperature save instead of after it.
+            async let periodSaveResult: PeriodEntry? = {
+                if hasPeriod {
+                    return try await supabase.savePeriodEntry(date: dateStr, flowIntensity: flowIntensity)
+                } else {
+                    try await supabase.deletePeriodEntry(date: dateStr)
+                    return nil
+                }
+            }()
+
+            let (savedTemperature, savedPeriod) = try await (temperatureSaveResult, periodSaveResult)
+
+            // Merge the saved entry into the shared view model locally instead of
+            // refetching up to 730 days of data from the server on every save.
+            await viewModel.applyLocalSave(temperatureEntry: savedTemperature, periodEntry: savedPeriod, periodDate: dateStr)
 
             triggerSuccessHaptic()
             withAnimation(.spring(response: 0.4, dampingFraction: 0.6)) {
                 isSaving = false
                 showSuccess = true
             }
-
-            // Trigger a single shared reload instead of relying on per-tab refetches.
-            onSave?()
 
             try? await Task.sleep(nanoseconds: 1_200_000_000)
             dismiss()

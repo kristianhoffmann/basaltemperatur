@@ -210,8 +210,37 @@ class DashboardViewModel: ObservableObject {
             Self.buildAnalytics(entries: loadedEntries, periodEntries: loadedPeriods)
         }.value
 
-        // Assign memoized (non-published) values first, then the @Published sources last so the
-        // single resulting render already sees consistent derived data.
+        applyAnalytics(analytics, entries: loadedEntries, periodEntries: loadedPeriods)
+    }
+
+    /// Merges a just-saved entry into local state and recomputes analytics — avoids a full
+    /// network refetch of up to 730 days of data after every single save.
+    func applyLocalSave(temperatureEntry: TemperatureEntry, periodEntry: PeriodEntry?, periodDate: String) async {
+        var updatedEntries = entries
+        if let index = updatedEntries.firstIndex(where: { $0.date == temperatureEntry.date }) {
+            updatedEntries[index] = temperatureEntry
+        } else {
+            updatedEntries.append(temperatureEntry)
+            updatedEntries.sort { $0.date < $1.date }
+        }
+
+        var updatedPeriods = periodEntries
+        updatedPeriods.removeAll { $0.date == periodDate }
+        if let periodEntry {
+            updatedPeriods.append(periodEntry)
+            updatedPeriods.sort { $0.date < $1.date }
+        }
+
+        let analytics = await Task.detached {
+            Self.buildAnalytics(entries: updatedEntries, periodEntries: updatedPeriods)
+        }.value
+
+        applyAnalytics(analytics, entries: updatedEntries, periodEntries: updatedPeriods)
+    }
+
+    /// Assign memoized (non-published) values first, then the @Published sources last so the
+    /// single resulting render already sees consistent derived data.
+    private func applyAnalytics(_ analytics: Analytics, entries newEntries: [TemperatureEntry], periodEntries newPeriods: [PeriodEntry]) {
         lastPeriodStart = analytics.lastPeriodStart
         cycleLength = analytics.cycleLength
         completedCycleCount = analytics.completedCycleCount
@@ -221,8 +250,8 @@ class DashboardViewModel: ObservableObject {
         trackingStreak = analytics.trackingStreak
 
         ovulationResults = analytics.ovulationResults
-        entries = loadedEntries
-        periodEntries = loadedPeriods
+        entries = newEntries
+        periodEntries = newPeriods
     }
 
     // MARK: - Pure analytics (nonisolated so they can run off the main actor)

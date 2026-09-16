@@ -179,7 +179,6 @@ struct SettingsView: View {
 
                     NavigationLink {
                         PDFExportView()
-                            .environmentObject(supabase)
                     } label: {
                         Label {
                             VStack(alignment: .leading, spacing: 2) {

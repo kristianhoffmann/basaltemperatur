@@ -261,12 +261,12 @@ class SupabaseService: ObservableObject {
         disturbed: Bool,
         disturbanceReason: String?,
         excludeFromAnalysis: Bool
-    ) async throws {
+    ) async throws -> TemperatureEntry {
         let url = URL(string: "\(supabaseUrl)/rest/v1/temperature_entries?on_conflict=user_id,date")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        request.setValue("resolution=merge-duplicates,return=representation", forHTTPHeaderField: "Prefer")
         addAuthHeaders(to: &request)
         
         var body: [String: Any] = [
@@ -309,8 +309,13 @@ class SupabaseService: ObservableObject {
             }
             throw SupabaseError.requestFailed
         }
+
+        guard let saved = try decoder.decode([TemperatureEntry].self, from: data).first else {
+            throw SupabaseError.requestFailed
+        }
+        return saved
     }
-    
+
     // MARK: - Period Entries
     
     func getPeriodEntries(days: Int = 0) async throws -> [PeriodEntry] {
@@ -325,14 +330,14 @@ class SupabaseService: ObservableObject {
         return try decoder.decode([PeriodEntry].self, from: data)
     }
     
-    func savePeriodEntry(date: String, flowIntensity: FlowIntensity) async throws {
+    func savePeriodEntry(date: String, flowIntensity: FlowIntensity) async throws -> PeriodEntry {
         let url = URL(string: "\(supabaseUrl)/rest/v1/period_entries?on_conflict=user_id,date")!
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue("resolution=merge-duplicates", forHTTPHeaderField: "Prefer")
+        request.setValue("resolution=merge-duplicates,return=representation", forHTTPHeaderField: "Prefer")
         addAuthHeaders(to: &request)
-        
+
         var body: [String: Any] = [
             "date": date,
             "flow_intensity": flowIntensity.rawValue,
@@ -341,11 +346,16 @@ class SupabaseService: ObservableObject {
             body["user_id"] = uid
         }
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
-        
-        let (_, httpResponse) = try await sendAuthenticatedRequest(request)
+
+        let (data, httpResponse) = try await sendAuthenticatedRequest(request)
         guard httpResponse.statusCode < 300 else {
             throw SupabaseError.requestFailed
         }
+
+        guard let saved = try decoder.decode([PeriodEntry].self, from: data).first else {
+            throw SupabaseError.requestFailed
+        }
+        return saved
     }
     
     func deletePeriodEntry(date: String) async throws {

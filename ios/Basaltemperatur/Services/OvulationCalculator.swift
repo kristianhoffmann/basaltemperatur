@@ -80,7 +80,7 @@ class OvulationCalculator {
         return true
     }
     
-    /// Erkennt ALLE Eisprünge im gesamten Zeitraum (Sensiplan-Methode mit Ausnahmeregeln)
+    /// Erkennt ALLE Eisprünge im gesamten Zeitraum (mit Ausnahmeregeln)
     ///
     /// Regeln:
     /// - 3 aufeinanderfolgende Werte müssen ÜBER der Hilfslinie (= Maximum der 6 Vorwerte) liegen
@@ -272,7 +272,7 @@ class OvulationCalculator {
         return result.sorted { ($0.ovulationDate ?? "") < ($1.ovulationDate ?? "") }
     }
     
-    /// Berechnet die Cover-Linie (Hilfslinie) nach Sensiplan:
+    /// Berechnet die Cover-Linie (Hilfslinie):
     /// = der HÖCHSTE Wert der 6 niedrigen Temperaturen vor dem Anstieg
     static func calculateCoverLine(temperatures: [Double]) -> Double? {
         guard temperatures.count >= 6 else { return nil }

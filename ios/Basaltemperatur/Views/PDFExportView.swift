@@ -5,8 +5,7 @@ import SwiftUI
 import WebKit
 
 struct PDFExportView: View {
-    @EnvironmentObject var supabase: SupabaseService
-    @StateObject private var viewModel = DashboardViewModel()
+    @EnvironmentObject var viewModel: DashboardViewModel
     
     @State private var isGenerating = false
     @State private var showShareSheet = false
@@ -139,9 +138,6 @@ struct PDFExportView: View {
         }
         .navigationTitle("PDF-Export")
         .navigationBarTitleDisplayMode(.inline)
-        .task {
-            await viewModel.loadData(supabase: supabase)
-        }
         .sheet(isPresented: $showShareSheet) {
             if let data = pdfData {
                 PDFShareSheet(activityItems: [data])

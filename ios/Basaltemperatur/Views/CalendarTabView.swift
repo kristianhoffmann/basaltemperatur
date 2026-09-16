@@ -1,5 +1,5 @@
 // ios/Basaltemperatur/Views/CalendarTabView.swift
-// Kalenderansicht mit Fruchtbarkeitsfenster
+// Kalenderansicht mit Zyklusprognose
 
 import SwiftUI
 
@@ -48,7 +48,7 @@ struct CalendarTabView: View {
                         if viewModel.hasLifetimeAccess && viewModel.predictionBaselineReady && dayFertilityStatus != .infertile {
                             HStack(spacing: 6) {
                                 Text(dayFertilityStatus == .peak ? "⚡" : "🌱")
-                                Text(dayFertilityStatus == .peak ? "Peak-Fruchtbarkeit (Prognose)" : "Fruchtbar (Prognose)")
+                                Text(dayFertilityStatus == .peak ? "Zyklusmitte (Prognose)" : "Vor der Zyklusmitte (Prognose)")
                                     .font(.subheadline)
                                     .fontWeight(.medium)
                                     .foregroundStyle(dayFertilityStatus == .peak ? .orange : .green)
@@ -149,8 +149,8 @@ struct CalendarTabView: View {
                                 hasBorder: true,
                                 dashed: true
                             )
-                            CalendarLegendItem(color: .green.opacity(0.1), label: "Fruchtbar")
-                            CalendarLegendItem(color: .orange.opacity(0.1), label: "Peak ⚡")
+                            CalendarLegendItem(color: .green.opacity(0.1), label: "Vor Zyklusmitte")
+                            CalendarLegendItem(color: .orange.opacity(0.1), label: "Zyklusmitte ⚡")
                         }
                     }
                     .font(.caption)
@@ -160,13 +160,13 @@ struct CalendarTabView: View {
                     if !viewModel.hasLifetimeAccess {
                         PremiumPaywallView(
                             title: "Kalender-Prognosen sind Premium",
-                            message: "Einträge im Kalender bleiben kostenlos. Perioden-, Fruchtbarkeits- und Peak-Prognosen sind im Vollzugang enthalten."
+                            message: "Einträge im Kalender bleiben kostenlos. Perioden- und Zyklusprognosen sind im Vollzugang enthalten."
                         )
                     } else if !viewModel.predictionBaselineReady {
                         VStack(spacing: 6) {
                             Text("Prognosen werden noch gesammelt")
                                 .font(.subheadline.weight(.semibold))
-                            Text("Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(viewModel.completedCycleCount).")
+                            Text("Zyklus- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(viewModel.completedCycleCount).")
                                 .font(.caption)
                                 .foregroundStyle(.secondary)
                                 .multilineTextAlignment(.center)
@@ -198,11 +198,6 @@ struct CalendarTabView: View {
                     excludeFromAnalysis: entry?.excludeFromAnalysis ?? false
                 )
                 .environmentObject(supabase)
-            }
-            .onChange(of: showingEntry) { _, isPresented in
-                if !isPresented {
-                    Task { await viewModel.loadData(supabase: supabase) }
-                }
             }
         }
     }

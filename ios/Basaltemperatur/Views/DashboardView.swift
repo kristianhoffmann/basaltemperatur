@@ -41,7 +41,7 @@ struct DashboardView: View {
                                 .foregroundStyle(.secondary)
                         }
                         Spacer()
-                        NavigationLink(destination: EntryView(onSave: { Task { await viewModel.loadData(supabase: supabase) } })) {
+                        NavigationLink(destination: EntryView()) {
                             Label("Eintrag", systemImage: "plus.circle.fill")
                                 .font(.subheadline.weight(.bold))
                                 .foregroundStyle(.white)
@@ -146,7 +146,7 @@ struct DashboardView: View {
                         }
                         
                         // Disclaimer
-                        Text("Hinweis: Temperaturanstiege werden rückblickend nach der 3-über-6-Regel ausgewertet. Fruchtbare Tage und kommende Ereignisse sind Prognosen aus deinen Eingaben. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
+                        Text("Hinweis: Temperaturanstiege werden rückblickend nach der 3-über-6-Regel ausgewertet. Angezeigte Zyklusphasen und kommende Ereignisse sind Prognosen aus deinen Eingaben. Diese App dient nicht zur Verhütung und ersetzt keinen ärztlichen Rat.")
                             .font(.caption2)
                             .foregroundStyle(.secondary)
                             .multilineTextAlignment(.center)
@@ -174,7 +174,7 @@ struct DashboardView: View {
 
                     // Quick Entry Prompt
                     if !viewModel.todayHasEntry {
-                        QuickEntryPrompt(onSave: { Task { await viewModel.loadData(supabase: supabase) } })
+                        QuickEntryPrompt()
                     }
                 }
                 .padding(.vertical)
@@ -200,7 +200,7 @@ struct PredictionBaselineCard: View {
                 .foregroundStyle(Color("AppPrimary"))
             Text("Prognosen werden noch gesammelt")
                 .font(.subheadline.weight(.bold))
-            Text("Fruchtbarkeits- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(completedCycles).")
+            Text("Zyklus- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen. Aktuell auswertbar: \(completedCycles).")
                 .font(.caption)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
@@ -224,7 +224,7 @@ struct FertilityBanner: View {
         VStack(spacing: 6) {
             Text(status == .peak ? "⚡" : "🔥")
                 .font(.title)
-            Text(status == .peak ? "Peak-Fruchtbarkeit (Prognose)" : "Fruchtbares Fenster (Prognose)")
+            Text(status == .peak ? "Zyklusmitte (Prognose)" : "Vor der Zyklusmitte (Prognose)")
                 .font(.subheadline)
                 .fontWeight(.bold)
                 .foregroundStyle(accentColor)
@@ -258,8 +258,6 @@ struct FertilityBanner: View {
 // MARK: - Quick Entry Prompt
 
 struct QuickEntryPrompt: View {
-    var onSave: (() -> Void)? = nil
-
     var body: some View {
         VStack(spacing: 14) {
             Image(systemName: "thermometer.medium")
@@ -270,7 +268,7 @@ struct QuickEntryPrompt: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
-            NavigationLink(destination: EntryView(onSave: onSave)) {
+            NavigationLink(destination: EntryView()) {
                 Label("Jetzt eintragen", systemImage: "plus.circle.fill")
                     .font(.subheadline.weight(.bold))
                     .foregroundStyle(.white)
@@ -641,7 +639,10 @@ struct TemperatureChartView: View {
                                     let closest = entries.min(by: {
                                         abs($0.dateObject.timeIntervalSince(date)) < abs($1.dateObject.timeIntervalSince(date))
                                     })
-                                    selectedEntry = closest
+                                    // Only write state (and trigger a chart re-render) when the nearest point actually changes.
+                                    if closest?.date != selectedEntry?.date {
+                                        selectedEntry = closest
+                                    }
                                 }
                             }
                             .onEnded { _ in
@@ -984,7 +985,10 @@ struct TemperatureChartFullscreenView: View {
                                     let closest = filteredEntries.min(by: {
                                         abs($0.dateObject.timeIntervalSince(date)) < abs($1.dateObject.timeIntervalSince(date))
                                     })
-                                    selectedEntry = closest
+                                    // Only write state (and trigger a chart re-render) when the nearest point actually changes.
+                                    if closest?.date != selectedEntry?.date {
+                                        selectedEntry = closest
+                                    }
                                 }
                             }
                             .onEnded { _ in

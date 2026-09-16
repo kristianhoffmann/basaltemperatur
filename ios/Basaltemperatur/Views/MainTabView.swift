@@ -65,7 +65,7 @@ struct MainTabView: View {
                 }
                 .tag(2)
 
-            EntryView(onSave: reloadDashboardData)
+            EntryView()
                 .tabItem {
                     Image(systemName: "plus.circle.fill")
                     Text("Eintrag")
@@ -105,10 +105,6 @@ struct MainTabView: View {
                     }
             }
         }
-    }
-
-    private func reloadDashboardData() {
-        Task { await dashboardViewModel.loadData(supabase: supabase) }
     }
 
     @MainActor
