@@ -14,21 +14,10 @@
  * verschlucken.
  */
 
-const BREVO_URL = 'https://api.brevo.com/v3/smtp/email';
-const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+import { escapeHtml } from '@/lib/legal/blocks';
+import { sendBrevoMail, type BrevoMailResult } from '@/lib/brevo';
 
-export type WithdrawalMailResult =
-  | { ok: true }
-  | { ok: false; code: 'configuration' | 'provider' | 'timeout' };
-
-function escapeHtml(value: string): string {
-  return value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;');
-}
+export type WithdrawalMailResult = BrevoMailResult;
 
 export function withdrawalAcknowledgementBody(name: string, summary: string): { html: string; text: string } {
   const intro = `Hallo ${name},\n\nwir bestätigen den Eingang deines Widerrufs. Nachfolgend der Inhalt deiner Erklärung mit Datum und Uhrzeit des Eingangs — bitte bewahre diese E-Mail als Nachweis auf.`;
@@ -44,33 +33,13 @@ export async function sendWithdrawalAcknowledgement(options: {
   summary: string;
   fetchImpl?: typeof fetch;
 }): Promise<WithdrawalMailResult> {
-  const apiKey = process.env.BREVO_API_KEY?.trim();
-  const senderEmail = process.env.BREVO_SENDER_EMAIL?.trim().toLowerCase() ?? '';
-  const senderName = process.env.BREVO_SENDER_NAME?.trim() || 'Basaltemperatur';
-  if (!apiKey || !EMAIL_PATTERN.test(senderEmail) || !EMAIL_PATTERN.test(options.to)) {
-    return { ok: false, code: 'configuration' };
-  }
-
   const body = withdrawalAcknowledgementBody(options.name, options.summary);
-  const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10_000);
-  try {
-    const response = await (options.fetchImpl ?? fetch)(BREVO_URL, {
-      method: 'POST',
-      headers: { 'api-key': apiKey, 'content-type': 'application/json', accept: 'application/json' },
-      body: JSON.stringify({
-        sender: { name: senderName, email: senderEmail },
-        to: [{ email: options.to, name: options.name }],
-        subject: 'Eingangsbestätigung deines Widerrufs',
-        htmlContent: body.html,
-        textContent: body.text,
-      }),
-      signal: controller.signal,
-    });
-    return response.ok ? { ok: true } : { ok: false, code: 'provider' };
-  } catch {
-    return { ok: false, code: 'timeout' };
-  } finally {
-    clearTimeout(timeout);
-  }
+  return sendBrevoMail({
+    to: options.to,
+    name: options.name,
+    subject: 'Eingangsbestätigung deines Widerrufs',
+    html: body.html,
+    text: body.text,
+    fetchImpl: options.fetchImpl,
+  });
 }

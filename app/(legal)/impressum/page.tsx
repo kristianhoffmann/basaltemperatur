@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { LegalDataWarning } from '@/app/(legal)/LegalDataWarning';
-import { getLegalCompany, getMissingCompanyFields, LEGAL_LAST_UPDATED } from '@/app/(legal)/legalConfig';
+import { getLegalCompany, getMissingCompanyFields, LEGAL_LAST_UPDATED } from '@/lib/legal/config';
 
 // ============================================================================
 // IMPRESSUM

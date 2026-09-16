@@ -18,7 +18,7 @@ export function BlogIndexView({ locale, posts }: { locale: string; posts: BlogPo
           <div className="relative mx-auto max-w-6xl px-4 pb-28 pt-12 sm:px-6 sm:pb-36 sm:pt-16 lg:px-8">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-300">Basaltemperatur Blog</p>
             <h1 className="mt-4 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight !text-white sm:text-5xl lg:text-6xl">
-              Wissen für Zyklustracking, NFP und Temperaturkurven.
+              Wissen rund um Zyklus, Basaltemperatur und Temperaturkurven.
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-8 text-white/70">
               Praxisnahe Artikel rund um Basaltemperatur, App-Vergleiche und sichere digitale Zyklusdokumentation.

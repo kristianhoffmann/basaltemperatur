@@ -1,17 +1,17 @@
 # Basaltemperatur
-> Kostenlose App zur natürlichen Zyklusbeobachtung (NFP/symptothermale Methode): Basaltemperatur und Periode erfassen, fruchtbare Tage erkennen, Zyklen auswerten. DSGVO-first, keine Werbung, keine Tracker.
+> Persönliches Zyklustagebuch: Basaltemperatur und Periode kostenlos erfassen, Temperaturkurve rückblickend auswerten, Zyklen vergleichen. Die Analyse wird einmalig für 9,99 € freigeschaltet (kein Abo). Daten liegen auf Servern in Deutschland, keine Werbung, Statistik nur mit Einwilligung.
 
 ## Produkt
-- [Startseite](https://www.basaltemperatur.online/): Zyklus-Tracking mit Basaltemperatur-Kurve, Perioden-Kalender und Auswertung der fruchtbaren Phase.
-- [Blog](https://www.basaltemperatur.online/de/blog): Ratgeber rund um NFP, Zyklusgesundheit, Kinderwunsch und natürliche Verhütung.
-- [Support](https://www.basaltemperatur.online/support): Hilfe, häufige Fragen und Kontakt.
+- [Startseite](https://www.basaltemperatur.online/): Zyklus-Tracking mit Basaltemperatur-Kurve, Periodenkalender, Zyklusstatistiken und PDF-Export.
+- [Blog](https://www.basaltemperatur.online/de/blog): Artikel rund um Basaltemperatur, Zyklusbeobachtung und Zyklus-Apps.
+- [Support](https://www.basaltemperatur.online/support): Hilfe und Kontakt.
 
 ## Rechtliches
-- [Datenschutz](https://www.basaltemperatur.online/datenschutz): Keine Tracker, keine Werbung, Gesundheitsdaten bleiben privat.
+- [Datenschutz](https://www.basaltemperatur.online/datenschutz): Gesundheitsdaten nur mit ausdrücklicher Einwilligung, Statistik nur mit Einwilligung, keine Werbung.
 - [Impressum](https://www.basaltemperatur.online/impressum): Anbieterkennzeichnung.
 - [AGB](https://www.basaltemperatur.online/agb): Nutzungsbedingungen.
 - [Widerruf](https://www.basaltemperatur.online/widerruf): Widerrufsbelehrung.
 
 ## Hinweise
-- Zielgruppe: Personen, die ihren Zyklus natürlich beobachten wollen (Kinderwunsch oder natürliche Familienplanung), im deutschsprachigen Raum (DE/AT/CH).
-- Wichtig: Die App dient der Zyklusbeobachtung und ersetzt keine medizinische Beratung. Sie ist kein zertifiziertes Verhütungsmittel.
+- Zielgruppe: Personen im deutschsprachigen Raum (DE/AT/CH), die ihren Zyklus und ihre Basaltemperatur dokumentieren möchten.
+- Wichtig: Die App ist ein persönliches Zyklustagebuch zur Selbstbeobachtung. Sie ist kein Medizinprodukt, kein Verhütungsmittel und kein Diagnosewerkzeug, bestimmt keine fruchtbaren Tage und ersetzt keine ärztliche Beratung. Auswertungen und Prognosen sind statistische Schätzungen.

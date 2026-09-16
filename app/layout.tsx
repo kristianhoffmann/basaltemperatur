@@ -42,7 +42,7 @@ export const metadata: Metadata = {
   description: siteDescription,
   applicationName: siteName,
   category: 'health',
-  keywords: ['Basaltemperatur', 'Zyklustracking', 'Temperaturauswertung', 'NFP', 'Temperaturkurve', 'Periodenkalender', 'Kinderwunsch'],
+  keywords: ['Basaltemperatur', 'Zyklustracking', 'Temperaturauswertung', 'Temperaturkurve', 'Periodenkalender', 'Zyklustagebuch'],
   authors: [{ name: 'Basaltemperatur App' }],
   creator: 'Basaltemperatur App',
   alternates: {

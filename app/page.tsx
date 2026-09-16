@@ -27,13 +27,13 @@ import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
 export const metadata: Metadata = {
-  title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+  title: 'Basaltemperatur App: Zyklus & Temperaturkurve tracken',
   description: 'Basaltemperatur App für natürliches Zyklustracking: Temperatur und Periode kostenlos eintragen, komplette Analyse einmalig für 9,99 € freischalten.',
   alternates: {
     canonical: '/',
   },
   openGraph: {
-    title: 'Basaltemperatur App: Zyklus tracken, Eisprung erkennen',
+    title: 'Basaltemperatur App: Zyklus & Temperaturkurve tracken',
     description: 'Temperatur & Periode kostenlos eintragen. Analyse, Prognosen und Export einmalig für 9,99 € freischalten.',
     url: '/',
     type: 'website',

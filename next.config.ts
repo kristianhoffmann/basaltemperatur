@@ -81,6 +81,17 @@ const nextConfig: NextConfig = {
                 destination: '/registrieren',
                 permanent: true,
             },
+            // Withdrawn on 2026-09-16: contraception / fertile-days / ovulation topics do not
+            // fit the app's positioning as a cycle diary (MDR intended purpose).
+            ...[
+                'verhuetung-ohne-hormone-vier-gruppen',
+                'fruchtbare-tage-berechnen-methoden-zyklus',
+                'ovulation-tracking-app-basaltemperatur',
+            ].map((slug) => ({
+                source: `/de/blog/${slug}`,
+                destination: '/de/blog',
+                permanent: true,
+            })),
         ]
     },
 

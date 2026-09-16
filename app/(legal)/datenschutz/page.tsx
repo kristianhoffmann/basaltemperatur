@@ -7,7 +7,7 @@ import {
   getLegalInfrastructure,
   getMissingCompanyFields,
   LEGAL_LAST_UPDATED,
-} from '@/app/(legal)/legalConfig';
+} from '@/lib/legal/config';
 import { TRAFFIC_RETENTION_MONTHS, WITHDRAWAL_RETENTION_YEARS } from '@/lib/retention';
 
 // ============================================================================
@@ -119,12 +119,13 @@ export default function DatenschutzPage() {
 
       <h2>6. E-Mail-Versand (Brevo)</h2>
       <p>
-        Kontobezogene E-Mails (z. B. Passwort zurücksetzen) und die Eingangsbestätigung eines
-        Widerrufs versenden wir über Brevo (Sendinblue SAS, 17 rue de Salneuve, 75017 Paris,
+        Kontobezogene E-Mails (z. B. Passwort zurücksetzen), die Vertragsbestätigung nach einem
+        Kauf und die Eingangsbestätigung eines Widerrufs versenden wir über Brevo (Sendinblue SAS, 17 rue de Salneuve, 75017 Paris,
         Frankreich; deutsche Niederlassung: Brevo GmbH, Köpenicker Str. 126, 10179 Berlin).
         Dabei werden E-Mail-Adresse, Name, Inhalt der Nachricht sowie Versand- und
         Zustellinformationen verarbeitet. Brevo handelt als Auftragsverarbeiter nach Art. 28
-        DSGVO. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, für die Widerrufsbestätigung
+        DSGVO. Rechtsgrundlage ist Art. 6 Abs. 1 lit. b DSGVO, für die Vertragsbestätigung
+        Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit § 312f BGB und für die Widerrufsbestätigung
         Art. 6 Abs. 1 lit. c DSGVO in Verbindung mit § 356a BGB.
       </p>
 
@@ -136,7 +137,9 @@ export default function DatenschutzPage() {
         Bankdaten. An Stripe übermitteln wir Ihre E-Mail-Adresse, eine interne Nutzerkennung zur
         Zuordnung der Freischaltung, den Zeitpunkt, zu dem Sie den sofortigen Beginn verlangt
         haben, und – nur wenn Sie der Statistik zugestimmt haben – den Blogartikel, über den Sie
-        gekommen sind. Stripe verarbeitet Zahlungsdaten zur Betrugsprävention und wegen
+        gekommen sind. Für die Vertragsbestätigung per E-Mail erhalten wir von Stripe die dort
+        angegebene E-Mail-Adresse und den Namen, die Bestellnummer, den Betrag und den Zeitpunkt
+        der Zahlung. Stripe verarbeitet Zahlungsdaten zur Betrugsprävention und wegen
         gesetzlicher Pflichten auch in eigener Verantwortung und kann dabei Daten in die USA
         übermitteln (Stripe, Inc. ist nach dem EU-U.S. Data Privacy Framework zertifiziert).
       </p>

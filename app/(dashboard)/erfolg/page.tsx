@@ -103,9 +103,12 @@ export default async function ErfolgPage({
                 <p className="text-lg text-[var(--text-secondary)] mb-2">
                     Dein Lifetime-Zugang ist jetzt aktiv.
                 </p>
-                <p className="text-sm text-[var(--text-muted)] mb-8">
+                <p className="text-sm text-[var(--text-muted)] mb-2">
                     Du hast jetzt unbegrenzten Zugang zu allen Features –
                     für immer, ohne Abo.
+                </p>
+                <p className="text-sm text-[var(--text-muted)] mb-8">
+                    Die Vertragsbestätigung mit AGB und Widerrufsbelehrung schicken wir dir per E-Mail.
                 </p>
 
                 <div className="card p-6 mb-8 text-left">

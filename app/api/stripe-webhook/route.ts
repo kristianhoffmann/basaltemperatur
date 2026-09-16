@@ -5,6 +5,9 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { trackConversion } from '@/lib/seo-autopilot/attribution'
+import { getLegalCompany, getLegalInfrastructure } from '@/lib/legal/config'
+import { sendPurchaseConfirmation } from '@/lib/purchase-confirmation'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
 export async function POST(request: Request) {
     // .trim(): the deployed STRIPE_WEBHOOK_SECRET carried a trailing newline, which
@@ -79,7 +82,9 @@ export async function POST(request: Request) {
             return NextResponse.json({ received: true, unmapped: true })
         }
 
-        const { error } = await supabaseAdmin
+        // Only the delivery that flips the flag gets rows back. Stripe redelivers
+        // events, and the confirmation mail must go out exactly once.
+        const { data: granted, error } = await supabaseAdmin
             .from('profiles')
             .update({
                 has_lifetime_access: true,
@@ -87,10 +92,49 @@ export async function POST(request: Request) {
                 lifetime_access_granted_at: new Date().toISOString(),
             })
             .eq('id', userId)
+            .not('has_lifetime_access', 'is', true)
+            .select('id, display_name')
 
         if (error) {
             console.error('Failed to grant lifetime access:', error)
             return NextResponse.json({ error: 'Database error' }, { status: 500 })
+        }
+
+        if (!granted?.length) {
+            const { data: existing } = await supabaseAdmin
+                .from('profiles')
+                .select('has_lifetime_access')
+                .eq('id', userId)
+                .maybeSingle()
+            if (existing?.has_lifetime_access) {
+                console.info(`Checkout session ${session.id}: access already granted, no confirmation resent.`)
+                return NextResponse.json({ received: true, duplicate: true })
+            }
+            console.error(`Checkout session ${session.id}: no profile for user ${userId}, access not granted.`)
+            return NextResponse.json({ received: true, unmapped: true })
+        }
+
+        const customerEmail = session.customer_details?.email || session.customer_email
+        if (customerEmail) {
+            const mail = await sendPurchaseConfirmation({
+                customerEmail,
+                customerName: session.customer_details?.name || granted[0]?.display_name,
+                orderNumber: typeof session.payment_intent === 'string' ? session.payment_intent : session.id,
+                purchasedAt: new Date(event.created * 1000),
+                amountTotal: session.amount_total ?? 0,
+                currency: session.currency || 'eur',
+                earlyStartRequestedAt: session.metadata?.early_start_requested_at,
+                company: getLegalCompany(),
+                infrastructure: getLegalInfrastructure(),
+                siteUrl: getSeoSiteUrl(),
+            })
+            if (!mail.ok) {
+                // Access stays granted; a failed mail must not trigger a Stripe retry,
+                // which would find the flag set and never resend anyway.
+                console.error(`Purchase confirmation for ${session.id} not sent: ${mail.code}`)
+            }
+        } else {
+            console.error(`Checkout session ${session.id} has no customer email; purchase confirmation not sent.`)
         }
 
         await trackConversion({

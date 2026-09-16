@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     // absolute: sonst haengt das Root-Layout ein zweites " | Basaltemperatur" an.
     title: { absolute: 'Blog | Basaltemperatur' },
-    description: 'Alle Artikel rund um Basaltemperatur, Zyklusgesundheit und NFP.',
+    description: 'Alle Artikel rund um Basaltemperatur, Zyklusbeobachtung und Temperaturkurven.',
     alternates: {
       canonical: `${getSeoSiteUrl()}/${locale}/blog`,
     },
