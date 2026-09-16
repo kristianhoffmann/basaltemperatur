@@ -1,15 +1,13 @@
 import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import Link from 'next/link'
 import { getPost, listPosts } from '@/lib/seo-autopilot/storage'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import { BLOG_LOCALES, isBlogLocale } from '@/lib/blog-locales'
 import { withCanonicalHost } from '@/lib/canonical-host'
-import { BlogFooter, BlogHeader } from '../BlogChrome'
-import { BlogArticleBody } from './BlogArticleBody'
+import { getCachedPosts, type BlogPost } from '../posts'
+import { BlogArticleView } from './BlogArticleView'
 import { BlogAttributionTracker } from './BlogAttributionTracker'
-import { MedicalDisclaimer } from './MedicalDisclaimer'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -38,27 +36,9 @@ export async function generateStaticParams() {
   return perLocale.flat()
 }
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString('de-DE', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-  })
-}
-
-// Der Autopilot schreibt updated_at bei jedem Publish mit, oft identisch zu
-// published_at. Ein "Zuletzt aktualisiert" nur zeigen, wenn sich das Datum auch
-// wirklich unterscheidet — sonst ist es ein leeres Vertrauenssignal.
-function isMeaningfullyUpdated(publishedAt: string, updatedAt?: string | null) {
-  if (!updatedAt) return false
-  const published = new Date(publishedAt).toDateString()
-  const updated = new Date(updatedAt).toDateString()
-  return published !== updated
-}
-
 function getCachedPost(locale: string, slug: string) {
   return unstable_cache(
-    () => getPost(locale, slug),
+    () => getPost(locale, slug) as Promise<BlogPost | null>,
     [`post-${locale}-${slug}`],
     { tags: [`post:${locale}:${slug}`], revalidate: false }
   )()
@@ -93,7 +73,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       url: canonical,
       type: 'article',
       publishedTime: post.published_at,
-      modifiedTime: post.updated_at,
+      modifiedTime: post.updated_at ?? undefined,
       images: ogImage,
     },
     twitter: {
@@ -110,90 +90,34 @@ export default async function BlogPostPage({ params }: Props) {
   const { locale, slug } = await params
   if (!isBlogLocale(locale)) notFound()
 
-  const post = await getCachedPost(locale, slug)
+  const [post, posts] = await Promise.all([getCachedPost(locale, slug), getCachedPosts(locale)])
   if (!post) notFound()
 
   const siteUrl = getSeoSiteUrl()
   const canonical = `${siteUrl}/${locale}/blog/${slug}`
+  const related = posts.filter((item) => item.slug !== slug).slice(0, 3)
 
   return (
-    <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify(
-            withCanonicalHost({
-              ...post.schema_jsonld,
-              url: canonical,
-            })
-          ),
-        }}
-      />
-
-      <BlogAttributionTracker
-        postId={post.id}
-        slug={post.slug}
-        locale={post.locale}
-      />
-
-      <BlogHeader locale={locale} />
-
-      <main>
-        <article>
-          <header className="border-b border-slate-200/80 bg-white">
-            <div className="mx-auto max-w-4xl px-4 py-12 sm:px-6 md:py-16">
-              <Link href={`/${locale}/blog`} className="text-sm font-semibold text-rose-600 hover:text-rose-700">
-                Zurück zum Blog
-              </Link>
-              <div className="mt-8 flex flex-wrap items-center gap-3 text-sm text-slate-500">
-                <time dateTime={post.published_at}>
-                  {formatDate(post.published_at)}
-                </time>
-                {isMeaningfullyUpdated(post.published_at, post.updated_at) && (
-                  <>
-                    <span aria-hidden="true">/</span>
-                    <span>
-                      Zuletzt aktualisiert am{' '}
-                      <time dateTime={post.updated_at}>{formatDate(post.updated_at)}</time>
-                    </span>
-                  </>
-                )}
-                {post.author?.name && (
-                  <>
-                    <span aria-hidden="true">/</span>
-                    <span>{post.author.name}</span>
-                  </>
-                )}
-              </div>
-              <h1 className="mt-4 text-4xl font-bold leading-tight tracking-tight sm:text-6xl">{post.title}</h1>
-              <p className="mt-5 text-lg leading-8 text-slate-600">{post.meta_description}</p>
-            </div>
-          </header>
-
-          {post.hero_image_url && (
-            <figure className="mx-auto mt-10 max-w-5xl px-4 sm:px-6">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={post.hero_image_url}
-                alt={post.hero_image_alt ?? post.title}
-                width={1792}
-                height={1024}
-                fetchPriority="high"
-                decoding="async"
-                className="aspect-[16/9] w-full rounded-3xl object-cover shadow-xl shadow-slate-200/70"
-              />
-            </figure>
-          )}
-
-          <div className="mx-auto mt-12 max-w-3xl rounded-3xl border border-slate-200 bg-white px-5 py-8 shadow-sm sm:px-8 md:px-10">
-            <BlogArticleBody source={post.mdx_body} />
-          </div>
-
-          <MedicalDisclaimer />
-        </article>
-      </main>
-
-      <BlogFooter />
-    </div>
+    <BlogArticleView
+      post={post}
+      locale={locale}
+      related={related}
+      beforeContent={
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify(
+                withCanonicalHost({
+                  ...post.schema_jsonld,
+                  url: canonical,
+                })
+              ),
+            }}
+          />
+          <BlogAttributionTracker postId={post.id} slug={post.slug} locale={post.locale} />
+        </>
+      }
+    />
   )
 }

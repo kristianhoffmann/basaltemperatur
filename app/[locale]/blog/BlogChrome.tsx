@@ -1,5 +1,7 @@
 import Link from 'next/link'
 import { ExternalLink, Smartphone } from 'lucide-react'
+import { Logo } from '@/components/shared/Logo'
+import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
@@ -9,9 +11,7 @@ export function BlogHeader({ locale }: { locale: string }) {
       <nav className="relative z-20 mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-violet-500 shadow-lg shadow-rose-500/20">
-              <span className="text-sm text-white">🌡️</span>
-            </span>
+            <Logo />
             <span className="text-sm font-bold tracking-tight text-white">Basaltemperatur</span>
           </Link>
           <div className="hidden items-center gap-6 md:flex">
@@ -22,22 +22,22 @@ export function BlogHeader({ locale }: { locale: string }) {
             <Link href={`/${locale}/blog`} className="text-sm text-white transition-colors">Blog</Link>
             <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 transition-colors hover:text-white">App Store (bald)</a>
             <Link href="/login" className="text-sm text-white/50 transition-colors hover:text-white">Anmelden</Link>
-            <Link href="/registrieren">
-              <button className="btn btn-sm border border-white/15 bg-white/5 text-white backdrop-blur-sm transition-all hover:bg-white/10">Kostenlos starten</button>
+            <Link href="/registrieren" className="btn btn-sm border border-white/15 bg-white/5 text-white backdrop-blur-sm transition-all hover:bg-white/10">
+              Kostenlos starten
             </Link>
           </div>
           <div className="flex flex-col items-end gap-2 md:hidden">
             <div className="flex items-center gap-3">
               <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
-              <Link href="/registrieren">
-                <button className="btn btn-sm border border-white/15 bg-white/5 text-white">Kostenlos starten</button>
+              <Link href="/registrieren" className="btn btn-sm border border-white/15 bg-white/5 !px-3 text-white">
+                Kostenlos starten
               </Link>
             </div>
             <a
               href={appStoreInfoUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70"
+              className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/70"
             >
               <Smartphone className="h-3.5 w-3.5" />
               App Store bald verfügbar
@@ -51,14 +51,12 @@ export function BlogHeader({ locale }: { locale: string }) {
 
 export function BlogFooter() {
   return (
-    <footer className="border-t border-[var(--card-border)] bg-[var(--bg-secondary)] px-4 py-12 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-6xl">
+    <footer className="border-t border-[var(--card-border)] bg-[var(--bg-secondary)] py-12">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
           <div>
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br from-rose-400 to-violet-500 shadow-md">
-                <span className="text-[11px] text-white">🌡️</span>
-              </div>
+              <Logo size="sm" />
               <span className="text-sm font-bold text-[var(--text)]">Basaltemperatur</span>
             </div>
             <p className="mt-4 text-sm text-[var(--text-muted)]">
@@ -89,6 +87,7 @@ export function BlogFooter() {
               <li><Link href="/agb" className="transition-colors hover:text-[var(--rose)]">AGB</Link></li>
               <li><Link href="/widerruf" className="transition-colors hover:text-[var(--rose)]">Widerrufsbelehrung</Link></li>
               <li><Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] transition-colors hover:underline">Vertrag widerrufen</Link></li>
+              <li><ConsentSettingsLink className="transition-colors hover:text-[var(--rose)]" /></li>
             </ul>
           </div>
           <div>
@@ -103,7 +102,7 @@ export function BlogFooter() {
           </div>
         </div>
         <div className="mt-10 border-t border-[var(--card-border)] pt-6 text-center text-xs text-[var(--text-muted)]">
-          © 2026 Basaltemperatur. Alle Rechte vorbehalten.
+          © {new Date().getFullYear()} Basaltemperatur. Alle Rechte vorbehalten.
         </div>
       </div>
     </footer>

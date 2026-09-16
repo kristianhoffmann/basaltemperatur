@@ -9,7 +9,7 @@ export function MedicalDisclaimer() {
     <aside
       role="note"
       aria-label="Medizinischer Hinweis"
-      className="mx-auto mt-10 max-w-3xl rounded-2xl border border-amber-200 bg-amber-50/70 px-5 py-4 text-sm leading-6 text-amber-950 sm:px-6"
+      className="mt-12 rounded-2xl border border-amber-200 bg-amber-50/70 px-5 py-4 text-sm leading-6 text-amber-950 sm:px-6"
     >
       <p className="font-semibold">Medizinischer Hinweis</p>
       <p className="mt-1.5">
