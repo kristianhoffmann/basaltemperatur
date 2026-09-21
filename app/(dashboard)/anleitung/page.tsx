@@ -12,7 +12,7 @@ import {
 
 export const metadata = {
     title: 'Anleitung',
-    description: 'Schritt-für-Schritt Anleitung für Basaltemperatur auf Web und iOS.',
+    description: 'Schritt-für-Schritt-Anleitung für die Basaltemperatur-Web-App.',
 }
 
 const steps = [
@@ -104,7 +104,7 @@ export default function GuidePage() {
 
             <div className="card p-4 sm:p-5">
                 <p className="text-sm text-[var(--text-secondary)]">
-                    Tipp: Nutze Web und iOS parallel mit demselben Konto, damit deine Daten immer synchron bleiben.
+                    Tipp: Die Web-App läuft auch im Browser deines Smartphones. Mit demselben Konto siehst du auf jedem Gerät dieselben Daten.
                 </p>
                 <div className="mt-4 flex flex-wrap gap-2">
                     <Link href="/eintrag">

@@ -12,8 +12,6 @@ import {
   Shield,
   Heart,
   Sparkles,
-  Star,
-  Quote,
   Lock,
   Zap,
   FileDown,
@@ -118,30 +116,9 @@ const lifetimeFeatures = [
   'Zyklusstatistiken und Verlaufstrends',
   'Zyklusvergleich mehrerer Zyklen',
   'PDF-Export für deine Dokumentation',
-  'Web-App + iOS Analyse',
+  'Analyse in der Web-App (iOS-App in Vorbereitung)',
   'Alle zukünftigen Updates',
   'Kein Abo – einmalig zahlen',
-]
-
-const testimonials = [
-  {
-    name: 'Sarah M.',
-    location: 'München',
-    text: 'Endlich eine App, die einfach nur funktioniert – ohne Werbung, ohne Abo, ohne Schnickschnack. Meine Temperaturkurve ist endlich nachvollziehbar.',
-    rating: 5,
-  },
-  {
-    name: 'Laura K.',
-    location: 'Hamburg',
-    text: 'Die PDF-Export-Funktion ist Gold wert! Meine Temperaturkurve ist übersichtlich dokumentiert und leicht zu teilen.',
-    rating: 5,
-  },
-  {
-    name: 'Anna W.',
-    location: 'Berlin',
-    text: 'Als Datenschutz-bewusste Person war mir wichtig, dass meine Gesundheitsdaten in Deutschland bleiben. Hier habe ich ein gutes Gefühl.',
-    rating: 5,
-  },
 ]
 
 const faqItems = [
@@ -163,7 +140,7 @@ const faqItems = [
   {
     question: 'Kann ich Basaltemperatur auf iOS und Web nutzen?',
     answer:
-      'Ja. Du kannst deine Daten auf Web und iOS nutzen und die Analyse plattformübergreifend verwenden.',
+      'Aktuell als Web-App im Browser – das funktioniert auch auf dem iPhone. Eine eigene iOS-App ist in Vorbereitung und noch nicht im App Store.',
   },
 ]
 
@@ -187,7 +164,7 @@ export default function LandingPage() {
         '@type': 'SoftwareApplication',
         name: 'Basaltemperatur',
         applicationCategory: 'HealthApplication',
-        operatingSystem: 'Web, iOS',
+        operatingSystem: 'Web',
         inLanguage: 'de-DE',
         description:
           'Zyklustracking mit Basaltemperatur, Periodentagen, Prognosen und Auswertungen.',
@@ -239,7 +216,6 @@ export default function LandingPage() {
             <div className="hidden md:flex items-center gap-6">
               <a href="#features" className="text-sm text-white/50 hover:text-white transition-colors">Features</a>
               <a href="#faq" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</a>
-              <a href="#testimonials" className="text-sm text-white/50 hover:text-white transition-colors">Erfahrungen</a>
               <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Preis</a>
               <Link href="/de/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
               <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">App Store (bald)</a>
@@ -507,44 +483,6 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════════════
-          TESTIMONIALS — Dark Section
-          ═══════════════════════════════════════════════════ */}
-      <section id="testimonials" className="relative py-16 sm:py-24 px-4 sm:px-6 lg:px-8 overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 100%)' }}>
-        <div className="orb orb-rose w-[350px] h-[350px] -top-20 -right-20 opacity-30" />
-        <div className="orb orb-violet w-[250px] h-[250px] bottom-0 left-0 opacity-20" />
-
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-[-0.04em]">Das sagen unsere Nutzerinnen</h2>
-            <p className="mt-4 text-lg text-white/50">Echte Erfahrungen von echten Frauen.</p>
-          </div>
-          <div className="grid gap-5 md:grid-cols-3">
-            {testimonials.map((t, i) => (
-              <div key={t.name} className={`glass-dark p-6 group animate-fade-in animate-stagger-${i + 1}`}>
-                <Quote className="h-8 w-8 text-white/8 mb-4" />
-                <div className="flex gap-0.5 mb-4">
-                  {Array.from({ length: t.rating }).map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  ))}
-                </div>
-                <p className="text-sm text-white/60 leading-relaxed mb-6">
-                  &ldquo;{t.text}&rdquo;
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-400 to-violet-500 flex items-center justify-center text-white text-sm font-bold shadow-lg">
-                    {t.name[0]}
-                  </div>
-                  <div>
-                    <p className="text-sm font-semibold text-white/90">{t.name}</p>
-                    <p className="text-xs text-white/40">{t.location}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       {/* ═══════════════════════════════════════════════════
           PRICING — Shimmer Border
@@ -646,7 +584,6 @@ export default function LandingPage() {
                 <li><a href="#features" className="hover:text-[var(--rose)] transition-colors">Features</a></li>
                 <li><a href="#faq" className="hover:text-[var(--rose)] transition-colors">FAQ</a></li>
                 <li><a href="#pricing" className="hover:text-[var(--rose)] transition-colors">Preis</a></li>
-                <li><a href="#testimonials" className="hover:text-[var(--rose)] transition-colors">Erfahrungen</a></li>
                 <li><Link href="/de/blog" className="hover:text-[var(--rose)] transition-colors">Blog</Link></li>
                 <li>
                   <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-[var(--rose)] transition-colors">
