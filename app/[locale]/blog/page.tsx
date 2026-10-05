@@ -22,8 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   return {
     // absolute: sonst haengt das Root-Layout ein zweites " | Basaltemperatur" an.
-    title: { absolute: 'Blog | Basaltemperatur' },
-    description: 'Alle Artikel rund um Basaltemperatur, Zyklusbeobachtung und Temperaturkurven.',
+    title: { absolute: 'Zyklus und Temperaturkurven | Basaltemperatur' },
+    description: 'Ratgeber zur Zyklusbeobachtung: Basaltemperatur messen, Temperaturkurven verstehen und Zyklus-Apps nach Funktionen, Kosten und Datenschutz vergleichen.',
     alternates: {
       canonical: `${getSeoSiteUrl()}/${locale}/blog`,
     },

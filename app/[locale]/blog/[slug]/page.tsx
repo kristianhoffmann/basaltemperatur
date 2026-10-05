@@ -1,3 +1,4 @@
+import { resolveBlogMetadata } from "@/lib/seo-autopilot/metadata-overrides";
 import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
@@ -55,6 +56,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const post = await getCachedPost(locale, slug)
   if (!post) notFound()
 
+  const metadata = resolveBlogMetadata(locale, slug, post.title, post.meta_description)
+
   const siteUrl = getSeoSiteUrl()
   const canonical = `${siteUrl}/${locale}/blog/${slug}`
   const ogImage = post.hero_image_url
@@ -64,12 +67,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     // absolute: ohne das haengt das Root-Layout " | Basaltemperatur" an und die
     // ohnehin schon langen Artikel-Titel reissen die 60-Zeichen-Grenze.
-    title: { absolute: post.title },
-    description: post.meta_description,
+    title: { absolute: metadata.title },
+    description: metadata.description,
     alternates: { canonical },
     openGraph: {
-      title: post.title,
-      description: post.meta_description,
+      title: metadata.title,
+      description: metadata.description,
       url: canonical,
       type: 'article',
       publishedTime: post.published_at,
@@ -78,8 +81,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     twitter: {
       card: 'summary_large_image',
-      title: post.title,
-      description: post.meta_description,
+      title: metadata.title,
+      description: metadata.description,
       images: ogImage?.map((i) => i.url),
     },
     robots: { index: true, follow: true },
