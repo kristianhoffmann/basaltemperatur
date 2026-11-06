@@ -8,7 +8,7 @@ export function reviewSubmission(
   const candidate = { slug: payload.slug, title: payload.title, tags: payload.tags, locale: payload.locale }
   const topics = getPostTopics(candidate)
   const contentIssues = articleContentIssues(payload.mdxBody)
-  const overlappingSlugs = relatedPosts(candidate, existing.map((item) => ({ ...item, locale: payload.locale })), 5).map((post) => post.slug)
+  const overlappingSlugs = relatedPosts(candidate, existing.map((item) => ({ ...item, locale: payload.locale })), 5, 0).map((post) => post.slug)
   return { topics, overlappingSlugs, contentIssues }
 }
 

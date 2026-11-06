@@ -23,11 +23,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function TopicPage({ params }: Props) {
   const { locale, entry } = await getTopic(params)
   const posts = topicPosts(await getCachedPosts(locale), entry.slug)
+  const firstImage = posts.find((post) => post.hero_image_url)
   return <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
     <BlogHeader locale={locale} /><main className="mx-auto max-w-6xl px-4 py-12">
       <h1 className="text-4xl font-extrabold">{entry.title}</h1><p className="my-6 text-lg">{entry.description}</p>
       <BlogTopicsNav locale={locale} />
-      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{posts.map((post) => <BlogPostCard key={post.id} post={post} />)}</div>
+      <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{posts.map((post) => <BlogPostCard key={post.id} post={post} priority={post === firstImage} />)}</div>
       {!posts.length && <p className="mt-8">Zu diesem Thema sind noch keine Artikel veröffentlicht.</p>}
     </main><BlogFooter />
   </div>

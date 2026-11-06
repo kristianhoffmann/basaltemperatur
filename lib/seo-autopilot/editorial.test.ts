@@ -26,6 +26,10 @@ describe('editorial warnings', () => {
   it('reports no known topics for off-topic submissions', () => {
     expect(reviewSubmission({ ...payload, title: 'E-Mail erstellen', slug: 'email', mdxBody: 'E-Mail' }, []).topics).toEqual([])
   })
+  it('does not report general reading suggestions as competing article intentions', () => {
+    const review = reviewSubmission(payload, [{ slug: 'email', title: 'E-Mail erstellen', tags: [] }])
+    expect(review.overlappingSlugs).toEqual([])
+  })
   it('reports missing short answers and unsourced numeric claims', () => {
     for (const mdxBody of ['Nur ein Satz.', 'Die Temperatur steigt um 0,2 °C. Diese Aussage braucht einen Beleg.']) {
       expect(reviewSubmission({ ...payload, mdxBody }, []).contentIssues.length).toBeGreaterThan(0)

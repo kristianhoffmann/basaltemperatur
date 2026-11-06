@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getCachedPost, getCachedPosts } from '@/app/[locale]/blog/posts'
 import { BLOG_PAGE_SIZE, blogPage } from '@/lib/blog-pagination'
-import { authorPath, blogUrl } from '@/lib/blog-urls'
+import { authorPath, authorSlug, blogUrl } from '@/lib/blog-urls'
 import { BLOG_TOPICS } from '@/lib/seo-autopilot/discovery'
 import { internalRedirect } from '@/lib/seo-autopilot/source'
 import { signBlogRender } from '@/lib/seo-autopilot/blog-response'
@@ -35,8 +35,8 @@ export async function GET(request: NextRequest) {
     if (topic) {
       if (!BLOG_TOPICS.some((entry) => entry.slug === topic[1])) return missing()
     } else if (author) {
-      const name = decodeURIComponent(author[1]).trim().toLocaleLowerCase('de-DE')
-      const authored = posts.find((post) => post.author?.name?.trim().toLocaleLowerCase('de-DE') === name)
+      const name = authorSlug(decodeURIComponent(author[1]))
+      const authored = posts.find((post) => post.author?.name && authorSlug(post.author.name) === name)
       if (!authored?.author?.name) return missing()
       if (!(await getCachedPost('de', authored.slug))) return missing()
       const canonical = authorPath(authored.author.name)

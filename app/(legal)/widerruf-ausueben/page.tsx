@@ -4,6 +4,7 @@ import { WithdrawalForm } from './WithdrawalForm';
 
 export const metadata: Metadata = {
   title: 'Vertrag widerrufen',
+  alternates: { canonical: '/widerruf-ausueben' },
   description:
     'Elektronische Widerrufsfunktion nach § 356a BGB: Vertrag online widerrufen und sofort eine Eingangsbestätigung erhalten.',
 };

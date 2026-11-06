@@ -65,10 +65,11 @@ it('selects homepage articles from product topics and leaves unrelated posts out
   expect(featuredPosts(posts).map((item) => item.slug)).toEqual(['messen', 'tagebuch', 'app'])
 })
 
-it('does not recommend an unrelated article just because generic words overlap', () => {
+it('keeps fallback suggestions separate from editorial topic overlap checks', () => {
   const current = post('app', 'Zyklus-App Datenschutz')
   const unrelated = post('behoerde', 'Berliner Datenschutzbehörde Datenschutz')
-  expect(relatedPosts(current, [current, unrelated])).toEqual([])
+  expect(relatedPosts(current, [current, unrelated], 3, 0)).toEqual([])
+  expect(relatedPosts(current, [current, unrelated])).toEqual([unrelated])
 })
 it('provides the shared Organization and WebSite identities for the root layout', async () => {
   const { siteSchema } = await import('./structured-data')

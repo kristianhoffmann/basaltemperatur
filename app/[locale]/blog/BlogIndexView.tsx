@@ -10,7 +10,9 @@ const HERO_GRADIENT = 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 
 
 export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; posts: BlogPostSummary[]; page?: number }) {
   const pageCount = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
-  const [featured, ...rest] = posts.slice((page - 1) * BLOG_PAGE_SIZE, page * BLOG_PAGE_SIZE)
+  const pagePosts = posts.slice((page - 1) * BLOG_PAGE_SIZE, page * BLOG_PAGE_SIZE)
+  const [featured, ...rest] = pagePosts
+  const firstImage = pagePosts.find((post) => post.hero_image_url)
 
   return (
     <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
@@ -47,7 +49,7 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
               {rest.length > 0 && (
                 <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                   {rest.map((post) => (
-                    <BlogPostCard key={post.id} post={post} />
+                    <BlogPostCard key={post.id} post={post} priority={post === firstImage} />
                   ))}
                 </div>
               )}

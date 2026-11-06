@@ -26,7 +26,7 @@ export function topicPosts<T extends TopicPost>(posts: T[], topic: string): T[] 
   return posts.filter((post) => getPostTopics(post).includes(topic))
 }
 
-export function relatedPosts<T extends LinkedPost>(post: LinkedPost, posts: T[], limit = 3): T[] {
+export function relatedPosts<T extends LinkedPost>(post: LinkedPost, posts: T[], limit = 3, fallbackLimit = 3): T[] {
   const topics = getPostTopics(post)
   const words = tokens(post)
   const incoming = new Map<string, number>()
@@ -36,16 +36,23 @@ export function relatedPosts<T extends LinkedPost>(post: LinkedPost, posts: T[],
     }
   }
   // Rotate ties per source so equal candidates do not concentrate on the same three URLs.
-  const order = [...new Set([post.slug, ...posts.map((item) => item.slug)])].sort()
+  const localPosts = posts.filter((item) => !post.locale || item.locale === post.locale)
+  const order = [...new Set([post.slug, ...localPosts.map((item) => item.slug)])].sort()
   const position = new Map(order.map((slug, index) => [slug, index]))
   const distance = (slug: string) => ((position.get(slug) ?? 0) - position.get(post.slug)! + order.length) % order.length
-  return posts.filter((item) => item.slug !== post.slug && (!post.locale || item.locale === post.locale)
+  const relevant = localPosts.filter((item) => item.slug !== post.slug
       && (!topics.length || getPostTopics(item).some((topic) => topics.includes(topic))))
     .map((item) => ({ item, score: getPostTopics(item).filter((topic) => topics.includes(topic)).length * 10
       + [...tokens(item)].filter((word) => words.has(word)).length }))
     .filter(({ score }) => score > 0)
     .sort((a, b) => b.score - a.score || (incoming.get(a.item.slug) ?? 0) - (incoming.get(b.item.slug) ?? 0) || distance(a.item.slug) - distance(b.item.slug))
     .slice(0, limit).map(({ item }) => item)
+  // Keep topic matches, then add a stable rotating selection across the whole blog.
+  // Every post receives links from the preceding three articles, including posts
+  // without tags/topics. Filling only vacant relevance slots would still orphan them.
+  const fallback = localPosts.filter((item) => item.slug !== post.slug)
+    .sort((a, b) => distance(a.slug) - distance(b.slug)).slice(0, fallbackLimit)
+  return [...new Map([...relevant, ...fallback].map((item) => [item.slug, item])).values()]
 }
 
 export function resolveInternalLinks(post: LinkedPost, posts: BlogPostSummary[]) {

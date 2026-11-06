@@ -18,6 +18,11 @@ export function topicPath(topic: string, locale = 'de') {
   return `${blogPath(locale)}/themen/${encodeURIComponent(topic)}`
 }
 
+export function authorSlug(name: string) {
+  return name.trim().toLocaleLowerCase('de-DE').normalize('NFKD')
+    .replace(/\p{M}/gu, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '')
+}
+
 export function authorPath(name: string, locale = 'de') {
-  return `${blogPath(locale)}/autor/${encodeURIComponent(name.trim().toLocaleLowerCase('de-DE'))}`
+  return `${blogPath(locale)}/autor/${authorSlug(name)}`
 }

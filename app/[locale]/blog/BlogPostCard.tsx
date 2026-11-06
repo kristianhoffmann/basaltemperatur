@@ -6,10 +6,12 @@ import { formatBlogDate, type BlogPostSummary } from './posts'
 export function BlogPostCard({
   post,
   featured = false,
+  priority = featured,
   headingLevel = 'h2',
 }: {
   post: BlogPostSummary
   featured?: boolean
+  priority?: boolean
   headingLevel?: 'h2' | 'h3'
 }) {
   const href = blogPath(post.locale, post.slug)
@@ -30,7 +32,8 @@ export function BlogPostCard({
             alt={post.hero_image_alt ?? post.title}
             width={1792}
             height={1024}
-            loading={featured ? 'eager' : 'lazy'}
+            loading={priority ? 'eager' : 'lazy'}
+            fetchPriority={priority ? 'high' : undefined}
             decoding="async"
             className={`h-full w-full object-cover transition duration-500 group-hover:scale-[1.03] ${featured ? 'lg:min-h-[340px]' : 'aspect-[16/9]'}`}
           />

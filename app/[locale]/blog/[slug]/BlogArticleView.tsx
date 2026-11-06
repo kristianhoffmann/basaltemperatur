@@ -55,6 +55,7 @@ export function BlogArticleView({
   const internalLinks = resolveInternalLinks(post, posts)
   const topics = getPostTopics(post)
   const updated = isMeaningfullyUpdated(post.published_at, post.updated_at)
+  const firstRelatedImage = !post.hero_image_url ? related.find((item) => item.hero_image_url) : undefined
 
   return (
     <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
@@ -187,14 +188,14 @@ export function BlogArticleView({
         {related.length > 0 && (
           <section aria-labelledby="weiterlesen" className="mx-auto mt-20 max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
-              <h2 id="weiterlesen" className="text-3xl font-extrabold tracking-tight text-slate-950">Verwandte Artikel</h2>
+              <h2 id="weiterlesen" className="text-3xl font-extrabold tracking-tight text-slate-950">Weitere Artikel</h2>
               <Link href={`/${locale}/blog`} className="text-sm font-semibold text-rose-600 hover:text-rose-700">
                 Alle Artikel
               </Link>
             </div>
             <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {related.map((item) => (
-                <BlogPostCard key={item.id} post={item} headingLevel="h3" />
+                <BlogPostCard key={item.id} post={item} headingLevel="h3" priority={item === firstRelatedImage} />
               ))}
             </div>
           </section>

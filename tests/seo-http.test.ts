@@ -57,6 +57,19 @@ it('canonicalizes page 1 and author spelling', async () => {
   expect((await route('/de/blog?page=1')).headers.get('location')).toBe('https://www.basaltemperatur.online/de/blog')
   expect((await route('/de/blog/autor/Testautor')).headers.get('location')).toBe('https://www.basaltemperatur.online/de/blog/autor/testautor')
 })
+it('serves the hyphenated author URL directly and redirects the old space URL to it', async () => {
+  const post = { slug: 'example', author: { name: 'Kristian Hoffmann' } }
+  data.listPosts.mockResolvedValue([post])
+  data.getPost.mockResolvedValue(post)
+  const canonical = '/de/blog/autor/kristian-hoffmann'
+  const response = await route(canonical)
+  expect(response.status).toBe(200)
+  expect(response.headers.get('location')).toBeNull()
+  expect(String(vi.mocked(fetch).mock.calls[0][0])).toBe(`http://127.0.0.1:3000${canonical}`)
+  const legacy = await route('/de/blog/autor/kristian%20hoffmann')
+  expect(legacy.status).toBe(308)
+  expect(legacy.headers.get('location')).toBe(`https://www.basaltemperatur.online${canonical}`)
+})
 it.each(['/de/blog/themen/invented', '/de/blog/autor/invented'])('returns 404 for unknown %s', async (path) => {
   expect((await route(path)).status).toBe(404)
 })
