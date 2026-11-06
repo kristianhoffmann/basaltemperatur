@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { blogPath } from '@/lib/blog-urls'
 import { ArrowRight } from 'lucide-react'
 import { formatBlogDate, type BlogPostSummary } from './posts'
 
@@ -11,7 +12,7 @@ export function BlogPostCard({
   featured?: boolean
   headingLevel?: 'h2' | 'h3'
 }) {
-  const href = `/${post.locale}/blog/${post.slug}`
+  const href = blogPath(post.locale, post.slug)
   const Heading = headingLevel
 
   return (

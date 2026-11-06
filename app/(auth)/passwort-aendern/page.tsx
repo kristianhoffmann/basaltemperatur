@@ -13,11 +13,11 @@ export const metadata: Metadata = {
 }
 
 interface PageProps {
-  searchParams: { code?: string; error?: string }
+  searchParams: Promise<{ code?: string; error?: string }>
 }
 
-export default function ResetPasswordPage({ searchParams }: PageProps) {
-  const { code, error } = searchParams
+export default async function ResetPasswordPage({ searchParams }: PageProps) {
+  const { code, error } = await searchParams
 
   // If there's no code and no error, redirect to forgot password
   if (!code && !error) {

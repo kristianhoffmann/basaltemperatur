@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import { authorPath, topicPath } from '@/lib/blog-urls'
+import { BLOG_TOPICS, getPostTopics, resolveInternalLinks } from '@/lib/seo-autopilot/discovery'
 import { ChevronRight, Clock, ListOrdered } from 'lucide-react'
 import { BlogFooter, BlogHeader } from '../BlogChrome'
-import { BlogCtaBand, BlogCtaCard } from '../BlogCta'
+import { ArticleCta } from '../ArticleCta'
 import { BlogPostCard } from '../BlogPostCard'
 import { formatBlogDate, type BlogPost, type BlogPostSummary } from '../posts'
 import { BlogArticleBody, estimateReadingMinutes, extractHeadings, type ArticleHeading } from './BlogArticleBody'
@@ -38,22 +40,26 @@ export function BlogArticleView({
   post,
   locale,
   related,
+  posts = related,
   beforeContent,
 }: {
   post: BlogPost
   locale: string
   related: BlogPostSummary[]
+  posts?: BlogPostSummary[]
   beforeContent?: React.ReactNode
 }) {
   const headings = extractHeadings(post.mdx_body)
   const readingMinutes = estimateReadingMinutes(post.mdx_body)
   const authorName = post.author?.name
+  const internalLinks = resolveInternalLinks(post, posts)
+  const topics = getPostTopics(post)
   const updated = isMeaningfullyUpdated(post.published_at, post.updated_at)
 
   return (
     <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
       {beforeContent}
-      <BlogHeader locale={locale} />
+      <BlogHeader locale={locale} from={post.slug} />
 
       <main>
         <article>
@@ -80,7 +86,7 @@ export function BlogArticleView({
                     <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-violet-500 text-xs font-bold text-white">
                       {authorName.charAt(0).toUpperCase()}
                     </span>
-                    <span className="font-medium text-white/85">{authorName}</span>
+                    <Link href={authorPath(authorName, locale)} className="font-medium text-white/85 underline underline-offset-4">{authorName}</Link>
                   </span>
                 )}
                 <time dateTime={post.published_at}>{formatBlogDate(post.published_at)}</time>
@@ -132,7 +138,30 @@ export function BlogArticleView({
                 )}
 
                 <div className="rounded-[1.75rem] border border-slate-200/80 bg-white px-5 py-9 shadow-sm sm:px-10 sm:py-12 lg:px-14">
-                  <BlogArticleBody source={post.mdx_body} />
+                  <BlogArticleBody source={post.mdx_body} inlineCta={<ArticleCta post={post} />} />
+                  <ArticleCta post={post} />
+                  {authorName && (
+                    <section aria-label="Über den Autor" className="mt-10 border-t border-slate-200 pt-6">
+                      <h2 className="text-xl font-bold"><Link href={authorPath(authorName, locale)}>{authorName}</Link></h2>
+                      {post.author?.jobTitle && <p className="mt-2 text-sm text-slate-600">{post.author.jobTitle}</p>}
+                      {post.author?.bio && <p className="mt-3 text-slate-700">{post.author.bio}</p>}
+                    </section>
+                  )}
+                  {internalLinks.length > 0 && (
+                    <nav aria-label="Vertiefende Artikel" className="mt-8 border-t border-slate-200 pt-6">
+                      <h2 className="text-xl font-bold">Vertiefende Artikel</h2>
+                      <ul className="mt-3 space-y-2">{internalLinks.map((link) => (
+                        <li key={link.href}><Link className="text-rose-700 underline" href={link.href}>{link.label}</Link></li>
+                      ))}</ul>
+                    </nav>
+                  )}
+                  {topics.length > 0 && (
+                    <nav aria-label="Themen" className="mt-8 flex flex-wrap gap-3">
+                      {BLOG_TOPICS.filter((topic) => topics.includes(topic.slug)).map((topic) => (
+                        <Link className="text-rose-700 underline" href={topicPath(topic.slug, locale)} key={topic.slug}>{topic.title}</Link>
+                      ))}
+                    </nav>
+                  )}
                   <MedicalDisclaimer />
                 </div>
               </div>
@@ -149,7 +178,7 @@ export function BlogArticleView({
                     </div>
                   </nav>
                 )}
-                <BlogCtaCard />
+
               </aside>
             </div>
           </div>
@@ -158,7 +187,7 @@ export function BlogArticleView({
         {related.length > 0 && (
           <section aria-labelledby="weiterlesen" className="mx-auto mt-20 max-w-6xl px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
-              <h2 id="weiterlesen" className="text-3xl font-extrabold tracking-tight text-slate-950">Weiterlesen</h2>
+              <h2 id="weiterlesen" className="text-3xl font-extrabold tracking-tight text-slate-950">Verwandte Artikel</h2>
               <Link href={`/${locale}/blog`} className="text-sm font-semibold text-rose-600 hover:text-rose-700">
                 Alle Artikel
               </Link>
@@ -171,9 +200,7 @@ export function BlogArticleView({
           </section>
         )}
 
-        <div className="py-20">
-          <BlogCtaBand />
-        </div>
+
       </main>
 
       <BlogFooter />

@@ -1,13 +1,15 @@
 import Link from 'next/link'
+import { withFrom } from '@/lib/seo-autopilot/source'
 import { ExternalLink, Smartphone } from 'lucide-react'
 import { Logo } from '@/components/shared/Logo'
 import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
 
-export function BlogHeader({ locale }: { locale: string }) {
+export function BlogHeader({ locale, from }: { locale: string; from?: string }) {
   return (
     <header className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 100%)' }}>
+      <meta name="seo-content-ready" content="true" />
       <nav className="relative z-20 mx-auto max-w-6xl px-4 py-5 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
@@ -21,15 +23,15 @@ export function BlogHeader({ locale }: { locale: string }) {
             <Link href="/#pricing" className="text-sm text-white/50 transition-colors hover:text-white">Preis</Link>
             <Link href={`/${locale}/blog`} className="text-sm text-white transition-colors">Blog</Link>
             <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 transition-colors hover:text-white">App Store (bald)</a>
-            <Link href="/login" className="text-sm text-white/50 transition-colors hover:text-white">Anmelden</Link>
-            <Link href="/registrieren" className="btn btn-sm border border-white/15 bg-white/5 text-white backdrop-blur-sm transition-all hover:bg-white/10">
+            <Link href={withFrom("/login", from)} className="text-sm text-white/50 transition-colors hover:text-white">Anmelden</Link>
+            <Link href={withFrom("/registrieren", from)} className="btn btn-sm border border-white/15 bg-white/5 text-white backdrop-blur-sm transition-all hover:bg-white/10">
               Kostenlos starten
             </Link>
           </div>
           <div className="flex flex-col items-end gap-2 md:hidden">
             <div className="flex items-center gap-3">
-              <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
-              <Link href="/registrieren" className="btn btn-sm border border-white/15 bg-white/5 !px-3 text-white">
+              <Link href={withFrom("/login", from)} className="text-sm text-white/60">Anmelden</Link>
+              <Link href={withFrom("/registrieren", from)} className="btn btn-sm border border-white/15 bg-white/5 !px-3 text-white">
                 Kostenlos starten
               </Link>
             </div>
@@ -70,6 +72,8 @@ export function BlogFooter() {
               <li><Link href="/#faq" className="transition-colors hover:text-[var(--rose)]">FAQ</Link></li>
               <li><Link href="/#pricing" className="transition-colors hover:text-[var(--rose)]">Preis</Link></li>
               <li><Link href="/#testimonials" className="transition-colors hover:text-[var(--rose)]">Erfahrungen</Link></li>
+              <li><Link href="/werkzeuge/temperatur-hilfslinie" className="transition-colors hover:text-[var(--rose)]">Temperatur-Hilfslinie</Link></li>
+              <li><Link href="/ueber-uns" className="transition-colors hover:text-[var(--rose)]">Über uns</Link></li>
               <li><Link href="/de/blog" className="transition-colors hover:text-[var(--rose)]">Blog</Link></li>
               <li>
                 <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 transition-colors hover:text-[var(--rose)]">

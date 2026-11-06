@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { Fragment, type ReactNode } from 'react'
 
 type MarkdownBlock =
   | { type: 'heading'; level: 1 | 2 | 3 | 4; text: string; id: string }
@@ -13,12 +13,12 @@ export interface ArticleHeading {
   text: string
 }
 
-export function BlogArticleBody({ source }: { source: string }) {
+export function BlogArticleBody({ source, inlineCta }: { source: string; inlineCta?: ReactNode }) {
   const blocks = parseMarkdown(source)
   const firstParagraph = blocks.findIndex((block) => block.type === 'paragraph')
   return (
     <div className="space-y-6 text-[1.0625rem] leading-[1.8] text-slate-700">
-      {blocks.map((block, index) => renderBlock(block, index, index === firstParagraph))}
+      {blocks.map((block, index) => <Fragment key={index}>{renderBlock(block, index, index === firstParagraph)}{index === (firstParagraph >= 0 ? firstParagraph : 0) && inlineCta}</Fragment>)}
     </div>
   )
 }
@@ -198,7 +198,7 @@ function renderBlock(block: MarkdownBlock, index: number, isLead: boolean): Reac
 
 function renderInline(text: string): ReactNode[] {
   const nodes: ReactNode[] = []
-  const pattern = /(\*\*([^*]+)\*\*)|(`([^`]+)`)|\[([^\]]+)]\((https?:\/\/[^)]+|\/[^)]+)\)/g
+  const pattern = /(\*\*([^*]+)\*\*)|(`([^`]+)`)|\[([^\]]+)]\(([^\s)]+)\)/g
   let lastIndex = 0
   let match: RegExpExecArray | null
 
@@ -210,11 +210,12 @@ function renderInline(text: string): ReactNode[] {
       nodes.push(<code key={nodes.length} className="rounded-md bg-slate-100 px-1.5 py-0.5 text-[0.9em] text-slate-900">{match[4]}</code>)
     } else if (match[5] && match[6]) {
       const href = match[6]
-      nodes.push(
+      if (/^(?:https?:\/\/|[./#?]|[^:]+$)/i.test(href) && !/^(?:javascript|data|vbscript):/i.test(href) && !href.startsWith('//')) nodes.push(
         <a key={nodes.length} href={href} className="font-medium text-rose-600 underline decoration-rose-300 underline-offset-4 transition-colors hover:text-rose-700 hover:decoration-rose-500" rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}>
           {match[5]}
         </a>,
       )
+      else nodes.push(match[5])
     }
     lastIndex = pattern.lastIndex
   }

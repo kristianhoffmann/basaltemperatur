@@ -9,19 +9,21 @@ import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { rememberArticleSource } from '@/lib/actions/auth'
+import { internalRedirect } from '@/lib/seo-autopilot/source'
 import { Eye, EyeOff } from 'lucide-react'
 
 interface LoginFormProps {
   redirectTo?: string
+  from?: string
 }
 
-export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
+export function LoginForm({ redirectTo = '/dashboard', from }: LoginFormProps) {
   const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const safeRedirectTo =
-    redirectTo.startsWith('/') && !redirectTo.startsWith('//') ? redirectTo : '/dashboard'
+  const safeRedirectTo = internalRedirect(redirectTo)
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -51,12 +53,14 @@ export function LoginForm({ redirectTo = '/dashboard' }: LoginFormProps) {
       return
     }
 
+    await rememberArticleSource(formData.get('from'))
     router.push(safeRedirectTo)
     router.refresh()
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {from && <input type="hidden" name="from" value={from} />}
       {error && (
         <div className="rounded-2xl bg-red-50 border border-red-200 p-3 text-sm text-red-600">
           {error}

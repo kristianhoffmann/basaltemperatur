@@ -1,3 +1,6 @@
+import Link from 'next/link'
+import { BLOG_PAGE_SIZE } from '@/lib/blog-pagination'
+import { BlogTopicsNav } from './BlogDiscovery'
 import { BlogFooter, BlogHeader } from './BlogChrome'
 import { BlogCtaBand } from './BlogCta'
 import { BlogPostCard } from './BlogPostCard'
@@ -5,8 +8,9 @@ import type { BlogPostSummary } from './posts'
 
 const HERO_GRADIENT = 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 100%)'
 
-export function BlogIndexView({ locale, posts }: { locale: string; posts: BlogPostSummary[] }) {
-  const [featured, ...rest] = posts
+export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; posts: BlogPostSummary[]; page?: number }) {
+  const pageCount = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
+  const [featured, ...rest] = posts.slice((page - 1) * BLOG_PAGE_SIZE, page * BLOG_PAGE_SIZE)
 
   return (
     <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
@@ -31,6 +35,7 @@ export function BlogIndexView({ locale, posts }: { locale: string; posts: BlogPo
           </div>
         </section>
 
+        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-28"><BlogTopicsNav locale={locale} /></div>
         <section className="relative mx-auto -mt-16 max-w-6xl px-4 sm:-mt-24 sm:px-6 lg:px-8">
           {!featured ? (
             <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-slate-500">
@@ -50,6 +55,9 @@ export function BlogIndexView({ locale, posts }: { locale: string; posts: BlogPo
           )}
         </section>
 
+        {pageCount > 1 && <nav aria-label="Blogseiten" className="mx-auto mt-10 flex max-w-6xl flex-wrap gap-3 px-4">
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => <Link key={number} aria-current={number === page ? 'page' : undefined} className="rounded-lg border bg-white px-4 py-2 text-rose-800" href={number === 1 ? `/${locale}/blog` : `/${locale}/blog?page=${number}`}>Seite {number}</Link>)}
+        </nav>}
         <div className="py-20">
           <BlogCtaBand />
         </div>

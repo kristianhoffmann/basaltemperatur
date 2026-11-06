@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server'
-import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { blogUrl } from '@/lib/blog-urls'
 
 type RouteContext = {
   params: Promise<{ slug: string }>
@@ -18,5 +18,5 @@ type RouteContext = {
  */
 export async function GET(_request: Request, context: RouteContext) {
   const { slug } = await context.params
-  return NextResponse.redirect(new URL(`/de/blog/${slug}`, getSeoSiteUrl()), 308)
+  return NextResponse.redirect(new URL(blogUrl('de', slug)), 308)
 }

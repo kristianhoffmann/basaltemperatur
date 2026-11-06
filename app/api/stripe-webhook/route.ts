@@ -1,15 +1,16 @@
 // app/api/stripe-webhook/route.ts
 // Handles Stripe webhook events – grants lifetime access on successful payment
 
-import { NextResponse } from 'next/server'
+import { after, NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
-import { trackConversion } from '@/lib/seo-autopilot/attribution'
+import { trackConversion, shouldTrackAccount } from '@/lib/seo-autopilot/attribution'
 import { getLegalCompany, getLegalInfrastructure } from '@/lib/legal/config'
 import { sendPurchaseConfirmation } from '@/lib/purchase-confirmation'
+import { normalizeFrom } from '@/lib/seo-autopilot/source'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
 
-export async function POST(request: Request) {
+async function handleStripeWebhook(request: Request) {
     // .trim(): the deployed STRIPE_WEBHOOK_SECRET carried a trailing newline, which
     // makes constructEvent reject every signature ("The provided signing secret
     // contains whitespace") and turned this endpoint into a 100% failure rate.
@@ -20,7 +21,7 @@ export async function POST(request: Request) {
     if (!stripeSecretKey || !stripeWebhookSecret) {
         return NextResponse.json(
             { error: 'Stripe Webhook nicht vollständig konfiguriert (STRIPE_SECRET_KEY / STRIPE_WEBHOOK_SECRET).' },
-            { status: 500 },
+            { status: 503, headers: { 'Retry-After': '60' } },
         )
     }
 
@@ -82,6 +83,22 @@ export async function POST(request: Request) {
             return NextResponse.json({ received: true, unmapped: true })
         }
 
+        // Stable session key deduplicates both paid event types and Stripe retries.
+        const reportPurchase = () => {
+            if (event.livemode !== true || session.metadata?.seo_excluded === 'true' ||
+                session.currency?.toLowerCase() !== 'eur' || typeof session.amount_total !== 'number' || !Number.isFinite(session.amount_total)) return
+            after(async () => {
+                try {
+                    const { data, error } = await supabaseAdmin.auth.admin.getUserById(userId)
+                    if (error || !data.user || !shouldTrackAccount(data.user)) return
+                    await trackConversion({
+                        eventName: 'purchase', revenue: (session.amount_total ?? 0) / 100,
+                        currency: 'EUR', occurredOn: new Date(event.created * 1000).toISOString(), idempotencyKey: `stripe:purchase:${session.id}`,
+                    }, { slug: normalizeFrom(session.metadata?.seo_slug) })
+                } catch { console.error('[seo-autopilot] Purchase measurement unavailable') }
+            })
+        }
+
         // Only the delivery that flips the flag gets rows back. Stripe redelivers
         // events, and the confirmation mail must go out exactly once.
         const { data: granted, error } = await supabaseAdmin
@@ -97,7 +114,7 @@ export async function POST(request: Request) {
 
         if (error) {
             console.error('Failed to grant lifetime access:', error)
-            return NextResponse.json({ error: 'Database error' }, { status: 500 })
+            return NextResponse.json({ error: 'Database error' }, { status: 503, headers: { 'Retry-After': '60' } })
         }
 
         if (!granted?.length) {
@@ -107,12 +124,15 @@ export async function POST(request: Request) {
                 .eq('id', userId)
                 .maybeSingle()
             if (existing?.has_lifetime_access) {
+                reportPurchase()
                 console.info(`Checkout session ${session.id}: access already granted, no confirmation resent.`)
                 return NextResponse.json({ received: true, duplicate: true })
             }
             console.error(`Checkout session ${session.id}: no profile for user ${userId}, access not granted.`)
             return NextResponse.json({ received: true, unmapped: true })
         }
+
+        reportPurchase()
 
         const customerEmail = session.customer_details?.email || session.customer_email
         if (customerEmail) {
@@ -137,20 +157,19 @@ export async function POST(request: Request) {
             console.error(`Checkout session ${session.id} has no customer email; purchase confirmation not sent.`)
         }
 
-        await trackConversion({
-            eventName: 'purchase',
-            revenue: typeof session.amount_total === 'number' ? session.amount_total / 100 : 0,
-            currency: session.currency?.toUpperCase() || 'EUR',
-            idempotencyKey: `stripe:purchase:${session.id}`,
-        }, {
-            postId: session.metadata?.seo_post_id,
-            slug: session.metadata?.seo_slug,
-            locale: session.metadata?.seo_locale,
-            keyword: session.metadata?.seo_keyword,
-        })
 
         console.log(`✅ Lifetime access granted to user: ${userId}`)
     }
 
     return NextResponse.json({ received: true })
+}
+
+export async function POST(request: Request) {
+  try {
+    return await handleStripeWebhook(request)
+  } catch {
+    return NextResponse.json({ error: 'Dienst vorübergehend nicht verfügbar.' }, {
+      status: 503, headers: { 'Retry-After': '60', 'Cache-Control': 'no-store' },
+    })
+  }
 }

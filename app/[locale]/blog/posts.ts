@@ -1,5 +1,5 @@
 import { unstable_cache } from 'next/cache'
-import { hasStorageCredentials, listPosts } from '@/lib/seo-autopilot/storage'
+import { getPost, listPosts } from '@/lib/seo-autopilot/storage'
 
 export interface BlogPostSummary {
   id: string
@@ -11,6 +11,8 @@ export interface BlogPostSummary {
   hero_image_alt: string | null
   tags: string[] | null
   author: { name?: string } | null
+  internal_links?: { targetSlug: string; anchorText: string }[] | null
+  updated_at?: string | null
   published_at: string
 }
 
@@ -25,12 +27,22 @@ export interface BlogPost extends BlogPostSummary {
 // revalidation of blog-index:<locale> refreshes both.
 export function getCachedPosts(locale: string): Promise<BlogPostSummary[]> {
   return unstable_cache(async (): Promise<BlogPostSummary[]> => {
-    if (!hasStorageCredentials()) return []
     return listPosts(locale)
   }, [`blog-index-${locale}`], {
     tags: [`blog-index:${locale}`],
-    revalidate: false,
+    revalidate: 300,
   })()
+}
+
+// Optional article modules must not take their surrounding page offline.
+// Catch outside unstable_cache so a failed read never caches an empty index.
+export async function getOptionalPosts(locale: string): Promise<BlogPostSummary[]> {
+  try {
+    return await getCachedPosts(locale)
+  } catch (error) {
+    console.error('[seo] Optional articles unavailable:', error)
+    return []
+  }
 }
 
 export function formatBlogDate(value: string) {
@@ -39,4 +51,9 @@ export function formatBlogDate(value: string) {
     month: 'long',
     day: 'numeric',
   })
+}
+
+export function getCachedPost(locale: string, slug: string) {
+  return unstable_cache(() => getPost(locale, slug) as Promise<BlogPost | null>,
+    [`post-${locale}-${slug}`], { tags: [`post:${locale}:${slug}`], revalidate: 60 })()
 }

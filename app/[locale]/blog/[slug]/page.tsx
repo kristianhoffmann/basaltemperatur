@@ -1,14 +1,13 @@
 import { resolveBlogMetadata } from "@/lib/seo-autopilot/metadata-overrides";
-import { unstable_cache } from 'next/cache'
 import { notFound } from 'next/navigation'
 import type { Metadata } from 'next'
-import { getPost, listPosts } from '@/lib/seo-autopilot/storage'
-import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { hasStorageCredentials, listPosts } from '@/lib/seo-autopilot/storage'
 import { BLOG_LOCALES, isBlogLocale } from '@/lib/blog-locales'
-import { withCanonicalHost } from '@/lib/canonical-host'
-import { getCachedPosts, type BlogPost } from '../posts'
+import { blogUrl } from '@/lib/blog-urls'
+import { relatedPosts } from '@/lib/seo-autopilot/discovery'
+import { articleSchema, serializeJsonLd } from '@/lib/seo-autopilot/structured-data'
+import { getCachedPosts, getCachedPost } from '../posts'
 import { BlogArticleView } from './BlogArticleView'
-import { BlogAttributionTracker } from './BlogAttributionTracker'
 
 interface Props {
   params: Promise<{ locale: string; slug: string }>
@@ -23,13 +22,14 @@ interface Props {
 export async function generateStaticParams() {
   const perLocale = await Promise.all(
     BLOG_LOCALES.map(async (locale) => {
+      if (!hasStorageCredentials()) return []
       try {
         const posts = await listPosts(locale)
         return posts.map((post) => ({ locale, slug: post.slug }))
-      } catch {
-        // Ohne Autopilot-Credentials (lokal, Preview ohne Secrets) oder bei einer
-        // nicht erreichbaren DB darf der Build nicht scheitern — dann eben alles
-        // on demand rendern statt vorrendern. Gleiche Absicherung wie in app/sitemap.ts.
+      } catch (error) {
+        console.error('[seo] Cannot prerender articles:', error)
+        // No failed lookup is cached. A request retries through the shared cache;
+        // the proxy distinguishes missing articles from temporary storage failures.
         return []
       }
     })
@@ -37,20 +37,10 @@ export async function generateStaticParams() {
   return perLocale.flat()
 }
 
-function getCachedPost(locale: string, slug: string) {
-  return unstable_cache(
-    () => getPost(locale, slug) as Promise<BlogPost | null>,
-    [`post-${locale}-${slug}`],
-    { tags: [`post:${locale}:${slug}`], revalidate: false }
-  )()
-}
-
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params
 
-  // Muss hier passieren, nicht erst in der Page: generateMetadata laeuft vor dem
-  // ersten Flush, also kann notFound() den Status noch auf 404 setzen. In der Page
-  // ist die Shell schon raus und die Antwort bleibt 200 (Soft-404).
+  // Defense in depth; the proxy determines the HTTP status before streaming.
   if (!isBlogLocale(locale)) notFound()
 
   const post = await getCachedPost(locale, slug)
@@ -58,8 +48,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const metadata = resolveBlogMetadata(locale, slug, post.title, post.meta_description)
 
-  const siteUrl = getSeoSiteUrl()
-  const canonical = `${siteUrl}/${locale}/blog/${slug}`
+  const canonical = blogUrl(locale, slug)
   const ogImage = post.hero_image_url
     ? [{ url: post.hero_image_url, alt: post.hero_image_alt ?? post.title }]
     : undefined
@@ -96,29 +85,22 @@ export default async function BlogPostPage({ params }: Props) {
   const [post, posts] = await Promise.all([getCachedPost(locale, slug), getCachedPosts(locale)])
   if (!post) notFound()
 
-  const siteUrl = getSeoSiteUrl()
-  const canonical = `${siteUrl}/${locale}/blog/${slug}`
-  const related = posts.filter((item) => item.slug !== slug).slice(0, 3)
+  const related = relatedPosts(post, posts)
 
   return (
     <BlogArticleView
       post={post}
       locale={locale}
       related={related}
+      posts={posts}
       beforeContent={
         <>
           <script
             type="application/ld+json"
             dangerouslySetInnerHTML={{
-              __html: JSON.stringify(
-                withCanonicalHost({
-                  ...post.schema_jsonld,
-                  url: canonical,
-                })
-              ),
+              __html: serializeJsonLd(articleSchema(post)),
             }}
           />
-          <BlogAttributionTracker postId={post.id} slug={post.slug} locale={post.locale} />
         </>
       }
     />

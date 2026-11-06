@@ -1,0 +1,288 @@
+[
+  {
+    "siteId": "16802323-34a0-4eaa-9836-61f53596c916",
+    "postId": "ce4d32f4-9d6e-4276-9477-d27cbe6bd670",
+    "slug": "basaltemperatur-kurve-lesen",
+    "locale": "de",
+    "title": "Basaltemperatur-Kurve lesen: Muster, Hilfslinie, Störwerte",
+    "metaDescription": "Basaltemperatur-Kurve lesen: Tieflage, Anstieg um 0,2–0,4 °C, Hilfslinie und fünf Kurvenmuster mit Beispieltabelle. Plus Störfaktoren im Winter.",
+    "mdxBody": "Eine Basaltemperatur-Kurve liest du in drei Schritten: Erst suchst du die tiefere Temperaturlage am Zyklusanfang, dann den Sprung auf eine höhere Lage, dann prüfst du jeden auffälligen Einzelwert auf Störungen. Der typische Anstieg ist klein, laut Frauenärzte im Netz etwa 0,2 bis 0,4 °C. Ein einzelner Ausreißer nach einer kurzen Nacht oder ein gewechselter Messort kann genauso groß ausfallen. Deshalb entscheidet nicht der einzelne Punkt, sondern das Muster über mehrere Tage.\n\n## Was die Kurve zeigt und was nicht\n\nDie Basaltemperatur ist die Körpertemperatur in Ruhe unmittelbar nach dem Aufwachen, so definiert sie [Frauenärzte im Netz](https://www.frauenaerzte-im-netz.de/familienplanung-verhuetung/natuerliche-familienplanung/wie-messe-ich-meine-koerpertemperatur/), das Informationsportal des Berufsverbands der Frauenärzte. Notierst du diese Werte Tag für Tag, entsteht die Temperaturkurve: auf der x-Achse die Zyklustage, auf der y-Achse die Temperatur in Schritten von wenigen Hundertstel Grad.\n\nDie Kurve dokumentiert, sie diagnostiziert nichts. Sie zeigt rückblickend, ob und wann deine Temperatur auf eine höhere Lage gewechselt ist. Ob ein bestimmter Verlauf medizinisch etwas bedeutet, klärst du mit deiner Frauenärztin oder deinem Frauenarzt, nicht mit dem Diagramm.\n\n### Tieflage, Anstieg, Hochlage\n\nIn einem typischen Zyklus liegen die Werte in der ersten Hälfte auf einem tieferen Niveau und schwanken dort um einige Hundertstel. Dann folgt ein hormonell bedingter Temperaturanstieg. Frauenärzte im Netz beziffert ihn auf [etwa 0,2 bis 0,4 °C](https://www.frauenaerzte-im-netz.de/familienplanung-verhuetung/natuerliche-familienplanung/fruchtbare-tage-selbst-bestimmen-methoden/). Danach bleiben die Werte für eine Weile auf der höheren Lage, bis mit dem nächsten Zyklus wieder ein neuer Abschnitt beginnt.\n\n### Die Hilfslinie (Cover-Linie)\n\nDie Hilfslinie, oft Cover-Linie genannt, ist eine waagerechte Linie auf Höhe des höchsten Werts der sechs Tage vor dem Anstieg. Sie macht sichtbar, ob die folgenden Werte klar darüber liegen oder nur knapp. In der Basaltemperatur-App erscheint sie als „Cover-Linie“ in der Temperaturkurve, sobald die rückblickende Auswertung einen Anstieg gefunden hat.\n\n## Ein Beispiel Schritt für Schritt\n\nDie folgenden Werte sind erfunden und dienen nur dem Lesen-Üben:\n\n| Zyklustag | Wert (°C) | Notiz |\n|---|---|---|\n| 8 | 36,45 | |\n| 9 | 36,50 | |\n| 10 | 36,40 | |\n| 11 | 36,48 | |\n| 12 | 36,52 | |\n| 13 | 36,45 | |\n| 14 | 36,95 | Weihnachtsfeier, vier Stunden Schlaf |\n| 15 | 36,47 | |\n| 16 | 36,50 | |\n| 17 | 36,70 | |\n| 18 | 36,75 | |\n| 19 | 36,78 | |\n\nSo liest du die Tabelle:\n\n1. **Tieflage bestimmen:** Die Tage 8 bis 13 liegen zwischen 36,40 und 36,52 °C. Der Mittelwert beträgt 36,47 °C (218,80 ÷ 6).\n2. **Ausreißer prüfen:** Tag 14 liegt mit 36,95 °C 0,43 °C über dem höchsten Wert davor. Ohne Notiz sähe das wie ein Anstieg aus. Die Tage 15 und 16 fallen aber zurück auf die Tieflage, und die Notiz erklärt den Wert: kurze Nacht, Feier.\n3. **Echten Wechsel finden:** Ab Tag 17 bleiben die Werte oben. Der Mittelwert der Tage 17 bis 19 liegt bei 36,74 °C (110,23 ÷ 3), also knapp 0,3 °C über der Tieflage. Das passt in die Spanne von 0,2 bis 0,4 °C.\n\nDer Ausreißer an Tag 14 war in diesem Beispiel mit 0,43 °C deutlich größer als der echte Wechsel. Genau deshalb gehört zu jedem auffälligen Wert eine Notiz.\n\n## Fünf Kurvenmuster und was du prüfst\n\n| Muster | So sieht es aus | Was du zuerst prüfst |\n|---|---|---|\n| Zweistufig | tiefe Lage, dann ein klarer Sprung, danach eine höhere Lage | nichts, das ist der Verlauf, den die meisten Anleitungen zeigen |\n| Einzelne Spitze | ein Wert springt hoch, die nächsten fallen zurück | Schlaf, Alkohol, Infekt, späte Messung |\n| Treppe | der Anstieg verteilt sich über mehrere kleine Stufen | ob du jeden Tag am selben Ort und mit demselben Thermometer gemessen hast |\n| Sägezahn | die Werte springen täglich auf und ab, ohne klare Lage | Messort, Thermometer, Messdauer |\n| Ohne erkennbaren Wechsel | die Werte bleiben auf einer Lage | fehlende Tage und Störungen; bei wiederholtem Auftreten die Frauenarztpraxis fragen |\n\n### Was typischerweise schiefgeht\n\nDer häufigste Fehler ist ein gewechselter Messort. Die orale Kurve verläuft laut Frauenärzte im Netz im Durchschnitt etwa 0,2 °C unter der rektalen. Wer mitten im Zyklus vom Mund auf rektal wechselt, erzeugt also einen Sprung von rund 0,2 °C, ohne dass sich im Körper etwas geändert hat. Das ist so groß wie der untere Rand eines echten Anstiegs.\n\nDer zweite Fehler ist das falsche Gerät. Infrarot-Ohrthermometer gelten laut Frauenärzte im Netz als ungeeignet; empfohlen werden digitale Thermometer mit einer Auflösung von 0,05 °C. Ein Gerät, das nur in Zehntelschritten anzeigt, kann einen Anstieg von 0,2 °C auf zwei Stufen verteilen und eine Treppe vortäuschen.\n\n## Störfaktoren im November und Dezember\n\nDie Wochen bis zum Jahreswechsel bringen mehrere Störquellen auf einmal:\n\n- **Erkältungszeit:** Erkrankungen und Medikamente können die Messung beeinflussen, schreibt Frauenärzte im Netz.\n- **Weihnachtsfeiern und Feiertage:** Kurze Nächte und Alkohol gelten als typische Ursachen für einzelne Spitzen.\n- **Reisen:** Wer über die Feiertage zur Familie fährt, schläft anders und oft kürzer.\n- **Winterzeit:** Die Sommerzeit endet nach [§ 2 der Sommerzeitverordnung](https://www.gesetze-im-internet.de/sozv/__2.html) am letzten Sonntag im Oktober, die Uhr wird von 3 auf 2 Uhr zurückgestellt. Seitdem zeigt sie beim gewohnten Aufwachen eine Stunde weniger an als vorher. Notiere die Messzeit, dann bleibt die Verschiebung nachvollziehbar.\n\nLaut Frauenärzte im Netz reicht vor der Messung mindestens eine Stunde Schlaf oder Ruhe; die Uhrzeit muss nicht täglich gleich sein, wird aber notiert. Wie du die Messung selbst Schritt für Schritt aufsetzt, steht in [Basaltemperatur messen: Anleitung in 7 Schritten](https://www.basaltemperatur.online/de/blog/basaltemperatur-messen-anleitung).\n\n## Gestörte Werte in der App markieren\n\nIn der Basaltemperatur-App gibst du zu jedem Eintrag neben dem Wert auch die Messzeit und die Schlafdauer an. Für Tage wie Tag 14 im Beispiel gibt es den Schalter „Messung gestört“ mit einem Feld für den Grund, etwa „krank, Alkohol, wenig Schlaf, Reisen“. Zusätzlich kannst du festlegen: „Wert nicht für die Temperaturauswertung verwenden“.\n\nAls gestört markierte Werte bezieht die App nicht in die rückblickende Auswertung des Temperaturanstiegs ein. Sie bleiben aber in deinem Tagebuch sichtbar, du verlierst also keine Information. Statistische Prognosen blendet die App aus, solange die Datenbasis zu dünn ist, etwa wenn weniger als drei Zyklen abgeschlossen sind, weniger als 18 auswertbare Temperaturwerte vorliegen oder mehr als 35 % der Werte als gestört markiert oder ausgeschlossen sind. Die App nennt dir dann, was fehlt.\n\nDas Eintragen von Temperatur und Periodentagen ist kostenlos. Die Temperaturkurve mit Trends, Zyklusstatistiken, Zyklusvergleich und PDF-Export gehört zur Premium-Analyse, die du einmalig für 9,99 € ohne Abo freischaltest. Was die kostenlose Version im Einzelnen umfasst, zeigt [Basaltemperatur app kostenlos: Funktionen und Vergleich](https://www.basaltemperatur.online/de/blog/basaltemperatur-app-kostenlos).\n\nDie App ist ein persönliches Zyklustagebuch und kein Medizinprodukt. Sie ist nicht zur Verhütung und nicht zur Familienplanung gedacht.\n\n## Häufige Fragen\n\n### Wie sieht eine Basaltemperatur-Kurve über den ganzen Zyklus aus?\n\nIn einem typischen Verlauf liegen die Werte zuerst auf einer tieferen Lage, steigen dann um etwa 0,2 bis 0,4 °C an und bleiben eine Zeit lang höher. Einzelne Spitzen dazwischen sind meist Störwerte. Aussagekräftig ist erst der Verlauf über mehrere Tage.\n\n### Wie hängen Basaltemperatur und Periode in der Kurve zusammen?\n\nDie Periodentage markierst du in der App farbig, sie erscheinen in derselben Ansicht wie die Temperaturkurve. So siehst du, wo ein neuer Zyklus beginnt, und kannst die Temperaturlagen mehrerer Zyklen nebeneinander vergleichen.\n\n### Welches Thermometer brauche ich für eine saubere Kurve?\n\nFrauenärzte im Netz empfiehlt digitale Geräte mit 0,05 °C Auflösung oder ein mechanisches Basalthermometer; Infrarot-Ohrthermometer gelten als ungeeignet. Bleib beim selben Gerät und demselben Messort, sonst entstehen Sprünge, die nichts mit deinem Zyklus zu tun haben.",
+    "heroImageUrl": "https://supabase.seoautopilot.cloud/storage/v1/object/public/hero-images/16802323-34a0-4eaa-9836-61f53596c916/de/basaltemperatur-kurve-lesen-ce4d32f4.webp",
+    "heroImageAlt": "basaltemperatur kurve lesen",
+    "heroImageLicense": "ai-generated",
+    "heroImageSource": "Replicate · black-forest-labs/flux-1.1-pro",
+    "heroImageCredit": "KI-generiertes Symbolbild",
+    "schemaJsonLd": {
+      "@graph": [
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/basaltemperatur-kurve-lesen#blogposting",
+          "@type": "BlogPosting",
+          "image": {
+            "url": "https://supabase.seoautopilot.cloud/storage/v1/object/public/hero-images/16802323-34a0-4eaa-9836-61f53596c916/de/basaltemperatur-kurve-lesen-ce4d32f4.webp",
+            "@type": "ImageObject",
+            "width": "1792",
+            "height": "1024",
+            "caption": "basaltemperatur kurve lesen"
+          },
+          "author": {
+            "@id": "https://www.basaltemperatur.online#person:kristian-hoffmann"
+          },
+          "headline": "Basaltemperatur-Kurve lesen: Muster, Hilfslinie, Störwerte",
+          "keywords": "basaltemperatur kurve,temperaturkurve,basaltemperatur,cover-linie,störfaktoren,zyklustagebuch",
+          "publisher": {
+            "@id": "https://www.basaltemperatur.online#organization"
+          },
+          "wordCount": 1165,
+          "description": "Basaltemperatur-Kurve lesen: Tieflage, Anstieg um 0,2–0,4 °C, Hilfslinie und fünf Kurvenmuster mit Beispieltabelle. Plus Störfaktoren im Winter.",
+          "dateModified": "2026-10-26T21:03:41.285Z",
+          "datePublished": "2026-10-26T21:03:41.285Z",
+          "mainEntityOfPage": "https://www.basaltemperatur.online/de/blog/basaltemperatur-kurve-lesen"
+        },
+        {
+          "@id": "https://www.basaltemperatur.online#person:kristian-hoffmann",
+          "url": "https://www.linkedin.com/in/kristian-hoffmann-b69888213/",
+          "name": "Kristian Hoffmann",
+          "@type": "Person",
+          "image": {
+            "url": "https://media.licdn.com/dms/image/v2/C4D03AQF6TrqcPBQqzA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1622567422190?e=1781136000&v=beta&t=_mVN-qsJlI9TeexXk1a1iJ9_SaqjEDEn9mkVbfc4TFg",
+            "@type": "ImageObject"
+          },
+          "sameAs": [
+            "https://www.linkedin.com/in/kristian-hoffmann-b69888213/"
+          ],
+          "jobTitle": "SaaS founder and operator",
+          "description": "Kristian Hoffmann builds and operates small SaaS products for business, finance, and performance analysis. He focuses on practical software, clear workflows, automation, and SEO-driven product growth."
+        },
+        {
+          "@id": "https://www.basaltemperatur.online#organization",
+          "url": "https://www.basaltemperatur.online",
+          "name": "Basaltemperatur",
+          "@type": "Organization"
+        },
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/basaltemperatur-kurve-lesen#breadcrumb",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "item": "https://www.basaltemperatur.online",
+              "name": "Home",
+              "@type": "ListItem",
+              "position": 1
+            },
+            {
+              "item": "https://www.basaltemperatur.online/de/blog",
+              "name": "Blog",
+              "@type": "ListItem",
+              "position": 2
+            },
+            {
+              "item": "https://www.basaltemperatur.online/de/blog/basaltemperatur-kurve-lesen",
+              "name": "Basaltemperatur-Kurve lesen: Muster, Hilfslinie, Störwerte",
+              "@type": "ListItem",
+              "position": 3
+            }
+          ]
+        },
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/basaltemperatur-kurve-lesen#faqpage",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "name": "Wie sieht eine Basaltemperatur-Kurve über den ganzen Zyklus aus?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "In einem typischen Verlauf liegen die Werte zuerst auf einer tieferen Lage, steigen dann um etwa 0,2 bis 0,4 °C an und bleiben eine Zeit lang höher. Einzelne Spitzen dazwischen sind meist Störwerte. Aussagekräftig ist erst der Verlauf über mehrere Tage.",
+                "@type": "Answer"
+              }
+            },
+            {
+              "name": "Wie hängen Basaltemperatur und Periode in der Kurve zusammen?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "Die Periodentage markierst du in der App farbig, sie erscheinen in derselben Ansicht wie die Temperaturkurve. So siehst du, wo ein neuer Zyklus beginnt, und kannst die Temperaturlagen mehrerer Zyklen nebeneinander vergleichen.",
+                "@type": "Answer"
+              }
+            },
+            {
+              "name": "Welches Thermometer brauche ich für eine saubere Kurve?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "Frauenärzte im Netz empfiehlt digitale Geräte mit 0,05 °C Auflösung oder ein mechanisches Basalthermometer; Infrarot-Ohrthermometer gelten als ungeeignet. Bleib beim selben Gerät und demselben Messort, sonst entstehen Sprünge, die nichts mit deinem Zyklus zu tun haben.",
+                "@type": "Answer"
+              }
+            }
+          ]
+        }
+      ],
+      "@context": "https://schema.org"
+    },
+    "internalLinks": [],
+    "tags": [
+      "basaltemperatur kurve",
+      "temperaturkurve",
+      "basaltemperatur",
+      "cover-linie",
+      "störfaktoren",
+      "zyklustagebuch"
+    ],
+    "author": {
+      "name": "Kristian Hoffmann",
+      "jobTitle": "SaaS founder and operator",
+      "linkedinUrl": "https://www.linkedin.com/in/kristian-hoffmann-b69888213/",
+      "bio": "Kristian Hoffmann builds and operates small SaaS products for business, finance, and performance analysis. He focuses on practical software, clear workflows, automation, and SEO-driven product growth.",
+      "avatarUrl": "https://media.licdn.com/dms/image/v2/C4D03AQF6TrqcPBQqzA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1622567422190?e=1781136000&v=beta&t=_mVN-qsJlI9TeexXk1a1iJ9_SaqjEDEn9mkVbfc4TFg"
+    },
+    "publishedAt": "2026-10-31T07:31:19.626Z",
+    "updatedAt": "2026-11-05T21:42:34.166Z",
+    "isRefresh": true,
+    "geoScore": 93,
+    "translationGroupId": null
+  },
+  {
+    "siteId": "16802323-34a0-4eaa-9836-61f53596c916",
+    "postId": "2464c0b4-d31a-4f54-928a-af4ed336f990",
+    "slug": "ist-flo-kostenlos-gratis-premium-check",
+    "locale": "de",
+    "title": "Ist Flo kostenlos? Gratis-Version, Premium und Abo-Check",
+    "metaDescription": "Ist Flo kostenlos? Was die Gratis-Version laut Anbieter umfasst, wo Premium beginnt und wie du Probeabo und Abokosten vor dem Download prüfst.",
+    "mdxBody": "Ist Flo kostenlos? Laut Anbieter ja, aber nur in der Basisversion: Auf der deutschen [Premium-Seite von Flo](https://flo.health/de/flo-premium) heißt es, du könntest dich kostenlos für ein Konto registrieren und es so lange nutzen, wie du willst; Basisfunktionen wie der Zyklustracker sind darin enthalten. Zusätzliche Funktionen stecken in Flo Premium, einem kostenpflichtigen Abonnement. Die Frage lautet also nicht „gratis oder nicht“, sondern: Reicht dir das, was ohne Abo bleibt? (Stand der Angaben: Abruf am 26.10.2026.)\n\nDieses Modell heißt Freemium: Download und Grundfunktionen kosten nichts, erweiterte Funktionen gibt es nur gegen eine wiederkehrende Zahlung. Wer das einmal verstanden hat, liest jede App-Store-Seite anders.\n\n## Was Flo selbst über die Gratis-Version sagt\n\n### Vier Anbieterquellen, eine Aussage\n\nDie offiziellen Quellen widersprechen sich nicht. Sie formulieren nur unterschiedlich genau.\n\n| Quelle | Was dort zu „kostenlos“ steht | Was du dort zusätzlich prüfst |\n|---|---|---|\n| [Flo-Hilfecenter](https://help.flo.health/hc/de/articles/4411293934740-Was-ist-in-der-kostenlosen-Version-enthalten) | Eigene Seite „Was ist in der kostenlosen Version enthalten?“, zuletzt datiert auf den 28.01.2025; nennt u. a. Perioden- und Eisprungvorhersagen, Symptom-Tracking, Erinnerungen und „Geheime Chats“ | Ob das Datum noch aktuell ist |\n| [Flo Premium (DE)](https://flo.health/de/flo-premium) | Kostenlose Registrierung, unbegrenzte Nutzung der Basisfunktionen; Premium als Monats- oder Jahresabo | Welche Funktionen ausdrücklich Premium sind |\n| [Apple App Store (DE)](https://apps.apple.com/de/app/flo-perioden-zyklus-tracker/id1038369065) | „Flo ist als kostenloser Periodenkalender erhältlich“ | Abschnitt „In-App-Käufe“ mit den aktuellen Abo-Preisen |\n| [Google Play](https://play.google.com/store/apps/details?id=org.iggymedia.periodtracker&hl=de) | „Flo ist als kostenloser Periodenkalender erhältlich“ | Hinweis „In-App-Käufe“ auf der Store-Seite |\n\nAuffällig ist das Datum im Hilfecenter. Eine Funktionsliste von Januar 2025 kann Ende 2026 überholt sein. Ein Anbieterartikel ohne erkennbares Aktualisierungsdatum ist ein Hinweis, die Angaben direkt in der App gegenzuprüfen.\n\n### Warum viele trotzdem „Flo nicht mehr kostenlos“ suchen\n\nIn einem [Reddit-Thread](https://www.reddit.com/r/TwoXIndia/comments/1mpzmnv/is_flo_app_not_free_anymore/?tl=de) fragen Nutzerinnen, ob die App nicht mehr kostenlos sei. Solche Berichte sind Einzelerfahrungen aus anderen Ländern, keine Preisangabe.\n\nDrei Erklärungen sind plausibel, belegt ist keine davon für deinen Fall:\n\n- **Der Einstieg zeigt ein Angebot.** Erscheint beim ersten Start ein Bildschirm mit Probeabo, wirkt die App bezahlpflichtig, obwohl sich der Bildschirm überspringen lässt. Such nach einem kleinen „Schließen“- oder „Später“-Element, bevor du irgendetwas bestätigst.\n- **Land und Store unterscheiden sich.** Angebote können je nach Region abweichen. Ein Bericht aus einem anderen Land sagt wenig über ein deutsches Konto.\n- **Eine Funktion, die du erwartest, ist Premium.** Dann ist die App gratis, aber nicht für das, was du willst.\n\n## In fünf Minuten klären, ob die Gratis-Version reicht\n\nDie Entscheidungsregel ist einfach: Schreib vor dem Download auf, welche zwei oder drei Funktionen du wirklich brauchst. Steht auch nur eine davon in der Premium-Liste, plane mit Kosten. Steht keine dort, teste die Gratis-Version zwei Zyklen lang, bevor du an ein Abo denkst.\n\n### Der Store-Check vor dem Download\n\n1. App-Store- oder Play-Store-Seite öffnen und bis zu „In-App-Käufe“ scrollen. Dort stehen die aktuellen Preise, nicht in Blogartikeln.\n2. Die [Premium-Seite von Flo](https://flo.health/de/flo-premium) neben deine Funktionsliste legen und jede Funktion als „gratis“ oder „Premium“ markieren.\n3. Im App Store den Abschnitt zum App-Datenschutz lesen: Welche Daten werden laut Anbieter mit deiner Identität verknüpft?\n4. In der App beim ersten Start jeden Bildschirm lesen, bevor du auf „Weiter“ tippst. Kein Probeabo bestätigen, das du nicht willst.\n5. Nach dem Einrichten prüfen, ob deine Kernfunktion ohne Abo läuft: Periodentage notieren, Kalender ansehen, Erinnerung setzen.\n\n### Probeabo: das Datum, das du notieren solltest\n\nDer typische Fehler passiert nicht beim Download, sondern Wochen später. Ein Probezeitraum, der bei vielen Apps automatisch in ein bezahltes Abo übergeht, wird vergessen. Ob das bei deinem Angebot so ist, steht im Kaufdialog des Stores. Lies ihn, bevor du bestätigst.\n\nPraktische Regel: Trag das Enddatum der Testphase minus zwei Tage als Kalendertermin ein. Abos, die über Apple oder Google abgeschlossen wurden, verwaltest du in den Abo-Einstellungen des jeweiligen Stores; das Löschen der App allein beendet ein Store-Abo in der Regel nicht.\n\nIm November und Dezember lohnt dieser Schritt doppelt. Rund um Black Friday (2026 der 27. November) und Cyber Monday (30. November) werben viele Apps mit rabattierten Jahresabos. Ein Rabatt im ersten Jahr sagt nichts über den Verlängerungspreis im zweiten. Und wer im Dezember eine einwöchige Testphase startet, landet mit der ersten Abbuchung womöglich mitten in den Feiertagen, wenn niemand auf Kontoauszüge schaut.\n\n## Was ein Abo über vier Jahre kostet: Rechnung mit fiktiven Preisen\n\nFlos aktuelle Preise nennen wir hier bewusst nicht; sie stehen im Store und können sich ändern. Die Rechenlogik funktioniert aber mit jedem Preis. Die folgenden Monatspreise sind **fiktive Beispiele**, keine Angaben eines Anbieters.\n\n| Fiktiver Monatspreis | Kosten nach 12 Monaten | Kosten nach 48 Monaten | Monate, bis 9,99 € einmalig erreicht sind |\n|---|---|---|---|\n| 4 € | 48 € | 192 € | 3 |\n| 6 € | 72 € | 288 € | 2 |\n| 8 € | 96 € | 384 € | 2 |\n\nDie Formel: Monatspreis × Monate der Nutzung. Für Jahresabos gilt Jahrespreis × Jahre, und zwar mit dem Verlängerungspreis, nicht mit dem Einführungsrabatt. Die Spalte rechts zeigt den Vergleich mit einer Einmalzahlung von 9,99 €: Schon nach zwei bis drei Monaten hätte ein Abo in dieser Spanne mehr gekostet.\n\nWer einen Zyklus über Jahre dokumentiert, sollte deshalb den Zeitraum ansetzen, den er realistisch durchhält. Vier Jahre sind für ein Zyklustagebuch nicht ungewöhnlich.\n\n## Was „kostenlos“ nicht verrät: Daten und Wechselkosten\n\nEin Preis von null Euro beantwortet keine der Fragen, die nach einigen Monaten wichtig werden. Zwei Zahlen zeigen, warum.\n\nWer nur Periodentage notiert, kommt bei etwa 13 Zyklen im Jahr und fünf Blutungstagen je Zyklus auf rund 65 Einträge. Wer zusätzlich jeden Morgen die Basaltemperatur festhält, sammelt 365 weitere, zusammen also gut 430 Datensätze pro Jahr. Nach vier Jahren sind das über 1.700 Einträge. Gibt es keinen Export, bleiben die beim Wechsel zurück.\n\nPrüfe deshalb vor der ersten Woche:\n\n- Gibt es einen Export (CSV oder PDF), und ist er gratis oder Premium?\n- Wo sitzt der Anbieter, und wie finanziert sich die Gratis-Version laut Datenschutzerklärung?\n- Lässt sich das Konto in der App löschen, oder nur per E-Mail-Anfrage?\n\n## Wie Basaltemperatur das Preismodell löst\n\nDie [Basaltemperatur App](https://www.basaltemperatur.online) verfolgt einen anderen Ansatz und ein anderes Ziel. Sie ist ein persönliches Zyklustagebuch: Du erfasst Basaltemperatur und Periodentage kostenlos. Die optionale Premium-Analyse kostet einmalig 9,99 € und ist kein Abo; sie umfasst Temperaturkurve, Zyklus-KPIs, statistische Zyklus- und Periodenprognosen, Statistiken, Zyklusvergleich und PDF-Export. Temperaturanstiege werden rückblickend ausgewertet.\n\nFür die Nutzung legst du ein Konto mit Name und E-Mail an. Laut Datenschutzerklärung liegen die Einträge in einer selbst betriebenen Datenbank auf einem Server in Deutschland und werden nicht zu Werbezwecken an Dritte weitergegeben. Die App ist kein Medizinprodukt und nicht zur Verhütung oder Familienplanung bestimmt; medizinische Fragen gehören zu deiner Frauenärztin oder deinem Frauenarzt.\n\nFlo und Basaltemperatur lösen unterschiedliche Aufgaben. Wer vor allem einen Periodenkalender mit Inhalten sucht, vergleicht anders als jemand, der eine Temperaturkurve führen will. Einen ausführlichen Funktionsvergleich findest du unter [Clue vs. Flo vs. Basaltemperatur App: Welcher Zyklustracker passt](https://www.basaltemperatur.online/de/blog/clue-flo-basaltemperatur-app-vergleich), Wechselkriterien unter [Flo App Alternative: Zyklus-Apps im Vergleich](https://www.basaltemperatur.online/de/blog/flo-app-alternative-zyklus-apps).\n\n## Häufige Fragen\n\n### Wie viel kostet Flo im Monat?\n\nEinen Betrag nennen wir nicht, weil er je nach Land, Store, Laufzeit und Aktion abweichen kann. Den aktuellen Preis findest du im [Apple App Store](https://apps.apple.com/de/app/flo-perioden-zyklus-tracker/id1038369065) unter „In-App-Käufe“ oder bei Google Play im Kaufdialog. Vergleiche dort Monats- und Jahresabo und rechne mit dem Verlängerungspreis.\n\n### Welche Perioden-App ist wirklich kostenlos?\n\n„Wirklich kostenlos“ heißt: Die Funktionen, die du nutzt, funktionieren ohne Abo, und du weißt, wie sich der Anbieter finanziert. Das prüfst du an der Premium-Liste und an der Datenschutzerklärung, nicht am Wort „gratis“ im Store. Einen Vergleich mehrerer Modelle bietet [Kostenlose Zyklus App: 4 Optionen im Vergleich](https://www.basaltemperatur.online/de/blog/kostenlose-zyklus-app-vergleich).\n\n### Ist die Flo App seriös?\n\nEin Pauschalurteil hilft dir wenig. Prüfe Anbieter und Impressum, die Datenschutzerklärung, die Datenschutzangaben im App Store und ob sich Daten exportieren und löschen lassen. Gesundheitliche Fragen zu deinem Zyklus klärst du mit deiner Frauenärztin oder deinem Frauenarzt, nicht mit einer App.\n\n### Was ist besser, Flo oder Clue?\n\nDas hängt davon ab, was du dokumentieren willst und welche Funktionen du ohne Abo brauchst. Leg deine zwei oder drei Kernfunktionen fest und prüfe für beide Apps, ob sie gratis oder Premium sind. Den direkten Vergleich, ergänzt um die Basaltemperatur App, findest du im Artikel zu Clue, Flo und Basaltemperatur.",
+    "heroImageUrl": "https://supabase.seoautopilot.cloud/storage/v1/object/public/hero-images/16802323-34a0-4eaa-9836-61f53596c916/de/ist-flo-kostenlos-gratis-premium-check-2464c0b4.webp",
+    "heroImageAlt": "Ist Flo kostenlos? Gratis-Version, Premium und Abo-Check",
+    "heroImageLicense": "ai-generated",
+    "heroImageSource": "Replicate · black-forest-labs/flux-1.1-pro",
+    "heroImageCredit": "KI-generiertes Symbolbild",
+    "schemaJsonLd": {
+      "@graph": [
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/ist-flo-kostenlos-gratis-premium-check#blogposting",
+          "@type": "BlogPosting",
+          "image": {
+            "url": "https://supabase.seoautopilot.cloud/storage/v1/object/public/hero-images/16802323-34a0-4eaa-9836-61f53596c916/de/ist-flo-kostenlos-gratis-premium-check-2464c0b4.webp",
+            "@type": "ImageObject",
+            "width": "1792",
+            "height": "1024",
+            "caption": "Ist Flo kostenlos? Gratis-Version, Premium und Abo-Check"
+          },
+          "author": {
+            "@id": "https://www.basaltemperatur.online#person:kristian-hoffmann"
+          },
+          "headline": "Ist Flo kostenlos? Gratis-Version, Premium und Abo-Check",
+          "keywords": "ist flo kostenlos?,flo app,perioden-app,zyklustracking,abo-kosten,basaltemperatur",
+          "publisher": {
+            "@id": "https://www.basaltemperatur.online#organization"
+          },
+          "wordCount": 1335,
+          "description": "Ist Flo kostenlos? Was die Gratis-Version laut Anbieter umfasst, wo Premium beginnt und wie du Probeabo und Abokosten vor dem Download prüfst.",
+          "dateModified": "2026-10-26T20:11:47.861Z",
+          "datePublished": "2026-10-26T20:11:47.861Z",
+          "mainEntityOfPage": "https://www.basaltemperatur.online/de/blog/ist-flo-kostenlos-gratis-premium-check"
+        },
+        {
+          "@id": "https://www.basaltemperatur.online#person:kristian-hoffmann",
+          "url": "https://www.linkedin.com/in/kristian-hoffmann-b69888213/",
+          "name": "Kristian Hoffmann",
+          "@type": "Person",
+          "image": {
+            "url": "https://media.licdn.com/dms/image/v2/C4D03AQF6TrqcPBQqzA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1622567422190?e=1781136000&v=beta&t=_mVN-qsJlI9TeexXk1a1iJ9_SaqjEDEn9mkVbfc4TFg",
+            "@type": "ImageObject"
+          },
+          "sameAs": [
+            "https://www.linkedin.com/in/kristian-hoffmann-b69888213/"
+          ],
+          "jobTitle": "SaaS founder and operator",
+          "description": "Kristian Hoffmann builds and operates small SaaS products for business, finance, and performance analysis. He focuses on practical software, clear workflows, automation, and SEO-driven product growth."
+        },
+        {
+          "@id": "https://www.basaltemperatur.online#organization",
+          "url": "https://www.basaltemperatur.online",
+          "name": "Basaltemperatur",
+          "@type": "Organization"
+        },
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/ist-flo-kostenlos-gratis-premium-check#breadcrumb",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {
+              "item": "https://www.basaltemperatur.online",
+              "name": "Home",
+              "@type": "ListItem",
+              "position": 1
+            },
+            {
+              "item": "https://www.basaltemperatur.online/de/blog",
+              "name": "Blog",
+              "@type": "ListItem",
+              "position": 2
+            },
+            {
+              "item": "https://www.basaltemperatur.online/de/blog/ist-flo-kostenlos-gratis-premium-check",
+              "name": "Ist Flo kostenlos? Gratis-Version, Premium und Abo-Check",
+              "@type": "ListItem",
+              "position": 3
+            }
+          ]
+        },
+        {
+          "@id": "https://www.basaltemperatur.online/de/blog/ist-flo-kostenlos-gratis-premium-check#faqpage",
+          "@type": "FAQPage",
+          "mainEntity": [
+            {
+              "name": "Wie viel kostet Flo im Monat?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "Einen Betrag nennen wir nicht, weil er je nach Land, Store, Laufzeit und Aktion abweichen kann. Den aktuellen Preis findest du im Apple App Store unter „In-App-Käufe“ oder bei Google Play im Kaufdialog. Vergleiche dort Monats- und Jahresabo und rechne mit dem Verlängerungspreis.",
+                "@type": "Answer"
+              }
+            },
+            {
+              "name": "Welche Perioden-App ist wirklich kostenlos?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "„Wirklich kostenlos“ heißt: Die Funktionen, die du nutzt, funktionieren ohne Abo, und du weißt, wie sich der Anbieter finanziert. Das prüfst du an der Premium-Liste und an der Datenschutzerklärung, nicht am Wort „gratis“ im Store. Einen Vergleich mehrerer Modelle bietet Kostenlose Zyklus App: 4 Optionen im Vergleich.",
+                "@type": "Answer"
+              }
+            },
+            {
+              "name": "Ist die Flo App seriös?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "Ein Pauschalurteil hilft dir wenig. Prüfe Anbieter und Impressum, die Datenschutzerklärung, die Datenschutzangaben im App Store und ob sich Daten exportieren und löschen lassen. Gesundheitliche Fragen zu deinem Zyklus klärst du mit deiner Frauenärztin oder deinem Frauenarzt, nicht mit einer App.",
+                "@type": "Answer"
+              }
+            },
+            {
+              "name": "Was ist besser, Flo oder Clue?",
+              "@type": "Question",
+              "acceptedAnswer": {
+                "text": "Das hängt davon ab, was du dokumentieren willst und welche Funktionen du ohne Abo brauchst. Leg deine zwei oder drei Kernfunktionen fest und prüfe für beide Apps, ob sie gratis oder Premium sind. Den direkten Vergleich, ergänzt um die Basaltemperatur App, findest du im Artikel zu Clue, Flo und Basaltemperatur.",
+                "@type": "Answer"
+              }
+            }
+          ]
+        }
+      ],
+      "@context": "https://schema.org"
+    },
+    "internalLinks": [],
+    "tags": [
+      "ist flo kostenlos?",
+      "flo app",
+      "perioden-app",
+      "zyklustracking",
+      "abo-kosten",
+      "basaltemperatur"
+    ],
+    "author": {
+      "name": "Kristian Hoffmann",
+      "jobTitle": "SaaS founder and operator",
+      "linkedinUrl": "https://www.linkedin.com/in/kristian-hoffmann-b69888213/",
+      "bio": "Kristian Hoffmann builds and operates small SaaS products for business, finance, and performance analysis. He focuses on practical software, clear workflows, automation, and SEO-driven product growth.",
+      "avatarUrl": "https://media.licdn.com/dms/image/v2/C4D03AQF6TrqcPBQqzA/profile-displayphoto-shrink_800_800/profile-displayphoto-shrink_800_800/0/1622567422190?e=1781136000&v=beta&t=_mVN-qsJlI9TeexXk1a1iJ9_SaqjEDEn9mkVbfc4TFg"
+    },
+    "publishedAt": "2026-10-29T07:30:18.632Z",
+    "updatedAt": "2026-11-05T21:42:34.166Z",
+    "isRefresh": true,
+    "geoScore": 93,
+    "translationGroupId": null
+  }
+]

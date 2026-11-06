@@ -3,20 +3,22 @@ import { z } from 'zod'
 export const publishPayloadSchema = z.object({
   siteId: z.string().uuid(),
   postId: z.string().uuid(),
-  slug: z.string().min(1),
-  locale: z.string().min(1),
-  title: z.string().min(1),
+  slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+  locale: z.literal('de'),
+  title: z.string().trim().min(1),
   metaDescription: z.string(),
-  mdxBody: z.string(),
+  mdxBody: z.string().trim().min(1),
   heroImageUrl: z.string().url().nullable(),
   heroImageAlt: z.string().nullable(),
-  schemaJsonLd: z.record(z.unknown()),
+  // Public JSON-LD is built locally. Ignore incompatible upstream schema shapes.
+  schemaJsonLd: z.unknown().transform((value): Record<string, unknown> =>
+    value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}),
   internalLinks: z.array(
     z.object({ targetSlug: z.string(), anchorText: z.string() })
   ),
   tags: z.array(z.string()),
   author: z.object({
-    name: z.string(),
+    name: z.string().trim().min(1),
     jobTitle: z.string().nullable(),
     linkedinUrl: z.string().url().nullable().optional(),
     bio: z.string().nullable(),

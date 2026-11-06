@@ -195,13 +195,6 @@ export default function DatenschutzPage() {
           policies.google.com/privacy
         </a>
       </p>
-      <h3>Zuordnung von Käufen zu Blogartikeln</h3>
-      <p>
-        Wenn Sie über einen Blogartikel kommen, merkt sich ein Cookie für 30 Tage den Artikel und
-        ggf. das Suchstichwort aus dem Link. Kaufen Sie in dieser Zeit, wird diese Angabe dem
-        Kauf bei Stripe beigefügt, und unser Redaktionssystem (Abschnitt 10) erhält eine
-        Zählmeldung ohne Personenbezug.
-      </p>
       <h3>Einwilligung ändern oder widerrufen</h3>
       <p>
         Sie können Ihre Einwilligung jederzeit mit Wirkung für die Zukunft widerrufen – hier
@@ -209,6 +202,32 @@ export default function DatenschutzPage() {
         Kennungen und Cookies in Ihrem Browser.
       </p>
       <StatisticsConsentSettings />
+
+      <h2>9a. Serverseitige Zuordnung von Registrierungen und Käufen</h2>
+      <p>
+        Links aus Blogartikeln können den URL-Parameter „from“ mit dem Artikel-Slug enthalten.
+        Bei einer Registrierung übernehmen wir diesen Wert in die Kontometadaten und bei einem
+        Kauf in die Checkout-Metadaten. Dafür setzen wir kein Cookie, verwenden keinen lokalen
+        Browser-Speicher (localStorage) und laden keine Dritt-Tracker.
+      </p>
+      <p>
+        Unser vom selben Anbieter betriebenes Redaktionssystem SEO Autopilot{' '}
+        (<a href="https://www.seoautopilot.cloud" target="_blank" rel="noopener noreferrer">www.seoautopilot.cloud</a>){' '}
+        erhält serverseitig Artikel-Slug (sofern vorhanden),
+        Website-Kennung, Ereignistyp, Zeitpunkt und einen technischen Schlüssel zur Vermeidung
+        doppelter Zählungen; bei einem bezahlten Kauf außerdem den Umsatz in Euro. Namen,
+        E-Mail-Adressen und Gesundheitsmesswerte werden in diesen Meldungen nicht übertragen.
+        Der technische Schlüssel kann eine pseudonyme Konto- oder Checkout-Kennung enthalten.
+        Er dient dazu, den Nutzen der Artikel für Registrierungen und Käufe auszuwerten.
+        Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; unser Interesse besteht in der
+        Verbesserung der redaktionellen Inhalte anhand ihrer Nutzung für das Produkt.
+      </p>
+      <p>
+        Die Zuordnung im Konto bleibt bis zur Kontolöschung gespeichert. Informationen zum
+        Redaktionssystem stehen im folgenden Abschnitt. Für Auskunft, Löschung oder einen
+        Widerspruch gegen diese Herkunftsauswertung wenden Sie sich bitte an den oben genannten
+        Verantwortlichen.
+      </p>
 
       <h2>10. Blog und Redaktionssystem</h2>
       <p>

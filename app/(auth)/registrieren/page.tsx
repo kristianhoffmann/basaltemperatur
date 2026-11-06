@@ -1,5 +1,6 @@
 export const dynamic = 'force-dynamic'
 
+import { normalizeFrom, withFrom } from '@/lib/seo-autopilot/source';
 import { Metadata } from 'next';
 import Link from 'next/link';
 import { RegisterForm } from '@/components/forms/RegisterForm';
@@ -13,11 +14,12 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: { error?: string; message?: string };
+  searchParams: Promise<{ error?: string; message?: string; from?: string | string[] }>;
 }
 
-export default function RegisterPage({ searchParams }: PageProps) {
-  const { error, message } = searchParams;
+export default async function RegisterPage({ searchParams }: PageProps) {
+  const { error, message, from: rawFrom } = await searchParams;
+  const from = normalizeFrom(rawFrom);
 
   return (
     <div className="w-full max-w-md">
@@ -51,7 +53,7 @@ export default function RegisterPage({ searchParams }: PageProps) {
 
       {/* Register Form */}
       <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
-        <RegisterForm />
+        <RegisterForm from={from} />
 
         {googleAuthEnabled && (
           <>
@@ -64,7 +66,7 @@ export default function RegisterPage({ searchParams }: PageProps) {
               </div>
             </div>
 
-            <SocialLogin label="Mit Google registrieren" />
+            <SocialLogin from={from} label="Mit Google registrieren" />
           </>
         )}
 
@@ -72,7 +74,7 @@ export default function RegisterPage({ searchParams }: PageProps) {
         <p className="mt-6 text-center text-sm text-gray-600">
           Bereits ein Konto?{' '}
           <Link
-            href="/login"
+            href={withFrom("/login", from)}
             className="font-medium text-primary-600 hover:text-primary-500"
           >
             Jetzt anmelden

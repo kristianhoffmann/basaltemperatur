@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { redactSearchParams, sanitizeUrl } from '@/lib/traffic'
 import { useStatisticsConsent } from '@/lib/analytics-consent'
 
 const VISITOR_KEY = 'bt_visitor_id'
@@ -34,14 +35,14 @@ export function TrafficTracker() {
     // § 25 TDDDG: the visitor id lives in the browser, so nothing runs before consent.
     if (consent !== 'granted' || isDoNotTrack()) return
 
-    const search = searchParams.toString()
+    const search = redactSearchParams(new URLSearchParams(searchParams.toString())).toString()
     const currentUrl = `${window.location.origin}${pathname}${search ? `?${search}` : ''}`
     if (trackedUrl.current === currentUrl) return
     trackedUrl.current = currentUrl
 
     const visitorId = getOrCreateStorageId(window.localStorage, VISITOR_KEY)
     const sessionId = getOrCreateStorageId(window.sessionStorage, SESSION_KEY)
-    const previousUrl = window.sessionStorage.getItem(LAST_URL_KEY)
+    const previousUrl = sanitizeUrl(window.sessionStorage.getItem(LAST_URL_KEY))
     window.sessionStorage.setItem(LAST_URL_KEY, currentUrl)
 
     const payload = {
@@ -52,7 +53,7 @@ export function TrafficTracker() {
       url: currentUrl,
       search,
       title: document.title,
-      referrer: previousUrl || document.referrer || null,
+      referrer: previousUrl || sanitizeUrl(document.referrer) || null,
       language: navigator.language,
       languages: navigator.languages,
       timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,

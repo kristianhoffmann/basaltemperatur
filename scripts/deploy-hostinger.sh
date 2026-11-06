@@ -11,6 +11,7 @@ HEALTH_ATTEMPTS="${BASALTEMPERATUR_HEALTH_ATTEMPTS:-30}"
 HEALTH_DELAY_SECONDS="${BASALTEMPERATUR_HEALTH_DELAY_SECONDS:-2}"
 SWITCHED=0
 PREVIOUS_RUNNING=0
+CHECKOUT_CHANGED=0
 PREVIOUS_COMMIT=''
 
 if [[ $# -gt 1 ]]; then
@@ -112,15 +113,19 @@ deploy_rollback() {
     fi
   fi
 
+  if [[ "$CHECKOUT_CHANGED" -eq 1 && "$SWITCHED" -eq 0 ]]; then
+    git checkout --detach "$PREVIOUS_COMMIT"
+  fi
   exit "$exit_code"
 }
 
 trap deploy_rollback ERR
 
 git checkout --detach "$TARGET_COMMIT"
-SWITCHED=1
+CHECKOUT_CHANGED=1
 
 "${COMPOSE[@]}" build --pull app
+SWITCHED=1
 "${COMPOSE[@]}" up -d --no-deps app
 
 APP_PORT="$(

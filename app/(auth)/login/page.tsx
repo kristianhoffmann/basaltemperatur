@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 // app/(auth)/login/page.tsx
 // Login Seite – Premium Design
 
+import { normalizeFrom, withFrom } from '@/lib/seo-autopilot/source'
 import { Metadata } from 'next'
 import Link from 'next/link'
 import { LoginForm } from '@/components/forms/LoginForm'
@@ -14,11 +15,13 @@ export const metadata: Metadata = {
   description: 'Melde dich bei deinem Basaltemperatur Konto an.',
 }
 
-export default function LoginPage({
-  searchParams,
+export default async function LoginPage({
+  searchParams: searchParamsPromise,
 }: {
-  searchParams: { redirect?: string; error?: string; message?: string }
+  searchParams: Promise<{ redirect?: string; error?: string; message?: string; from?: string | string[] }>
 }) {
+  const searchParams = await searchParamsPromise
+  const from = normalizeFrom(searchParams.from)
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -49,7 +52,7 @@ export default function LoginPage({
       )}
 
       {/* Login Form */}
-      <LoginForm redirectTo={searchParams.redirect} />
+      <LoginForm from={from} redirectTo={searchParams.redirect} />
 
       {googleAuthEnabled && (
         <>
@@ -63,7 +66,7 @@ export default function LoginPage({
           </div>
 
           <div className="space-y-3">
-            <SocialLogin />
+            <SocialLogin from={from} />
           </div>
         </>
       )}
@@ -71,7 +74,7 @@ export default function LoginPage({
       {/* Register Link */}
       <p className="text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
         Noch kein Konto?{' '}
-        <Link href="/registrieren" className="font-medium text-rose-400 hover:text-rose-500 transition-colors">
+        <Link href={withFrom("/registrieren", from)} className="font-medium text-rose-400 hover:text-rose-500 transition-colors">
           Jetzt registrieren
         </Link>
       </p>

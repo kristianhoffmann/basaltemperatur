@@ -1,6 +1,7 @@
 // app/page.tsx
 // Landing Page – Basaltemperatur App – 2026 Premium Dark Hero Design
 
+import { HomeArticleLinks } from '@/app/[locale]/blog/BlogDiscovery'
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import {
@@ -23,6 +24,8 @@ import { Logo } from '@/components/shared/Logo'
 import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 
 const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
+
+export const revalidate = 60
 
 export const metadata: Metadata = {
   title: 'Basaltemperatur App: Zyklus & Temperaturkurve tracken',
@@ -151,6 +154,7 @@ export default function LandingPage() {
     '@graph': [
       {
         '@type': 'Organization',
+        '@id': `${siteUrl}/#organization`,
         name: 'Basaltemperatur',
         url: siteUrl,
       },
@@ -254,7 +258,7 @@ export default function LandingPage() {
 
           {/* Headline */}
           <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] animate-fade-in animate-stagger-1">
-            Verstehe deinen Zyklus.
+            Basaltemperatur-App für deinen Zyklus.
             <br />
             <span className="text-gradient-hero">Natürlich.</span>
           </h1>
@@ -462,6 +466,9 @@ export default function LandingPage() {
           </div>
         </div>
       </section>
+
+      <div className="mx-auto max-w-6xl px-4 pt-10"><Link href="/werkzeuge/temperatur-hilfslinie" className="font-semibold text-rose-700 underline">Temperatur-Hilfslinie ohne Anmeldung ausprobieren</Link> · <Link href="/ueber-uns" className="text-rose-700 underline">Über uns</Link></div>
+      <HomeArticleLinks />
 
       {/* ═══════════════════════════════════════════════════
           FAQ

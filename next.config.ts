@@ -1,4 +1,6 @@
 import type { NextConfig } from 'next'
+import { HTML_LIMITED_BOT_UA_RE } from 'next/dist/shared/lib/router/utils/html-bots'
+import { WITHDRAWN_SLUGS } from './lib/blog-urls'
 
 const supabaseStorageHostname = (() => {
     const value = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim()
@@ -30,8 +32,7 @@ const nextConfig: NextConfig = {
     // Next.js deckt Social-Scraper (Slackbot, Twitterbot, facebookexternalhit) und
     // bingbot bereits ab — KI-Crawler aber nicht. Die fuehren kein JavaScript aus und
     // saehen sonst eine Seite voellig ohne Titel und Description.
-    htmlLimitedBots:
-        /GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Perplexity-User|CCBot|Google-Extended|Applebot-Extended|Bytespider|Amazonbot|meta-externalagent|cohere-ai|Diffbot|omgili/i,
+    htmlLimitedBots: new RegExp(`${HTML_LIMITED_BOT_UA_RE.source}|Googlebot|Claude-SearchBot|GPTBot|OAI-SearchBot|ChatGPT-User|ClaudeBot|Claude-Web|anthropic-ai|PerplexityBot|Perplexity-User|CCBot|Google-Extended|Applebot-Extended|Bytespider|Amazonbot|meta-externalagent|cohere-ai|Diffbot|omgili`, 'i'),
 
     // Bilder von Supabase Storage erlauben
     images: {
@@ -83,11 +84,7 @@ const nextConfig: NextConfig = {
             },
             // Withdrawn on 2026-09-16: contraception / fertile-days / ovulation topics do not
             // fit the app's positioning as a cycle diary (MDR intended purpose).
-            ...[
-                'verhuetung-ohne-hormone-vier-gruppen',
-                'fruchtbare-tage-berechnen-methoden-zyklus',
-                'ovulation-tracking-app-basaltemperatur',
-            ].map((slug) => ({
+            ...[...WITHDRAWN_SLUGS].map((slug) => ({
                 source: `/de/blog/${slug}`,
                 destination: '/de/blog',
                 permanent: true,

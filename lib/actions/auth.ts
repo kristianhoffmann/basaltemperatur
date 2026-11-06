@@ -5,11 +5,13 @@
 
 import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { cookies } from 'next/headers'
+import { after } from 'next/server'
+import { normalizeFrom, withFrom } from '@/lib/seo-autopilot/source'
+import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import { createClient as createSupabaseClient } from '@supabase/supabase-js'
 import Stripe from 'stripe'
 import { createClient, createAdminClient } from '@/lib/supabase/server'
-import { trackConversion } from '@/lib/seo-autopilot/attribution'
+import { trackConversion, shouldTrackAccount } from '@/lib/seo-autopilot/attribution'
 import { planAccountDeletion } from '@/lib/account-deletion'
 import { z } from 'zod'
 
@@ -83,13 +85,15 @@ export async function signUp(_prevState: AuthActionState, formData: FormData) {
   }
 
   const { email, password, companyName, ownerName } = validatedFields.data
+  const from = normalizeFrom(formData.get('from'))
 
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
-      emailRedirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      emailRedirectTo: `${getSeoSiteUrl()}${withFrom('/auth/callback', from)}`,
       data: {
+        seo_from: from,
         company_name: companyName,
         owner_name: ownerName,
         terms_accepted: true,
@@ -106,17 +110,10 @@ export async function signUp(_prevState: AuthActionState, formData: FormData) {
     return { error: 'Registrierung fehlgeschlagen. Bitte versuche es erneut.' }
   }
 
-  // SEO-Autopilot signup conversion (fire-and-forget; never blocks signup).
-  if (data.user) {
-    try {
-      const raw = (await cookies()).get('seo_autopilot_attribution')?.value
-      const attr = raw
-        ? (JSON.parse(raw) as { postId?: string; slug?: string; locale?: string; keyword?: string })
-        : {}
-      await trackConversion({ eventName: 'signup' }, attr)
-    } catch {
-      // analytics must never break registration
-    }
+  // Supabase may return an obfuscated user for an existing address.
+  if (data.user?.identities?.length && shouldTrackAccount(data.user)) {
+    const userId = data.user.id
+    after(() => trackConversion({ eventName: 'signup', idempotencyKey: `signup:${userId}` }, { slug: from }))
   }
 
   // Bei Email-Bestätigung erforderlich
@@ -232,13 +229,13 @@ export async function withdrawSensitiveDataConsent() {
 // OAUTH
 // ============================================
 
-export async function signInWithGoogle() {
+export async function signInWithGoogle(from?: string) {
   const supabase = await createClient()
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: `${process.env.NEXT_PUBLIC_APP_URL}/auth/callback`,
+      redirectTo: `${getSeoSiteUrl()}${withFrom('/auth/callback', from)}`,
     },
   })
 
@@ -552,4 +549,18 @@ export async function updateProfile(_prevState: AuthActionState, formData: FormD
 
   revalidatePath('/einstellungen')
   return { success: true, message: 'Name erfolgreich aktualisiert.' }
+}
+
+/** Keep first article source in existing account metadata; never create browser attribution state. */
+export async function rememberArticleSource(value: unknown): Promise<void> {
+  const from = normalizeFrom(value)
+  if (!from) return
+  try {
+    const supabase = await createClient()
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user && !normalizeFrom(user.user_metadata?.seo_from)) {
+      const { error } = await supabase.auth.updateUser({ data: { seo_from: from } })
+      if (error) console.error('[seo-autopilot] Could not persist article source')
+    }
+  } catch { console.error('[seo-autopilot] Could not persist article source') }
 }

@@ -1,21 +1,16 @@
 'use client'
 
-import { createClient } from '@/lib/supabase/client'
+import { signInWithGoogle } from '@/lib/actions/auth'
 import { Button } from '@/components/ui/button'
 
 interface SocialLoginProps {
     label?: string
+    from?: string
 }
 
-export function SocialLogin({ label = 'Mit Google anmelden' }: SocialLoginProps) {
+export function SocialLogin({ label = 'Mit Google anmelden', from }: SocialLoginProps) {
     const handleGoogleLogin = async () => {
-        const supabase = createClient()
-        await supabase.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: `${window.location.origin}/auth/callback`,
-            },
-        })
+        await signInWithGoogle(from)
     }
 
     return (

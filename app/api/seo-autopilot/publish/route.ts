@@ -1,8 +1,12 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { after, NextRequest, NextResponse } from 'next/server'
 import { revalidateTag } from 'next/cache'
 import { verifySignature } from '@/lib/seo-autopilot/hmac'
 import { publishPayloadSchema } from '@/lib/seo-autopilot/schema'
-import { upsertPost } from '@/lib/seo-autopilot/storage'
+import { upsertPost, listPosts } from '@/lib/seo-autopilot/storage'
+
+import { reviewSubmission } from '@/lib/seo-autopilot/editorial'
+import { blogUrl } from '@/lib/blog-urls'
+import { notifyIndexNow } from '@/lib/seo-autopilot/indexnow'
 
 export const runtime = 'nodejs'
 
@@ -15,6 +19,10 @@ export async function POST(req: NextRequest) {
   }
 
   const rawBody = await req.text()
+
+  if (!(process.env.SEO_AUTOPILOT_SECRET?.trim() || process.env.SEO_AUTOPILOT_WEBHOOK_SECRET?.trim())) {
+    return NextResponse.json({ error: 'Signing not configured' }, { status: 503, headers: { 'Retry-After': '60' } })
+  }
 
   const verification = verifySignature(signature, timestamp, rawBody)
   if (!verification.ok) {
@@ -36,11 +44,18 @@ export async function POST(req: NextRequest) {
     )
   }
 
+  const payload = parsed.data
+  if (!process.env.SEO_AUTOPILOT_SITE_ID?.trim()) {
+    return NextResponse.json({ error: 'Site not configured' }, { status: 503, headers: { 'Retry-After': '60' } })
+  }
+  if (payload.siteId !== process.env.SEO_AUTOPILOT_SITE_ID.trim()) {
+    return NextResponse.json({ error: 'Site mismatch' }, { status: 403 })
+  }
   try {
-    await upsertPost(parsed.data)
+    await upsertPost(payload)
   } catch (err) {
     console.error('[seo-autopilot] Storage error:', err)
-    return NextResponse.json({ error: 'Storage error' }, { status: 500 })
+    return NextResponse.json({ error: 'Storage error' }, { status: 503, headers: { 'Retry-After': '60' } })
   }
 
   const { locale, slug } = parsed.data
@@ -48,5 +63,16 @@ export async function POST(req: NextRequest) {
   revalidateTag(`blog-index:${locale}`, { expire: 0 })
   revalidateTag(`sitemap:${locale}`, { expire: 0 })
 
-  return NextResponse.json({ ok: true }, { status: 200 })
+  let warnings: ReturnType<typeof reviewSubmission> | undefined
+  try {
+    warnings = reviewSubmission(payload, await listPosts(locale))
+    if (warnings.overlappingSlugs.length || warnings.contentIssues.length || !warnings.topics.length) {
+      console.warn('[seo-autopilot] Editorial warnings:', { locale, slug, ...warnings })
+    }
+  } catch (err) {
+    console.warn('[seo-autopilot] Editorial review unavailable:', err)
+  }
+
+  after(() => notifyIndexNow(locale, slug))
+  return NextResponse.json({ ok: true, published: true, url: blogUrl(locale, slug), warnings }, { status: 200 })
 }

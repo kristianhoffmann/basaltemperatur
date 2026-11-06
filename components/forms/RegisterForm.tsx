@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { signUp } from '@/lib/actions/auth';
 
-export function RegisterForm() {
+export function RegisterForm({ from }: { from?: string }) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -51,6 +51,7 @@ export function RegisterForm() {
 
     try {
       const fd = new FormData();
+      if (from) fd.set('from', from);
       fd.set('email', formData.email);
       fd.set('password', formData.password);
       fd.set('ownerName', formData.name);
@@ -72,6 +73,7 @@ export function RegisterForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {from && <input type="hidden" name="from" value={from} />}
       {/* Name Field */}
       <div>
         <label

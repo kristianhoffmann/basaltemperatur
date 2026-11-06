@@ -12,11 +12,11 @@ export const metadata: Metadata = {
 };
 
 interface PageProps {
-  searchParams: { success?: string };
+  searchParams: Promise<{ success?: string }>;
 }
 
-export default function ForgotPasswordPage({ searchParams }: PageProps) {
-  const isSuccess = searchParams.success === 'true';
+export default async function ForgotPasswordPage({ searchParams }: PageProps) {
+  const isSuccess = (await searchParams).success === 'true';
 
   return (
     <div className="w-full max-w-md">

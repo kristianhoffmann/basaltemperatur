@@ -73,7 +73,9 @@ function isSensitiveQueryKey(key: string) {
 export function redactSearchParams(searchParams: URLSearchParams) {
   const redacted = new URLSearchParams(searchParams)
   for (const key of [...redacted.keys()]) {
-    if (isSensitiveQueryKey(key)) {
+    if (key.toLowerCase() === 'from') {
+      redacted.delete(key)
+    } else if (isSensitiveQueryKey(key)) {
       redacted.set(key, '[redacted]')
     }
   }

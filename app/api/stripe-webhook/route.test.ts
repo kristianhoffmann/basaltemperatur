@@ -1,5 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { POST } from './route'
+import { trackConversion } from '@/lib/seo-autopilot/attribution'
+const scheduled = vi.hoisted(() => [] as (() => Promise<unknown>)[])
+vi.mock('next/server', async (original) => ({ ...await original<typeof import('next/server')>(), after: (fn: () => Promise<unknown>) => scheduled.push(fn) }))
 
 const supabaseJsMock = vi.hoisted(() => ({
   createClient: vi.fn(),
@@ -29,7 +32,7 @@ vi.mock('stripe', () => ({
 
 const mailMock = vi.hoisted(() => ({ sendPurchaseConfirmation: vi.fn() }))
 vi.mock('@/lib/purchase-confirmation', () => mailMock)
-vi.mock('@/lib/seo-autopilot/attribution', () => ({ trackConversion: vi.fn() }))
+vi.mock('@/lib/seo-autopilot/attribution', async (original) => ({ ...await original<typeof import('@/lib/seo-autopilot/attribution')>(), trackConversion: vi.fn() }))
 
 function webhookRequest(headers: HeadersInit = {}) {
   return new Request('https://app.test/api/stripe-webhook', {
@@ -42,6 +45,7 @@ function webhookRequest(headers: HeadersInit = {}) {
 describe('POST /api/stripe-webhook', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    scheduled.length = 0
     process.env.STRIPE_SECRET_KEY = 'sk_test_123'
     process.env.STRIPE_WEBHOOK_SECRET = 'whsec_123'
     process.env.STRIPE_PRICE_ID = 'price_lifetime'
@@ -54,7 +58,8 @@ describe('POST /api/stripe-webhook', () => {
 
     const response = await POST(webhookRequest({ 'stripe-signature': 'sig' }))
 
-    expect(response.status).toBe(500)
+    expect(response.status).toBe(503)
+    expect(response.headers.get("retry-after")).toBe("60")
     expect(stripeMock.Stripe).not.toHaveBeenCalled()
     expect(supabaseJsMock.createClient).not.toHaveBeenCalled()
   })
@@ -185,4 +190,44 @@ describe('POST /api/stripe-webhook', () => {
     expect(consoleError).toHaveBeenCalledWith(expect.stringContaining('not sent: provider'))
     consoleError.mockRestore()
   })
+  it.each([false, true])('reports a paid live purchase with source and stable deduplication, duplicate=%s', async (duplicate) => {
+    const profiles = profilesTable(duplicate ? [] : [{ id: 'user-123' }])
+    supabaseJsMock.createClient.mockReturnValue({ from: () => profiles.table, auth: { admin: { getUserById: async () => ({ data: { user: { email: 'kundin@real.de' } } }) } } })
+    const event = { ...paidSession({ metadata: { user_id: 'user-123', seo_slug: 'temperatur-messen' } }), livemode: true }
+    stripeMock.constructEvent.mockReturnValue(event)
+    stripeMock.listLineItems.mockResolvedValue({ data: [{ price: { id: 'price_lifetime' } }] })
+    mailMock.sendPurchaseConfirmation.mockResolvedValue({ ok: true })
+    const response = await POST(webhookRequest({ 'stripe-signature': 'sig' }))
+    expect(response.status).toBe(200)
+    expect(trackConversion).not.toHaveBeenCalled()
+    await Promise.all(scheduled.map((fn) => fn()))
+    expect(trackConversion).toHaveBeenCalledWith(expect.objectContaining({ eventName: 'purchase', revenue: 9.99, currency: 'EUR', idempotencyKey: 'stripe:purchase:cs_test_1' }), { slug: 'temperatur-messen' })
+  })
+  it('reuses a purchase key already reported before deployment on redelivery', async () => {
+    const reported = new Set(['stripe:purchase:cs_test_1'])
+    let newPurchases = 0
+    vi.mocked(trackConversion).mockImplementation(async (event) => {
+      if (!reported.has(event.idempotencyKey!)) { reported.add(event.idempotencyKey!); newPurchases++ }
+    })
+    const profiles = profilesTable([], true)
+    supabaseJsMock.createClient.mockReturnValue({ from: () => profiles.table, auth: { admin: { getUserById: async () => ({ data: { user: { email: 'kundin@real.de' } } }) } } })
+    stripeMock.constructEvent.mockReturnValue({ ...paidSession(), livemode: true })
+    stripeMock.listLineItems.mockResolvedValue({ data: [{ price: { id: 'price_lifetime' } }] })
+    expect((await POST(webhookRequest({ 'stripe-signature': 'sig' }))).status).toBe(200)
+    await Promise.all(scheduled.map((fn) => fn()))
+    expect(trackConversion).toHaveBeenCalledOnce()
+    expect(newPurchases).toBe(0)
+    expect(mailMock.sendPurchaseConfirmation).not.toHaveBeenCalled()
+  })
+  it.each(['test-mode', 'admin', 'excluded'])('never reports %s purchases', async (kind) => {
+    const profiles = profilesTable([{ id: 'user-123' }])
+    supabaseJsMock.createClient.mockReturnValue({ from: () => profiles.table, auth: { admin: { getUserById: async () => ({ data: { user: { email: kind === 'admin' ? 'kristian.hoffmann@me.com' : 'kundin@real.de' } } }) } } })
+    stripeMock.constructEvent.mockReturnValue({ ...paidSession({ metadata: { user_id: 'user-123', seo_excluded: kind === 'excluded' ? 'true' : 'false' } }), livemode: kind !== 'test-mode' })
+    stripeMock.listLineItems.mockResolvedValue({ data: [{ price: { id: 'price_lifetime' } }] })
+    mailMock.sendPurchaseConfirmation.mockResolvedValue({ ok: true })
+    await POST(webhookRequest({ 'stripe-signature': 'sig' }))
+    await Promise.all(scheduled.map((fn) => fn()))
+    expect(trackConversion).not.toHaveBeenCalled()
+  })
+
 })

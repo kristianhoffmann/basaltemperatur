@@ -43,3 +43,7 @@ describe('traffic helpers', () => {
     expect(getReferrerHost('not a url')).toBeNull()
   })
 })
+it('excludes the server-only article source from browser analytics URLs and referrers', () => {
+  expect(sanitizeUrl('https://example.com/registrieren?from=temperatur-messen&utm_source=blog')).toBe('https://example.com/registrieren?utm_source=blog')
+  expect(sanitizeQueryString('from=temperatur-messen&page=2')).toBe('page=2')
+})

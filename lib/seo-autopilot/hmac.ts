@@ -9,7 +9,7 @@ function sign(secret: string, timestamp: string, rawBody: string): string {
 }
 
 export function signPayload(timestamp: string, rawBody: string): string {
-  return sign(process.env.SEO_AUTOPILOT_SECRET!, timestamp, rawBody)
+  return sign((process.env.SEO_AUTOPILOT_SECRET?.trim() || process.env.SEO_AUTOPILOT_WEBHOOK_SECRET?.trim())!, timestamp, rawBody)
 }
 
 export function verifySignature(
@@ -22,7 +22,7 @@ export function verifySignature(
     return { ok: false, error: 'stale' }
   }
 
-  const expected = sign(process.env.SEO_AUTOPILOT_SECRET!, timestamp, rawBody)
+  const expected = sign((process.env.SEO_AUTOPILOT_SECRET?.trim() || process.env.SEO_AUTOPILOT_WEBHOOK_SECRET?.trim())!, timestamp, rawBody)
   const sigBuf = Buffer.from(signature.padEnd(64, '0'), 'hex')
   const expBuf = Buffer.from(expected, 'hex')
 

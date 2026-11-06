@@ -9,6 +9,7 @@ import { ToastProvider } from '@/components/shared/Toaster'
 import { TrafficTracker } from '@/components/analytics/TrafficTracker'
 import { StatisticsConsent } from '@/components/analytics/StatisticsConsent'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import { siteSchema, serializeJsonLd } from '@/lib/seo-autopilot/structured-data'
 import './globals.css'
 
 const inter = Inter({
@@ -45,9 +46,6 @@ export const metadata: Metadata = {
   keywords: ['Basaltemperatur', 'Zyklustracking', 'Temperaturauswertung', 'Temperaturkurve', 'Periodenkalender', 'Zyklustagebuch'],
   authors: [{ name: 'Basaltemperatur App' }],
   creator: 'Basaltemperatur App',
-  alternates: {
-    canonical: '/',
-  },
   manifest: '/manifest.json',
   formatDetection: {
     email: false,
@@ -101,6 +99,7 @@ export default function RootLayout({
         <ThemeScript />
       </head>
       <body className="min-h-screen antialiased">
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(siteSchema()) }} />
         <ThemeProvider>
           <ToastProvider>
             <Suspense fallback={null}>

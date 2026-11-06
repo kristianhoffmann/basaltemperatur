@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
+import { sanitizeUrl } from '@/lib/traffic'
 import { usePathname } from 'next/navigation'
 import {
   onOpenStatisticsSettings,
@@ -32,12 +33,15 @@ function loadGoogleAnalytics() {
   window.gtag('js', new Date())
   window.gtag('config', GA_MEASUREMENT_ID, {
     send_page_view: false,
+    page_location: sanitizeUrl(window.location.href),
+    page_referrer: sanitizeUrl(document.referrer),
     allow_google_signals: false,
     allow_ad_personalization_signals: false,
   })
 
   const script = document.createElement('script')
   script.async = true
+  script.referrerPolicy = 'origin'
   script.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(GA_MEASUREMENT_ID)}`
   document.head.appendChild(script)
 }
@@ -59,8 +63,9 @@ export function StatisticsConsent() {
       ad_personalization: 'denied',
     })
     window.gtag?.('event', 'page_view', {
-      page_path: window.location.pathname + window.location.search,
-      page_location: window.location.href,
+      page_path: sanitizeUrl(window.location.pathname + window.location.search),
+      page_location: sanitizeUrl(window.location.href),
+      page_referrer: sanitizeUrl(document.referrer),
       page_title: document.title,
     })
   }, [consent, pathname])
@@ -83,7 +88,7 @@ export function StatisticsConsent() {
       <p className="font-semibold text-slate-950">Dürfen wir die Nutzung auswerten?</p>
       <p className="mt-1.5 leading-relaxed">
         Mit deiner Zustimmung erfassen wir Seitenaufrufe über eine eigene, pseudonyme Statistik
-        und Google Analytics und merken uns, über welchen Blogartikel du gekommen bist. Dafür
+        und Google Analytics. Dafür
         werden Kennungen in deinem Browser gespeichert. Ohne Zustimmung läuft nur das technisch
         Notwendige. Du kannst deine Wahl jederzeit über „Cookie-Einstellungen“ im Seitenfuß
         ändern.{' '}
