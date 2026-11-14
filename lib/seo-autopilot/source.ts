@@ -22,6 +22,10 @@ export function withFrom(path: string, value: unknown): string {
 
 export function getArticleCta(post: { title: string; slug: string; tags: string[] | null }) {
   const text = `${post.title} ${post.slug} ${(post.tags ?? []).join(' ')}`
+  if (/kurve|kurven|vorlage/i.test(text) && !/\bapps?\b|vergleich/i.test(text)) return {
+    href: '/werkzeuge/basaltemperaturkurve', title: 'Eigene Werte als Kurve sehen',
+    text: 'Zeichne deine Basaltemperatur ohne Konto als Kurve oder drucke die leere Vorlage. Die Werte bleiben in deinem Browser.', label: 'Kurve kostenlos zeichnen',
+  }
   if (/export|pdf|statistik|analyse|vergleich/i.test(text)) return {
     href: '/werkzeuge/temperatur-hilfslinie#analyse', title: 'Die Analyse zuerst am Beispiel verstehen',
     text: 'Sieh dir die Hilfslinien-Berechnung und die Methodik der Analyse an, bevor du Funktionen freischaltest.', label: 'Methodik und Beispiel ansehen',

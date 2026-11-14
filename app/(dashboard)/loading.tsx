@@ -1,6 +1,13 @@
 // ============================================================================
-// GLOBAL LOADING STATE
-// Wird angezeigt während Seiten laden
+// LOADING STATE (nur angemeldeter Bereich)
+// Wird angezeigt, während Seiten des Dashboards laden.
+//
+// Liegt bewusst NICHT mehr unter app/: Als app/loading.tsx umschloss die Datei
+// jede öffentliche Seite mit einer Suspense-Grenze. Das ausgelieferte HTML von
+// Startseite, Ratgeber und Werkzeug begann dann sichtbar mit „Wird geladen...“,
+// der eigentliche Inhalt samt H1 stand in <div hidden> und wurde erst per
+// Inline-Skript eingetauscht (gemessen am 14.11.2026). Crawler ohne JavaScript
+// sahen nur den Spinner. tests/seo-rendering-shell.test.ts sichert das ab.
 // ============================================================================
 
 export default function Loading() {

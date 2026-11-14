@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation'
 import { BLOG_TOPICS, topicPosts } from '@/lib/seo-autopilot/discovery'
 import { topicPath } from '@/lib/blog-urls'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
+import Link from 'next/link'
 import { isBlogLocale } from '@/lib/blog-locales'
 import { getCachedPosts } from '../../posts'
 import { BlogHeader, BlogFooter } from '../../BlogChrome'
@@ -35,6 +36,10 @@ export default async function TopicPage({ params }: Props) {
     <BlogHeader locale={locale} /><main id="inhalt" className="wrap px-4 py-12 sm:px-6 lg:px-8">
       <p className="eyebrow">Ratgeber · Thema</p>
       <h1 className="font-display mt-3 text-4xl text-[var(--text)] sm:text-5xl">{entry.title}</h1><p className="my-6 max-w-2xl text-lg text-[var(--text-secondary)]">{entry.description}</p>
+      {entry.slug === 'temperaturkurven' && <section aria-label="Werkzeuge zur Temperaturkurve" className="my-8 max-w-3xl space-y-3 text-[var(--text-secondary)]">
+        <p>Eine Basaltemperaturkurve entsteht aus einem Wert pro Morgen: auf der waagerechten Achse die Zyklustage, auf der senkrechten die Temperatur in Schritten von 0,05 °C. Die Artikel unten erklären, wie du sauber misst, Störwerte erkennst und die Kurve rückblickend liest.</p>
+        <p>Ohne Konto kannst du <Link className="link-quiet underline" href="/werkzeuge/basaltemperaturkurve">deine Basaltemperaturkurve online zeichnen oder die leere Vorlage drucken</Link> und die <Link className="link-quiet underline" href="/werkzeuge/temperatur-hilfslinie">Hilfslinie aus sechs Werten berechnen</Link>.</p>
+      </section>}
       <BlogTopicsNav locale={locale} />
       <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{posts.map((post) => <BlogPostCard key={post.id} post={post} priority={post === firstImage} />)}</div>
       {!posts.length && <p className="mt-8">Zu diesem Thema sind noch keine Artikel veröffentlicht.</p>}

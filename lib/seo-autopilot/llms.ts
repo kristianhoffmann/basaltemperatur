@@ -17,6 +17,7 @@ export function renderLlms(posts: BlogPostSummary[]) {
 - [Support](${site}/support): Hilfe und Kontakt.
 
 ## Werkzeuge
+- [Basaltemperaturkurve erstellen](${site}/werkzeuge/basaltemperaturkurve): Ohne Konto eigene Werte als Kurve zeichnen oder eine leere Vorlage (36,0–37,2 °C, 35 Zyklustage) drucken; die Werte bleiben im Browser.
 - [Temperatur-Hilfslinie](${site}/werkzeuge/temperatur-hilfslinie): Ohne Konto nutzbare Berechnung mit Methodik und fiktivem Beispiel der Analyse.
 - [Über uns](${site}/ueber-uns): Produktzweck, Betreiber und Autorenprofile.
 

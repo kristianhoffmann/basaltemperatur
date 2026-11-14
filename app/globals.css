@@ -869,6 +869,28 @@
     display: none !important;
   }
 
+  /* Kurvenwerkzeug: genau ein Blatt drucken (siehe PrintSheetButton). */
+  body[data-print-target] * {
+    visibility: hidden !important;
+  }
+  body[data-print-target='vorlage'] #vorlage,
+  body[data-print-target='vorlage'] #vorlage *,
+  body[data-print-target='eigene-kurve'] #eigene-kurve,
+  body[data-print-target='eigene-kurve'] #eigene-kurve * {
+    visibility: visible !important;
+  }
+  body[data-print-target='vorlage'] #vorlage,
+  body[data-print-target='eigene-kurve'] #eigene-kurve {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    border: 0;
+    overflow: visible;
+  }
+  .print-sheet > div {
+    min-width: 0 !important;
+  }
+
   body {
     background: white !important;
   }

@@ -6,15 +6,19 @@ type LinkedPost = TopicPost & { locale?: string; internal_links?: { targetSlug: 
 
 // Categories describe the existing product and blog; they make no clinical claims.
 export const BLOG_TOPICS = [
-  { slug: 'temperaturkurven', title: 'Basaltemperatur und Temperaturkurven', description: 'Artikel zum Messen, Dokumentieren und rückblickenden Lesen von Temperaturkurven.', pattern: /temperatur|messzeit|störfaktor|stoerfaktor|thermometer/i },
+  // App-Vergleiche erwähnen fast immer „Basaltemperatur“ (der Produktname). Ohne den
+  // Ausschluss landeten Registrierungs- und Preisartikel im Kurven-Hub und verwässerten
+  // genau die Seite, die für „Basaltemperaturkurve“ stehen soll.
+  { slug: 'temperaturkurven', title: 'Basaltemperatur und Temperaturkurven', description: 'Artikel zum Messen, Dokumentieren und rückblickenden Lesen von Temperaturkurven.', pattern: /temperatur|messzeit|störfaktor|stoerfaktor|thermometer/i, exclude: /\bapps?\b|zyklusapp|tracker|tracking|anmelden|registrierung/i },
   { slug: 'zyklustagebuch', title: 'Zyklustagebuch und Periodenkalender', description: 'Artikel zur Dokumentation von Zyklus und Periode.', pattern: /zyklustagebuch|zyklusbeobachtung|perioden(?:kalender|tagebuch)|zyklus(?:tage|länge|laenge|dokumentation)/i },
-  { slug: 'zyklus-apps', title: 'Zyklus-Apps und Datenschutz', description: 'Artikel zu Funktionen, Kosten und Datenschutz von Zyklus- und Perioden-Apps.', pattern: /(?:zyklus|perioden|temperatur|tracking|nfp)[ -]?app|app[ -]?(?:vergleich|zyklus)|cycle[ -]?track/i },
+  { slug: 'zyklus-apps', title: 'Zyklus-Apps und Datenschutz', description: 'Artikel zu Funktionen, Kosten und Datenschutz von Zyklus- und Perioden-Apps.', pattern: /(?:zyklus|perioden?|temperatur|tracking|tracken|nfp)[ -]?apps?\b|zyklusapp|zyklus[ -]?track(?:ing|en)|app[ -]?(?:vergleich|zyklus)|cycle[ -]?track|\b(?:clue|flo|mynfp)\b/i },
 ] as const
 
 export function getPostTopics(post: TopicPost): string[] {
   // Title and slug determine relevance; generic tags must not promote unrelated articles.
   const text = `${post.title} ${post.slug.replace(/-/g, ' ')}`
-  return BLOG_TOPICS.filter((topic) => topic.pattern.test(text)).map((topic) => topic.slug)
+  return BLOG_TOPICS.filter((topic) => topic.pattern.test(text) && !('exclude' in topic && topic.exclude.test(text)))
+    .map((topic) => topic.slug)
 }
 
 function tokens(post: TopicPost) {

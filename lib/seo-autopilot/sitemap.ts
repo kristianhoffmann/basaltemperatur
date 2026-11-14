@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const authors = [...new Set(posts.flatMap((post) => post.author?.name ? [post.author.name] : []))]
   return [
     // No reliable revision dates exist for static pages; omit lastmod instead of fabricating today's date.
-    ...['/', '/ueber-uns', '/werkzeuge/temperatur-hilfslinie', '/widerruf-ausueben', '/impressum', '/datenschutz', '/agb', '/widerruf', '/support'].map((path) => ({ url: `${site}${path}` })),
+    ...['/', '/ueber-uns', '/werkzeuge/basaltemperaturkurve', '/werkzeuge/temperatur-hilfslinie', '/widerruf-ausueben', '/impressum', '/datenschutz', '/agb', '/widerruf', '/support'].map((path) => ({ url: `${site}${path}` })),
     ...Array.from({ length: Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE)) }, (_, index) => ({ url: `${blogUrl('de')}${index ? `?page=${index + 1}` : ''}`, lastModified: latest(posts.slice(index * BLOG_PAGE_SIZE, (index + 1) * BLOG_PAGE_SIZE)) })),
     ...BLOG_TOPICS.filter((topic) => topicPosts(posts, topic.slug).length > 0).map((topic) => ({ url: `${site}${topicPath(topic.slug)}`, lastModified: latest(topicPosts(posts, topic.slug)) })),
     ...authors.map((name) => ({ url: `${site}${authorPath(name)}`, lastModified: latest(posts.filter((post) => post.author?.name === name)) })),

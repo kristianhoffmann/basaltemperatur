@@ -8,12 +8,13 @@ import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
 import { getLegalCompany } from '@/lib/legal/config'
 import { withFrom } from '@/lib/seo-autopilot/source'
 
-export type SiteSection = 'home' | 'guide' | 'tool' | 'about' | 'legal'
+export type SiteSection = 'home' | 'guide' | 'tool' | 'curve' | 'about' | 'legal'
 
 const NAV_LINKS: Array<{ href: string; label: string; section?: SiteSection }> = [
   { href: '/#features', label: 'Funktionen' },
   { href: '/#pricing', label: 'Preis' },
   { href: '/de/blog', label: 'Ratgeber', section: 'guide' },
+  { href: '/werkzeuge/basaltemperaturkurve', label: 'Kurve erstellen', section: 'curve' },
   { href: '/werkzeuge/temperatur-hilfslinie', label: 'Hilfslinien-Rechner', section: 'tool' },
   { href: '/#faq', label: 'Fragen' },
 ]
@@ -105,6 +106,7 @@ export function SiteFooter() {
               <li><Link href="/#features" className={linkClass}>Funktionen</Link></li>
               <li><Link href="/#pricing" className={linkClass}>Preis</Link></li>
               <li><Link href="/de/blog" className={linkClass}>Ratgeber</Link></li>
+              <li><Link href="/werkzeuge/basaltemperaturkurve" className={linkClass}>Basaltemperaturkurve erstellen</Link></li>
               <li><Link href="/werkzeuge/temperatur-hilfslinie" className={linkClass}>Hilfslinien-Rechner</Link></li>
               <li><Link href="/ueber-uns" className={linkClass}>Über uns</Link></li>
               <li><Link href="/support" className={linkClass}>Support</Link></li>
