@@ -8,8 +8,8 @@
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "background_color": "#FAF7F2",
-  "theme_color": "#FAF7F2",
+  "background_color": "#FFF8F1",
+  "theme_color": "#FFF8F1",
   "categories": ["lifestyle", "health"],
   "icons": [
     {

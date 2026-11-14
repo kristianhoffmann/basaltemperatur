@@ -3,61 +3,68 @@
 @tailwind utilities;
 
 /* ============================================================
-   DESIGN SYSTEM "KURVENBLATT"
-   Warm paper surfaces, ink text, one accent. The reference is the
-   paper temperature chart, not a SaaS dashboard: calm, legible, private.
+   DESIGN SYSTEM "THERMO"
+   One idea carries the whole look: colour is temperature. Cool periwinkle
+   stands for low readings, warm coral for high ones, ink for everything
+   written down. Big type, big colour fields, motion that follows the curve.
    ============================================================ */
 
 :root {
-  /* ── Surfaces (paper) ─────────────────────────────────── */
-  --bg: #FAF7F2;
-  --bg-secondary: #F2EDE4;
-  --bg-warm: #F6F1E9;
+  /* ── Surfaces ─────────────────────────────────────────── */
+  --bg: #FFF8F1;
+  --bg-secondary: #FBEDE3;
+  --bg-warm: #FFF1EE;
+
+  /* ── Thermal scale ────────────────────────────────────── */
+  --cool: #C9D4FF;
+  --cool-strong: #3D4FE0;
+  --warm: #FF9E8F;
+  --ink: #1B1233;
 
   /* ── Sidebar (ink) ────────────────────────────────────── */
-  --sidebar-bg: #231B26;
-  --sidebar-bg-hover: rgba(255, 255, 255, 0.05);
-  --sidebar-active: rgba(227, 160, 172, 0.14);
-  --sidebar-active-border: #E3A0AC;
-  --sidebar-text: rgba(255, 255, 255, 0.66);
+  --sidebar-bg: #1B1233;
+  --sidebar-bg-hover: rgba(255, 255, 255, 0.06);
+  --sidebar-active: rgba(255, 158, 143, 0.16);
+  --sidebar-active-border: #FF9E8F;
+  --sidebar-text: rgba(255, 255, 255, 0.68);
   --sidebar-text-active: #FFFFFF;
-  --sidebar-divider: rgba(255, 255, 255, 0.08);
+  --sidebar-divider: rgba(255, 255, 255, 0.09);
 
   /* ── Cards ────────────────────────────────────────────── */
   --card-bg: #FFFFFF;
-  --card-border: #E7E0D6;
-  /* Alias: several components reference --border, which was never defined. */
-  --border: #E7E0D6;
-  --border-subtle: #E7E0D6;
-  --card-shadow: 0 1px 2px rgba(60, 40, 50, 0.04), 0 10px 28px -14px rgba(60, 40, 50, 0.14);
-  --card-shadow-hover: 0 2px 4px rgba(60, 40, 50, 0.05), 0 18px 40px -16px rgba(60, 40, 50, 0.22);
-  --card-radius: 14px;
+  --card-border: #EADDD2;
+  /* Aliases: several components reference these, which were never defined. */
+  --border: #EADDD2;
+  --border-subtle: #EADDD2;
+  --card-shadow: 0 1px 2px rgba(27, 18, 51, 0.05), 0 12px 32px -16px rgba(27, 18, 51, 0.18);
+  --card-shadow-hover: 0 2px 4px rgba(27, 18, 51, 0.06), 0 22px 48px -18px rgba(27, 18, 51, 0.28);
+  --card-radius: 18px;
 
-  /* ── Text (ink). All three pass WCAG AA on --bg and on white. ── */
-  --text: #221A24;
-  --text-secondary: #4E4553;
-  --text-muted: #716877;
+  /* ── Text. All three pass WCAG AA on --bg, --bg-secondary and white. ── */
+  --text: #1B1233;
+  --text-secondary: #4A4263;
+  --text-muted: #6A6384;
 
-  /* ── Brand: one accent, plus functional chart colours ──── */
-  --rose: #B4455C;
-  --rose-vibrant: #B4455C;
-  --rose-dark: #963A4D;
-  --rose-light: #F7E4E7;
-  --violet: #5B4A78;
-  --violet-vibrant: #5B4A78;
-  --gold: #946016;
-  --period: #C8475D;
-  --emerald: #2F7D5B;
-  --teal: #2F7D5B;
+  /* ── Accent and chart colours ─────────────────────────── */
+  --rose: #CC3026;
+  --rose-vibrant: #CC3026;
+  --rose-dark: #A8241C;
+  --rose-light: #FFE1DB;
+  --violet: #3D4FE0;
+  --violet-vibrant: #3D4FE0;
+  --gold: #8A5A10;
+  --period: #C8324A;
+  --emerald: #1F7A56;
+  --teal: #1F7A56;
 
-  --grid-line: rgba(34, 26, 36, 0.055);
+  --grid-line: rgba(27, 18, 51, 0.06);
   --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
-  /* Kept as names only; the glow effects themselves are gone. */
-  --glow-rose: 0 6px 18px -6px rgba(180, 69, 92, 0.35);
-  --glow-violet: 0 6px 18px -6px rgba(91, 74, 120, 0.3);
-  --glow-emerald: 0 6px 18px -6px rgba(47, 125, 91, 0.3);
-  --hero-bg: var(--bg);
+  --glow-rose: 0 10px 28px -10px rgba(204, 48, 38, 0.5);
+  --glow-violet: 0 10px 28px -10px rgba(61, 79, 224, 0.4);
+  --glow-emerald: 0 10px 28px -10px rgba(31, 122, 86, 0.4);
+  --hero-bg: var(--cool);
 }
 
 /* ============================================================
@@ -125,7 +132,7 @@
   }
 
   ::selection {
-    background: rgba(180, 69, 92, 0.18);
+    background: rgba(204, 48, 38, 0.18);
     color: var(--text);
   }
 
@@ -291,12 +298,12 @@
   }
 
   .kpi-icon-rose {
-    background: linear-gradient(135deg, rgba(180, 69, 92, 0.15) 0%, rgba(180, 69, 92, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(204, 48, 38, 0.15) 0%, rgba(204, 48, 38, 0.05) 100%);
     color: var(--rose);
   }
 
   .kpi-icon-violet {
-    background: linear-gradient(135deg, rgba(91, 74, 120, 0.15) 0%, rgba(91, 74, 120, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(61, 79, 224, 0.15) 0%, rgba(61, 79, 224, 0.05) 100%);
     color: var(--violet);
   }
 
@@ -306,7 +313,7 @@
   }
 
   .kpi-icon-emerald {
-    background: linear-gradient(135deg, rgba(47, 125, 91, 0.15) 0%, rgba(47, 125, 91, 0.05) 100%);
+    background: linear-gradient(135deg, rgba(31, 122, 86, 0.15) 0%, rgba(31, 122, 86, 0.05) 100%);
     color: var(--emerald);
   }
 
@@ -339,8 +346,8 @@
   .btn {
     @apply inline-flex items-center justify-center gap-2 font-semibold cursor-pointer border-none whitespace-nowrap;
     font-size: 14px;
-    padding: 10px 18px;
-    border-radius: 10px;
+    padding: 10px 20px;
+    border-radius: 999px;
     transition: background-color 0.18s var(--ease), color 0.18s var(--ease), border-color 0.18s var(--ease), box-shadow 0.18s var(--ease), transform 0.12s var(--ease);
   }
 
@@ -360,7 +367,7 @@
   .btn-glow {
     @apply text-white;
     background: var(--rose);
-    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 6px 16px -8px rgba(150, 58, 77, 0.55);
+    box-shadow: 0 1px 0 rgba(255, 255, 255, 0.18) inset, 0 6px 16px -8px rgba(168, 36, 28, 0.55);
   }
 
   .btn-primary:hover:not(:disabled),
@@ -387,25 +394,41 @@
 
   .btn-ghost:hover {
     color: var(--text);
-    background: rgba(34, 26, 36, 0.05);
+    background: rgba(27, 18, 51, 0.05);
   }
 
   .btn-sm {
     font-size: 13px;
-    padding: 8px 14px;
-    border-radius: 9px;
+    padding: 8px 16px;
+    border-radius: 999px;
   }
 
   .btn-lg {
     font-size: 15px;
-    padding: 12px 22px;
-    border-radius: 11px;
+    padding: 13px 24px;
+    border-radius: 999px;
   }
 
   .btn-xl {
-    font-size: 16px;
-    padding: 14px 26px;
-    border-radius: 12px;
+    font-size: 17px;
+    padding: 16px 30px;
+    border-radius: 999px;
+  }
+
+  /* Ink button for coloured fields: the page's loudest action. */
+  .btn-ink {
+    @apply text-white;
+    background: var(--ink);
+    box-shadow: 0 14px 30px -14px rgba(27, 18, 51, 0.7);
+  }
+
+  .btn-ink:hover:not(:disabled) {
+    background: #2B1F52;
+    transform: translateY(-2px);
+  }
+
+  .btn-ink:active:not(:disabled) {
+    transform: translateY(1px);
   }
 
   /* ── Inputs ────────────────────────────────────────────── */
@@ -428,7 +451,7 @@
   .input:focus {
     @apply outline-none;
     border-color: var(--rose);
-    box-shadow: 0 0 0 3px rgba(180, 69, 92, 0.16);
+    box-shadow: 0 0 0 3px rgba(204, 48, 38, 0.16);
   }
 
   .label {
@@ -448,12 +471,12 @@
   }
 
   .badge-ovulation {
-    background: rgba(91, 74, 120, 0.1);
+    background: rgba(61, 79, 224, 0.1);
     color: var(--violet);
   }
 
   .badge-success {
-    background: rgba(47, 125, 91, 0.12);
+    background: rgba(31, 122, 86, 0.12);
     color: var(--emerald);
   }
 
@@ -501,7 +524,7 @@
 
   .bottom-nav {
     @apply fixed bottom-0 left-0 right-0 flex items-center justify-between z-50;
-    background: rgba(250, 247, 242, 0.9);
+    background: rgba(255, 248, 241, 0.92);
     border-top: 1px solid var(--card-border);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
@@ -532,10 +555,10 @@
   /* ── Display type (marketing and article headlines) ───── */
 
   .font-display {
-    font-family: var(--font-heading), Georgia, 'Times New Roman', serif;
-    font-weight: 500;
-    letter-spacing: -0.022em;
-    line-height: 1.06;
+    font-family: var(--font-heading), var(--font-body), system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
     font-optical-sizing: auto;
   }
 
@@ -565,7 +588,7 @@
   .link-quiet {
     color: var(--text);
     text-decoration: underline;
-    text-decoration-color: rgba(180, 69, 92, 0.45);
+    text-decoration-color: rgba(204, 48, 38, 0.45);
     text-decoration-thickness: 1.5px;
     text-underline-offset: 3px;
     transition: text-decoration-color 0.18s var(--ease), color 0.18s var(--ease);
@@ -574,6 +597,65 @@
   .link-quiet:hover {
     color: var(--rose-dark);
     text-decoration-color: var(--rose);
+  }
+
+  /* ── Headline reveal: runs in CSS so the text never waits for JavaScript ── */
+
+  .line-mask {
+    display: block;
+    overflow: hidden;
+    padding-bottom: 0.08em;
+  }
+
+  .line-mask > span {
+    display: block;
+    transform: translateY(110%);
+    animation: lineRise 0.9s var(--ease-out-expo) forwards;
+    animation-delay: calc(var(--i, 0) * 110ms + 80ms);
+  }
+
+  .rise-in {
+    opacity: 0;
+    transform: translateY(14px);
+    animation: riseIn 0.8s var(--ease-out-expo) forwards;
+    animation-delay: calc(var(--i, 0) * 110ms + 80ms);
+  }
+
+  /* ── Ticker: a diary filling up, value after value ─────── */
+
+  .ticker {
+    display: flex;
+    width: max-content;
+    animation: tickerMove 46s linear infinite;
+  }
+
+  .ticker:hover {
+    animation-play-state: paused;
+  }
+
+  /* ── FAQ disclosure ───────────────────────────────────── */
+
+  .faq-item summary {
+    list-style: none;
+    cursor: pointer;
+  }
+
+  .faq-item summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .faq-item .faq-icon {
+    transition: transform 0.35s var(--ease-out-expo), background-color 0.2s var(--ease);
+  }
+
+  .faq-item[open] .faq-icon {
+    transform: rotate(45deg);
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .faq-item[open] .faq-answer {
+    animation: riseIn 0.45s var(--ease-out-expo) both;
   }
 
   .skip-link {
@@ -609,7 +691,7 @@
   }
 
   .skeleton {
-    background: linear-gradient(90deg, rgba(34, 26, 36, 0.05) 25%, rgba(34, 26, 36, 0.09) 50%, rgba(34, 26, 36, 0.05) 75%);
+    background: linear-gradient(90deg, rgba(27, 18, 51, 0.05) 25%, rgba(27, 18, 51, 0.09) 50%, rgba(27, 18, 51, 0.05) 75%);
     background-size: 200% 100%;
     @apply animate-pulse;
     border-radius: 12px;
@@ -637,6 +719,25 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes lineRise {
+  to {
+    transform: translateY(0);
+  }
+}
+
+@keyframes riseIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes tickerMove {
+  to {
+    transform: translateX(-50%);
   }
 }
 

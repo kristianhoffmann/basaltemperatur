@@ -16,19 +16,20 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
     <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <BlogHeader locale={locale} />
       <main id="inhalt">
-        <section className="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pt-16 lg:px-8">
-          <p className="eyebrow">Ratgeber</p>
-          <h1 className="font-display mt-4 max-w-4xl text-4xl text-[var(--text)] sm:text-5xl lg:text-6xl">
+        <section className="bg-[var(--cool)]">
+          <div className="mx-auto max-w-6xl px-4 pb-12 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-16">
+          <h1 className="font-display max-w-5xl text-[clamp(2.5rem,6vw,5rem)] text-[var(--text)]">
             Basaltemperatur messen, Kurve lesen, Zyklus dokumentieren.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--text-secondary)]">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--text)]">
             Praxisnahe Artikel zum Messen und Dokumentieren – ohne Heilsversprechen und mit Quellen.
             {posts.length > 0 && <> Aktuell {posts.length} Artikel.</>}
           </p>
           <div className="mt-8"><BlogTopicsNav locale={locale} posts={posts} /></div>
+          </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14">
           {!featured ? (
             <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-white p-8 text-[var(--text-muted)]">
               Noch keine Artikel vorhanden.

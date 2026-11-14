@@ -1,15 +1,19 @@
 // app/page.tsx
-// Start page. Design language "Kurvenblatt": paper, ink, one accent.
+// Start page. Design language "Thermo": colour is temperature, the curve is the hero.
 //
 // Wording is part of the product's intended purpose (MDR): the app is a diary.
 // Do not add claims about fertile days, ovulation prediction, contraception or
 // conception here.
 
 import type { Metadata } from 'next'
+import type { CSSProperties } from 'react'
 import Link from 'next/link'
-import { ArrowRight, Check, Minus } from 'lucide-react'
+import { ArrowRight, Check, Minus, Plus } from 'lucide-react'
 import { HomeArticleLinks } from '@/app/[locale]/blog/BlogDiscovery'
 import { SiteFooter, SiteHeader } from '@/components/layout/SiteChrome'
+import { CycleStory, type StoryStep } from '@/components/marketing/CycleStory'
+import { HeroStage } from '@/components/marketing/HeroStage'
+import { EXAMPLE_GUIDE_LINE, EXAMPLE_TEMPS, formatTemp } from '@/components/marketing/example-cycle'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
 import { serializeJsonLd } from '@/lib/seo-autopilot/structured-data'
 
@@ -36,89 +40,6 @@ export const metadata: Metadata = {
     description: PAGE_DESCRIPTION,
     images: ['/twitter-image'],
   },
-}
-
-// ── Example chart (clearly labelled as example data) ──────────────────────────
-
-const EXAMPLE_TEMPS = [
-  36.52, 36.48, 36.44, 36.41, 36.38, 36.42, 36.36, 36.4, 36.34, 36.38, 36.42, 36.36, 36.33, 36.4,
-  36.38, 36.62, 36.74, 36.8, 36.77, 36.83, 36.79, 36.85, 36.8, 36.76, 36.82, 36.78, 36.7, 36.58,
-]
-const RISE_INDEX = 15
-const CHART = { width: 640, height: 300, left: 46, right: 18, top: 22, bottom: 40, min: 36.2, max: 37.0 }
-
-const chartX = (index: number) =>
-  CHART.left + (index * (CHART.width - CHART.left - CHART.right)) / (EXAMPLE_TEMPS.length - 1)
-const chartY = (temp: number) =>
-  CHART.top + ((CHART.max - temp) / (CHART.max - CHART.min)) * (CHART.height - CHART.top - CHART.bottom)
-const formatTemp = (value: number) => value.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
-
-function ExampleChart() {
-  // Same rule as the app: the highest of the six readings before the rise.
-  const guideLine = Math.max(...EXAMPLE_TEMPS.slice(RISE_INDEX - 6, RISE_INDEX))
-  const points = EXAMPLE_TEMPS.map((temp, index) => `${chartX(index).toFixed(1)},${chartY(temp).toFixed(1)}`).join(' ')
-  const ticks = [36.2, 36.4, 36.6, 36.8, 37.0]
-  const dayStep = chartX(1) - chartX(0)
-
-  return (
-    <svg
-      viewBox={`0 0 ${CHART.width} ${CHART.height}`}
-      className="h-auto w-full"
-      role="img"
-      aria-label="Beispiel einer Temperaturkurve über 28 Tage: fünf Periodentage, Tieflage um 36,4 Grad, Anstieg an Tag 16 und Hochlage um 36,8 Grad. Eine gestrichelte Hilfslinie liegt bei 36,42 Grad."
-    >
-      <rect
-        x={chartX(0) - dayStep / 2}
-        y={CHART.top}
-        width={dayStep * 5}
-        height={CHART.height - CHART.top - CHART.bottom}
-        rx="6"
-        fill="var(--period)"
-        opacity="0.1"
-      />
-      {ticks.map((tick) => (
-        <g key={tick}>
-          <line x1={CHART.left} x2={CHART.width - CHART.right} y1={chartY(tick)} y2={chartY(tick)} stroke="var(--text)" strokeOpacity="0.08" />
-          <text x={CHART.left - 10} y={chartY(tick) + 4} textAnchor="end" fontSize="11" fill="var(--text-muted)">{formatTemp(tick)}</text>
-        </g>
-      ))}
-      {[1, 7, 14, 21, 28].map((day) => (
-        <text key={day} x={chartX(day - 1)} y={CHART.height - 16} textAnchor="middle" fontSize="11" fill="var(--text-muted)">
-          {day}
-        </text>
-      ))}
-      <text x={chartX(2)} y={CHART.top + 16} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--period)">Periode</text>
-
-      <line
-        x1={CHART.left}
-        x2={CHART.width - CHART.right}
-        y1={chartY(guideLine)}
-        y2={chartY(guideLine)}
-        stroke="var(--gold)"
-        strokeWidth="1.5"
-        strokeDasharray="6 5"
-      />
-      <text x={CHART.width - CHART.right} y={chartY(guideLine) + 15} textAnchor="end" fontSize="11" fontWeight="600" fill="var(--gold)">
-        Hilfslinie {formatTemp(guideLine)} °C
-      </text>
-
-      <polyline points={points} fill="none" stroke="var(--rose)" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
-      {EXAMPLE_TEMPS.map((temp, index) => (
-        <circle
-          key={index}
-          cx={chartX(index)}
-          cy={chartY(temp)}
-          r={index === RISE_INDEX ? 5.5 : 3.25}
-          fill={index === RISE_INDEX ? 'var(--violet)' : '#fff'}
-          stroke={index === RISE_INDEX ? '#fff' : 'var(--rose)'}
-          strokeWidth="2"
-        />
-      ))}
-      <text x={chartX(RISE_INDEX) - 10} y={chartY(EXAMPLE_TEMPS[RISE_INDEX]) - 2} textAnchor="end" fontSize="11" fontWeight="600" fill="var(--violet)">
-        Anstieg
-      </text>
-    </svg>
-  )
 }
 
 // ── Content ───────────────────────────────────────────────────────────────────
@@ -215,6 +136,42 @@ const faqItems = [
   },
 ]
 
+const storySteps: StoryStep[] = [
+  {
+    label: 'Kostenlos',
+    title: 'Morgens: ein Wert, zehn Sekunden',
+    body: (
+      <p>
+        Wert eintippen, fertig. Messzeit und Schlafdauer kannst du ergänzen. War die Messung
+        gestört – krank, kurze Nacht, Alkohol –, markierst du sie, damit sie die Auswertung
+        nicht verfälscht.
+      </p>
+    ),
+  },
+  {
+    label: 'Kostenlos',
+    title: 'Die Periode steht im Kalender',
+    body: (
+      <p>
+        Periodentage markierst du mit einem Tipp, auf Wunsch mit Blutungsstärke. Der Kalender
+        zeigt, an welchen Tagen du gemessen hast und wann deine Periode war.
+      </p>
+    ),
+  },
+  {
+    label: 'Analyse, einmalig 9,99 €',
+    title: 'Aus Punkten wird eine Kurve',
+    body: (
+      <p>
+        Die Analyse zeichnet deine Kurve mit Hilfslinie und markiert Temperaturanstiege
+        rückblickend. Dazu kommen Zykluslängen, der Vergleich mehrerer Zyklen, eine statistische
+        Schätzung des nächsten Periodenbeginns und der PDF-Export – zum Beispiel für den
+        nächsten Arzttermin.
+      </p>
+    ),
+  },
+]
+
 export default function LandingPage() {
   const siteUrl = getSeoSiteUrl()
   const structuredData = {
@@ -267,351 +224,221 @@ export default function LandingPage() {
       <SiteHeader current="home" />
 
       <main id="inhalt">
-        {/* ── Hero ─────────────────────────────────────────── */}
-        <section className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-20">
-          <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
-            <div>
-              <p className="eyebrow">Basaltemperatur-App · Zyklustagebuch im Browser</p>
-              <h1 className="font-display mt-4 text-[2.6rem] text-[var(--text)] sm:text-6xl lg:text-[4.1rem]">
-                Basaltemperatur eintragen. Kurve sehen. Mehr nicht.
-              </h1>
-              <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--text-secondary)]">
-                Ein privates Tagebuch für Temperatur und Periode. Das Eintragen ist kostenlos.
-                Kurve, Statistik und PDF-Export schaltest du einmalig für 9,99&nbsp;€ frei –
-                ohne Abo und ohne Werbung.
-              </p>
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
-                <Link href="/registrieren" className="btn btn-primary btn-xl">
-                  Kostenlos starten
-                  <ArrowRight className="h-5 w-5" aria-hidden />
-                </Link>
-                <Link href="/werkzeuge/temperatur-hilfslinie" className="link-quiet text-[15px] font-medium">
-                  Hilfslinie ohne Konto berechnen
-                </Link>
-              </div>
-              <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--text-secondary)]">
-                {facts.map((fact) => (
-                  <li key={fact} className="flex items-center gap-1.5">
-                    <Check className="h-4 w-4 text-[var(--emerald)]" aria-hidden />
-                    {fact}
+        {/* ── Hero: the stage is a thermometer ─────────────── */}
+        <HeroStage
+          headline={
+            <h1 className="font-display text-[clamp(2.7rem,6.2vw,5.4rem)] text-[var(--text)]">
+              <span className="line-mask"><span style={{ '--i': 0 } as CSSProperties}>Basaltemperatur eintragen.</span></span>
+              <span className="line-mask"><span style={{ '--i': 1 } as CSSProperties}>Kurve sehen. Mehr nicht.</span></span>
+            </h1>
+          }
+        >
+          <p className="rise-in max-w-xl text-lg leading-relaxed text-[var(--text)] sm:text-xl" style={{ '--i': 3 } as CSSProperties}>
+            Ein privates Tagebuch für Temperatur und Periode. Das Eintragen ist kostenlos. Kurve,
+            Statistik und PDF-Export schaltest du einmalig für 9,99&nbsp;€ frei – ohne Abo und ohne
+            Werbung.
+          </p>
+          <div className="rise-in mt-7 flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6" style={{ '--i': 4 } as CSSProperties}>
+            <Link href="/registrieren" className="btn btn-ink btn-xl">
+              Kostenlos starten
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Link>
+            <Link href="/werkzeuge/temperatur-hilfslinie" className="text-[15px] font-semibold text-[var(--text)] underline decoration-[var(--ink)]/40 decoration-2 underline-offset-4 hover:decoration-[var(--ink)]">
+              Hilfslinie ohne Konto berechnen
+            </Link>
+          </div>
+          <ul className="rise-in mt-7 flex flex-wrap gap-x-5 gap-y-2 text-sm font-medium text-[var(--text)]" style={{ '--i': 5 } as CSSProperties}>
+            {facts.map((fact) => (
+              <li key={fact} className="flex items-center gap-1.5">
+                <Check className="h-4 w-4" aria-hidden />
+                {fact}
+              </li>
+            ))}
+          </ul>
+        </HeroStage>
+
+        {/* ── Ticker: a diary filling up ───────────────────── */}
+        <div className="overflow-hidden bg-[var(--ink)] py-4" aria-hidden>
+          <div className="ticker">
+            {[0, 1].map((copy) => (
+              <ul key={copy} className="flex shrink-0 items-baseline gap-8 pr-8 font-display text-2xl tabular-nums sm:text-3xl">
+                {EXAMPLE_TEMPS.map((temp, index) => (
+                  <li key={index} className="flex items-baseline gap-2">
+                    <span className="text-sm font-medium text-white/40">Tag {index + 1}</span>
+                    <span style={{ color: temp > EXAMPLE_GUIDE_LINE ? '#FF9E8F' : '#C9D4FF' }}>{formatTemp(temp)}°</span>
                   </li>
                 ))}
               </ul>
-            </div>
+            ))}
+          </div>
+        </div>
 
-            <figure className="relative">
-              <div className="paper-grid rounded-2xl border border-[var(--card-border)] p-4 shadow-strong sm:p-6">
-                <div className="flex items-baseline justify-between gap-4">
-                  <p className="text-sm font-semibold text-[var(--text)]">Zyklus 4</p>
-                  <p className="text-xs text-[var(--text-muted)]">28 Tage · Beispieldaten</p>
-                </div>
-                <div className="mt-2">
-                  <ExampleChart />
-                </div>
-                <dl className="mt-3 grid grid-cols-3 divide-x divide-[var(--card-border)] rounded-xl border border-[var(--card-border)] bg-white/85 text-center">
-                  {[
-                    ['Heute', '36,58 °C'],
-                    ['Ø Zykluslänge', '29 Tage'],
-                    ['Hochlage', '+0,39 °C'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="px-2 py-3">
-                      <dt className="text-[11px] text-[var(--text-muted)]">{label}</dt>
-                      <dd className="mt-0.5 text-[15px] font-semibold tabular-nums text-[var(--text)]">{value}</dd>
-                    </div>
-                  ))}
-                </dl>
-              </div>
-              <figcaption className="mt-3 text-xs text-[var(--text-muted)]">
-                So sieht die Kurve in der Analyse aus. Die Werte sind ein erfundenes Beispiel.
-              </figcaption>
-            </figure>
+        {/* ── Story: one cycle, built while you scroll ─────── */}
+        <section id="features" aria-labelledby="funktionen" className="bg-[var(--ink)] pb-10 pt-20 lg:pt-28">
+          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+            <h2 id="funktionen" className="font-display max-w-4xl text-5xl text-white sm:text-7xl">
+              Ein Zyklus, Punkt für Punkt.
+            </h2>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
+              Scroll weiter und sieh zu, wie aus 28 Morgenwerten eine Kurve wird. Kühle Farben
+              stehen für niedrige Werte, warme für hohe.
+            </p>
+          </div>
+          <div className="mt-8 lg:mt-4">
+            <CycleStory steps={storySteps} />
           </div>
         </section>
 
         {/* ── Purpose ──────────────────────────────────────── */}
-        <section aria-labelledby="zweck" className="border-y border-[var(--card-border)] bg-[var(--bg-secondary)]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+        <section aria-labelledby="zweck" className="bg-[var(--cool)]">
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <h2 id="zweck" className="font-display text-[clamp(2.8rem,9vw,7rem)] text-[var(--text)]">
+              Ein Tagebuch.
+              <br />
+              Kein Orakel.
+            </h2>
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr_1fr] lg:gap-12">
+              <p className="text-lg leading-relaxed text-[var(--text)]">
+                Basaltemperatur hält fest, was du misst, und zeigt es dir übersichtlich. Was die
+                Werte für dich bedeuten, entscheidest du – oder besprichst es mit deiner Ärztin
+                oder deinem Arzt.
+              </p>
               <div>
-                <h2 id="zweck" className="font-display text-4xl text-[var(--text)] sm:text-5xl">
-                  Ein Tagebuch. Kein Orakel.
-                </h2>
-                <p className="mt-5 max-w-md leading-relaxed text-[var(--text-secondary)]">
-                  Basaltemperatur hält fest, was du misst, und zeigt es dir übersichtlich. Was die
-                  Werte für dich bedeuten, entscheidest du – oder besprichst es mit deiner Ärztin
-                  oder deinem Arzt.
-                </p>
-              </div>
-              <div className="grid gap-8 sm:grid-cols-2">
-                <div>
-                  <h3 className="text-sm font-semibold text-[var(--text)]">Das macht die App</h3>
-                  <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text-secondary)]">
-                    {purposeDoes.map((item) => (
-                      <li key={item} className="flex gap-2.5">
-                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <h3 className="text-sm font-semibold text-[var(--text)]">Das macht sie bewusst nicht</h3>
-                  <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text-secondary)]">
-                    {purposeDoesNot.map((item) => (
-                      <li key={item} className="flex gap-2.5">
-                        <Minus className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" aria-hidden />
-                        {item}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* ── Features ─────────────────────────────────────── */}
-        <section id="features" aria-labelledby="funktionen" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <h2 id="funktionen" className="font-display max-w-2xl text-4xl text-[var(--text)] sm:text-5xl">
-            Drei Dinge, ordentlich gemacht
-          </h2>
-
-          <div className="mt-12 space-y-14 lg:mt-16 lg:space-y-20">
-            {/* 1 — Eintragen */}
-            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-              <div>
-                <p className="eyebrow">Kostenlos</p>
-                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Eintragen in zehn Sekunden</h3>
-                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
-                  Wert eintippen, fertig. Messzeit und Schlafdauer kannst du ergänzen. War die
-                  Messung gestört – krank, kurze Nacht, Alkohol –, markierst du sie, damit sie die
-                  Auswertung nicht verfälscht.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6" aria-hidden>
-                <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-semibold text-[var(--text)]">Eintrag · Donnerstag, 12. November</p>
-                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
-                </div>
-                <div className="mt-4 grid grid-cols-3 gap-3">
-                  {[
-                    ['Temperatur', '36,45 °C'],
-                    ['Messzeit', '06:40'],
-                    ['Schlaf', '7,5 h'],
-                  ].map(([label, value]) => (
-                    <div key={label} className="rounded-xl border border-[var(--card-border)] bg-[var(--bg)] px-3 py-2.5">
-                      <p className="text-[11px] text-[var(--text-muted)]">{label}</p>
-                      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-[var(--text)]">{value}</p>
-                    </div>
-                  ))}
-                </div>
-                <div className="mt-3 flex flex-wrap gap-2 text-xs">
-                  <span className="rounded-md border border-[var(--card-border)] px-2.5 py-1.5 text-[var(--text-secondary)]">Messung gestört: nein</span>
-                  <span className="rounded-md bg-rose-100 px-2.5 py-1.5 font-medium text-rose-800">Periode: leicht</span>
-                  <span className="rounded-md border border-[var(--card-border)] px-2.5 py-1.5 text-[var(--text-secondary)]">Notiz: spät ins Bett</span>
-                </div>
-              </div>
-            </article>
-
-            {/* 2 — Kalender */}
-            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-              <div className="lg:order-2">
-                <p className="eyebrow">Kostenlos</p>
-                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Periode im Kalender</h3>
-                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
-                  Periodentage markierst du mit einem Tipp, auf Wunsch mit Blutungsstärke. Der
-                  Kalender zeigt, an welchen Tagen du gemessen hast und wann deine Periode war.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6 lg:order-1" aria-hidden>
-                <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-semibold text-[var(--text)]">November</p>
-                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
-                </div>
-                <div className="mt-4 grid grid-cols-7 gap-1.5 text-center text-xs tabular-nums">
-                  {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
-                    <span key={day} className="pb-1 text-[11px] text-[var(--text-muted)]">{day}</span>
-                  ))}
-                  {Array.from({ length: 28 }, (_, index) => index + 2).map((day) => {
-                    const isPeriod = day >= 3 && day <= 7
-                    const measured = !isPeriod && day <= 20 && day !== 14
-                    return (
-                      <span
-                        key={day}
-                        className={`flex aspect-square items-center justify-center rounded-lg border ${
-                          isPeriod
-                            ? 'border-rose-300 bg-rose-100 font-semibold text-rose-800'
-                            : measured
-                              ? 'border-[var(--card-border)] bg-[var(--bg)] text-[var(--text)]'
-                              : 'border-transparent text-[var(--text-muted)]'
-                        } ${day === 20 ? 'ring-2 ring-[var(--text)] ring-offset-1' : ''}`}
-                      >
-                        {day}
-                      </span>
-                    )
-                  })}
-                </div>
-                <div className="mt-4 flex flex-wrap gap-4 text-xs text-[var(--text-secondary)]">
-                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded border border-rose-300 bg-rose-100" />Periode</span>
-                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded border border-[var(--card-border)] bg-[var(--bg)]" />Temperatur eingetragen</span>
-                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded ring-2 ring-[var(--text)]" />Heute</span>
-                </div>
-              </div>
-            </article>
-
-            {/* 3 — Analyse */}
-            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
-              <div>
-                <p className="eyebrow">Analyse · einmalig 9,99&nbsp;€</p>
-                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Kurve, Statistik, PDF</h3>
-                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
-                  Die Analyse zeichnet deine Kurve mit Hilfslinie und markiert Temperaturanstiege
-                  rückblickend. Dazu kommen Zykluslängen, der Vergleich mehrerer Zyklen, eine
-                  statistische Schätzung des nächsten Periodenbeginns und der PDF-Export – zum
-                  Beispiel für den nächsten Arzttermin.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6" aria-hidden>
-                <div className="flex items-baseline justify-between">
-                  <p className="text-sm font-semibold text-[var(--text)]">Zykluslängen</p>
-                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
-                </div>
-                <ul className="mt-4 space-y-2.5 text-sm tabular-nums">
-                  {[
-                    ['Juli', 28],
-                    ['August', 31],
-                    ['September', 29],
-                    ['Oktober', 28],
-                  ].map(([month, days]) => (
-                    <li key={month} className="grid grid-cols-[5.5rem_1fr_3.5rem] items-center gap-3">
-                      <span className="text-[var(--text-secondary)]">{month}</span>
-                      <span className="h-2.5 rounded-full bg-[var(--bg-secondary)]">
-                        <span className="block h-2.5 rounded-full bg-[var(--rose)]" style={{ width: `${(Number(days) / 34) * 100}%` }} />
-                      </span>
-                      <span className="text-right font-semibold text-[var(--text)]">{days} Tage</span>
+                <h3 className="text-base font-bold text-[var(--text)]">Das macht die App</h3>
+                <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text)]">
+                  {purposeDoes.map((item) => (
+                    <li key={item} className="flex gap-2.5">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                      {item}
                     </li>
                   ))}
                 </ul>
-                <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-[var(--card-border)] pt-4 text-sm">
-                  <div>
-                    <dt className="text-[11px] text-[var(--text-muted)]">Durchschnitt</dt>
-                    <dd className="font-semibold tabular-nums text-[var(--text)]">29 Tage</dd>
-                  </div>
-                  <div>
-                    <dt className="text-[11px] text-[var(--text-muted)]">Nächste Periode (Schätzung)</dt>
-                    <dd className="font-semibold tabular-nums text-[var(--text)]">um den 1. Dezember</dd>
-                  </div>
-                </dl>
               </div>
-            </article>
+              <div>
+                <h3 className="text-base font-bold text-[var(--text)]">Das macht sie bewusst nicht</h3>
+                <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text)]">
+                  {purposeDoesNot.map((item) => (
+                    <li key={item} className="flex gap-2.5">
+                      <Minus className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
 
         {/* ── Pricing ──────────────────────────────────────── */}
-        <section id="pricing" aria-labelledby="preis" className="border-y border-[var(--card-border)] bg-[var(--bg-secondary)]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-            <div className="max-w-2xl">
-              <h2 id="preis" className="font-display text-4xl text-[var(--text)] sm:text-5xl">Einmal zahlen statt Abo</h2>
-              <p className="mt-5 leading-relaxed text-[var(--text-secondary)]">
-                Das Eintragen bleibt kostenlos. Die Analyse kaufst du einmal – wenn du sie brauchst.
+        <section id="pricing" aria-labelledby="preis" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <h2 id="preis" className="font-display max-w-3xl text-5xl text-[var(--text)] sm:text-7xl">Einmal zahlen statt Abo.</h2>
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--text-secondary)]">
+            Das Eintragen bleibt kostenlos. Die Analyse kaufst du einmal – wenn du sie brauchst.
+          </p>
+
+          <div className="mt-12 grid gap-6 lg:grid-cols-[0.9fr_1.1fr]">
+            <div className="flex flex-col rounded-[28px] bg-[var(--cool)] p-7 sm:p-9">
+              <h3 className="text-lg font-bold text-[var(--text)]">Eintragen</h3>
+              <p className="mt-2 flex items-baseline gap-3">
+                <span className="font-display text-7xl tabular-nums text-[var(--text)] sm:text-8xl">0&nbsp;€</span>
+                <span className="text-sm font-medium text-[var(--text)]">dauerhaft</span>
               </p>
+              <ul className="mt-7 space-y-3 text-[15px] text-[var(--text)]">
+                {freeFeatures.map((feature) => (
+                  <li key={feature} className="flex gap-2.5">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <div className="mt-auto pt-9">
+                <Link href="/registrieren" className="btn btn-lg w-full bg-white text-[var(--text)] hover:-translate-y-0.5">Kostenlos starten</Link>
+              </div>
             </div>
 
-            <div className="mt-10 grid gap-6 lg:grid-cols-2">
-              <div className="flex flex-col rounded-2xl border border-[var(--card-border)] bg-white p-6 sm:p-8">
-                <h3 className="text-lg font-semibold text-[var(--text)]">Eintragen</h3>
-                <p className="mt-3 flex items-baseline gap-2">
-                  <span className="font-display text-5xl tabular-nums text-[var(--text)]">0&nbsp;€</span>
-                  <span className="text-sm text-[var(--text-muted)]">dauerhaft</span>
+            <div className="relative flex flex-col overflow-hidden rounded-[28px] bg-[var(--ink)] p-7 text-white sm:p-9">
+              <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,158,143,0.55) 0%, rgba(255,158,143,0) 68%)' }} />
+              <h3 className="relative text-lg font-bold">Analyse</h3>
+              <p className="relative mt-2 flex items-baseline gap-3">
+                <span className="font-display text-7xl tabular-nums sm:text-8xl">9,99&nbsp;€</span>
+                <span className="text-sm font-medium text-white/70">einmalig</span>
+              </p>
+              <ul className="relative mt-7 grid gap-3 text-[15px] text-white/85 sm:grid-cols-2">
+                {paidFeatures.map((feature) => (
+                  <li key={feature} className="flex gap-2.5">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-[#FF9E8F]" aria-hidden />
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <div className="relative mt-auto pt-9">
+                <Link href="/registrieren" className="btn btn-lg w-full bg-[#FF9E8F] text-[var(--ink)] hover:-translate-y-0.5 hover:bg-[#FFB1A5]">
+                  Konto anlegen und später freischalten
+                </Link>
+                <p className="mt-4 text-xs leading-relaxed text-white/60">
+                  Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Kein Abo, keine
+                  Folgekosten. Du kaufst im Konto und kannst den Kauf 14 Tage lang{' '}
+                  <Link href="/widerruf" className="underline underline-offset-2">widerrufen</Link>.
                 </p>
-                <ul className="mt-6 space-y-3 text-[15px] text-[var(--text-secondary)]">
-                  {freeFeatures.map((feature) => (
-                    <li key={feature} className="flex gap-2.5">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-8">
-                  <Link href="/registrieren" className="btn btn-secondary btn-lg w-full">Kostenlos starten</Link>
-                </div>
-              </div>
-
-              <div className="flex flex-col rounded-2xl border-2 border-[var(--text)] bg-white p-6 sm:p-8">
-                <h3 className="text-lg font-semibold text-[var(--text)]">Analyse</h3>
-                <p className="mt-3 flex items-baseline gap-2">
-                  <span className="font-display text-5xl tabular-nums text-[var(--text)]">9,99&nbsp;€</span>
-                  <span className="text-sm text-[var(--text-muted)]">einmalig</span>
-                </p>
-                <ul className="mt-6 space-y-3 text-[15px] text-[var(--text-secondary)]">
-                  {paidFeatures.map((feature) => (
-                    <li key={feature} className="flex gap-2.5">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
-                      {feature}
-                    </li>
-                  ))}
-                </ul>
-                <div className="mt-auto pt-8">
-                  <Link href="/registrieren" className="btn btn-primary btn-lg w-full">
-                    Konto anlegen und später freischalten
-                  </Link>
-                  <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">
-                    Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Kein Abo, keine
-                    Folgekosten. Du kaufst im Konto und kannst den Kauf 14 Tage lang{' '}
-                    <Link href="/widerruf" className="underline underline-offset-2">widerrufen</Link>.
-                  </p>
-                </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ── Steps ────────────────────────────────────────── */}
-        <section aria-labelledby="start" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-          <h2 id="start" className="font-display text-4xl text-[var(--text)] sm:text-5xl">So fängst du an</h2>
-          <ol className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
-            {steps.map((step, index) => (
-              <li key={step.title} className="border-t border-[var(--text)] pt-5">
-                <span className="font-display text-4xl tabular-nums text-[var(--rose)]">{index + 1}</span>
-                <h3 className="mt-3 text-lg font-semibold text-[var(--text)]">{step.title}</h3>
-                <p className="mt-2 leading-relaxed text-[var(--text-secondary)]">{step.text}</p>
-              </li>
-            ))}
-          </ol>
+        {/* ── Steps (a real sequence, hence the numbers) ───── */}
+        <section aria-labelledby="start" className="bg-[var(--bg-secondary)]">
+          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+            <h2 id="start" className="font-display text-5xl text-[var(--text)] sm:text-6xl">So fängst du an</h2>
+            <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
+              {steps.map((step, index) => (
+                <li key={step.title}>
+                  <span className="font-display text-8xl tabular-nums text-[var(--rose)]">{index + 1}</span>
+                  <h3 className="mt-2 text-xl font-bold text-[var(--text)]">{step.title}</h3>
+                  <p className="mt-2 leading-relaxed text-[var(--text-secondary)]">{step.text}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
         </section>
 
-        <HomeArticleLinks />
+        <div className="pt-20 lg:pt-24">
+          <HomeArticleLinks />
+        </div>
 
         {/* ── FAQ ──────────────────────────────────────────── */}
-        <section id="faq" aria-labelledby="fragen" className="border-t border-[var(--card-border)]">
-          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
-            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
-              <div>
-                <h2 id="fragen" className="font-display text-4xl text-[var(--text)] sm:text-5xl">Häufige Fragen</h2>
-                <p className="mt-5 max-w-sm leading-relaxed text-[var(--text-secondary)]">
-                  Etwas fehlt? Schreib uns über die <Link href="/support" className="link-quiet">Support-Seite</Link>.
-                </p>
-              </div>
-              <dl className="divide-y divide-[var(--card-border)] border-y border-[var(--card-border)]">
-                {faqItems.map((item) => (
-                  <div key={item.question} className="py-6">
-                    <dt className="text-lg font-semibold text-[var(--text)]">{item.question}</dt>
-                    <dd className="mt-2 leading-relaxed text-[var(--text-secondary)]">{item.answer}</dd>
-                  </div>
-                ))}
-              </dl>
+        <section id="faq" aria-labelledby="fragen" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
+          <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+            <div>
+              <h2 id="fragen" className="font-display text-5xl text-[var(--text)] sm:text-6xl">Häufige Fragen</h2>
+              <p className="mt-5 max-w-sm leading-relaxed text-[var(--text-secondary)]">
+                Etwas fehlt? Schreib uns über die <Link href="/support" className="link-quiet">Support-Seite</Link>.
+              </p>
+            </div>
+            <div className="space-y-3">
+              {faqItems.map((item, index) => (
+                <details key={item.question} open={index === 0} className="faq-item group rounded-2xl bg-white px-5 py-1 ring-1 ring-[var(--card-border)] open:ring-2 open:ring-[var(--ink)] sm:px-7">
+                  <summary className="flex items-center justify-between gap-4 py-4 text-lg font-bold text-[var(--text)]">
+                    {item.question}
+                    <span className="faq-icon flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[var(--cool)] text-[var(--text)]">
+                      <Plus className="h-5 w-5" aria-hidden />
+                    </span>
+                  </summary>
+                  <p className="faq-answer pb-5 leading-relaxed text-[var(--text-secondary)]">{item.answer}</p>
+                </details>
+              ))}
             </div>
           </div>
         </section>
 
         {/* ── Closing ──────────────────────────────────────── */}
-        <section aria-labelledby="schluss" className="border-t border-[var(--card-border)] bg-[var(--bg-secondary)]">
-          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
-            <div>
-              <h2 id="schluss" className="font-display text-3xl text-[var(--text)] sm:text-4xl">Morgen früh den ersten Wert eintragen.</h2>
-              <p className="mt-2 text-[var(--text-secondary)]">Kostenlos, ohne Zahlungsdaten.</p>
-            </div>
-            <Link href="/registrieren" className="btn btn-primary btn-xl shrink-0">
+        <section aria-labelledby="schluss" className="relative isolate overflow-hidden bg-[#FF9E8F]">
+          <div aria-hidden className="pointer-events-none absolute -bottom-[55%] left-1/2 -z-10 aspect-square w-[90%] -translate-x-1/2 rounded-full sm:w-[60%]" style={{ background: 'radial-gradient(circle, #FFF3D6 0%, rgba(255,214,170,0.9) 38%, rgba(255,158,143,0) 70%)' }} />
+          <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-32">
+            <h2 id="schluss" className="font-display mx-auto max-w-4xl text-[clamp(2.6rem,8.5vw,6.5rem)] text-[var(--text)]">
+              Morgen früh der erste Punkt.
+            </h2>
+            <p className="mt-6 text-lg font-medium text-[var(--text)]">Kostenlos, ohne Zahlungsdaten.</p>
+            <Link href="/registrieren" className="btn btn-ink btn-xl mt-9">
               Kostenlos starten
               <ArrowRight className="h-5 w-5" aria-hidden />
             </Link>

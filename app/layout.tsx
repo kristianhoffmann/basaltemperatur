@@ -3,7 +3,7 @@
 
 import type { Metadata, Viewport } from 'next'
 import { Suspense } from 'react'
-import { Fraunces, Instrument_Sans } from 'next/font/google'
+import { Bricolage_Grotesque, Instrument_Sans } from 'next/font/google'
 import { ThemeProvider, ThemeScript } from '@/components/shared/ThemeToggle'
 import { ToastProvider } from '@/components/shared/Toaster'
 import { TrafficTracker } from '@/components/analytics/TrafficTracker'
@@ -20,7 +20,7 @@ const bodyFont = Instrument_Sans({
   display: 'swap',
 })
 
-const displayFont = Fraunces({
+const displayFont = Bricolage_Grotesque({
   subsets: ['latin'],
   variable: '--font-heading',
   display: 'swap',
@@ -33,7 +33,7 @@ const siteDescription = 'Privates Zyklustagebuch: Basaltemperatur und Periode ko
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#FAF7F2',
+  themeColor: '#FFF8F1',
 }
 
 export const metadata: Metadata = {

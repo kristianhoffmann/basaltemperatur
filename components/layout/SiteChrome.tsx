@@ -26,7 +26,7 @@ function navClass(active: boolean) {
 
 export function SiteHeader({ current, from }: { current?: SiteSection; from?: string }) {
   return (
-    <header className="sticky top-0 z-40 border-b border-[var(--card-border)] bg-[rgba(250,247,242,0.92)] backdrop-blur-md">
+    <header className="sticky top-0 z-40 border-b border-[var(--card-border)] bg-[rgba(255,248,241,0.88)] backdrop-blur-md">
       <a href="#inhalt" className="skip-link">Zum Inhalt springen</a>
       <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
