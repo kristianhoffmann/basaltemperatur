@@ -39,8 +39,11 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
   }, [])
 
   const compact = width < 640
-  const height = compact ? 220 : 300
-  const pad = { left: compact ? 34 : 56, right: compact ? 14 : 40, top: 26, bottom: 34 }
+  const wide = width >= 1536
+  const axisFont = compact ? 10 : wide ? 15 : 12
+  const labelFont = compact ? 11 : wide ? 17 : 13
+  const height = compact ? 220 : width >= 1900 ? 400 : width >= 1536 ? 340 : 300
+  const pad = { left: compact ? 34 : 56, right: compact ? 14 : 40, top: 26, bottom: wide ? 40 : 34 }
 
   const geometry = useMemo(() => {
     const x = (index: number) => pad.left + (index * (width - pad.left - pad.right)) / LAST
@@ -88,9 +91,9 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
           }}
         />
 
-        <div className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 sm:pt-12 lg:px-8 lg:pt-14">{headline}</div>
+        <div className="wrap px-4 pt-10 sm:px-6 sm:pt-12 lg:px-8 lg:pt-14">{headline}</div>
 
-        <div className="mx-auto grid max-w-6xl gap-8 px-4 pb-4 pt-8 sm:px-6 lg:grid-cols-[1fr_minmax(0,25rem)] lg:items-end lg:gap-16 lg:px-8 lg:pt-8">
+        <div className="wrap grid gap-8 px-4 pb-4 pt-8 sm:px-6 lg:grid-cols-[1fr_minmax(0,25rem)] 2xl:grid-cols-[1fr_minmax(0,30rem)] lg:items-end lg:gap-16 lg:px-8 lg:pt-8">
           <div>{children}</div>
 
           <motion.div
@@ -103,7 +106,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
               <span className="font-semibold text-[var(--text)]">Heute, Zyklustag 28</span>
               <span>Beispiel</span>
             </div>
-            <p className="font-display mt-3 flex items-start text-[4.6rem] tabular-nums text-[var(--text)] sm:text-[5.5rem]">
+            <p className="font-display mt-3 flex items-start text-[4.6rem] tabular-nums text-[var(--text)] sm:text-[5.5rem] 2xl:text-[7rem]">
               <motion.span>{readout}</motion.span>
               <span className="ml-1 mt-2 text-3xl sm:text-4xl">°C</span>
             </p>
@@ -145,7 +148,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
         </div>
 
         {/* Full-bleed curve */}
-        <div ref={wrapRef} className="relative mx-auto max-w-[1500px]">
+        <div ref={wrapRef} className="relative mx-auto max-w-[2600px]">
           <svg
             width={width}
             height={height}
@@ -172,20 +175,20 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
               animate={{ opacity: 0.42 }}
               transition={{ duration: 0.8, delay: 0.5 }}
             />
-            <text x={geometry.x(2)} y={pad.top + 20} textAnchor="middle" fontSize={compact ? 11 : 13} fontWeight={700} fill="#C8324A">
+            <text x={geometry.x(2)} y={pad.top + 20} textAnchor="middle" fontSize={labelFont} fontWeight={700} fill="#C8324A">
               Periode
             </text>
 
             {[36.2, 36.4, 36.6, 36.8, 37.0].map((tick) => (
               <g key={tick}>
                 <line x1={pad.left} x2={width - pad.right} y1={geometry.y(tick)} y2={geometry.y(tick)} stroke="#1B1233" strokeOpacity={0.09} />
-                <text x={pad.left - 10} y={geometry.y(tick) + 4} textAnchor="end" fontSize={compact ? 10 : 12} fill="#1B1233" fillOpacity={0.6}>
+                <text x={pad.left - 10} y={geometry.y(tick) + 4} textAnchor="end" fontSize={axisFont} fill="#1B1233" fillOpacity={0.6}>
                   {formatTemp(tick, 1)}
                 </text>
               </g>
             ))}
             {[1, 7, 14, 21, 28].map((day) => (
-              <text key={day} x={geometry.x(day - 1)} y={height - 10} textAnchor="middle" fontSize={compact ? 10 : 12} fill="#1B1233" fillOpacity={0.6}>
+              <text key={day} x={geometry.x(day - 1)} y={height - 10} textAnchor="middle" fontSize={axisFont} fill="#1B1233" fillOpacity={0.6}>
                 {day}
               </text>
             ))}
@@ -208,7 +211,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
               x={width - pad.right}
               y={geometry.y(EXAMPLE_GUIDE_LINE) + (compact ? 16 : 20)}
               textAnchor="end"
-              fontSize={compact ? 11 : 13}
+              fontSize={labelFont}
               fontWeight={700}
               fill="#1B1233"
               initial={{ opacity: 0 }}
@@ -223,7 +226,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
               d={linePath}
               fill="none"
               stroke="#1B1233"
-              strokeWidth={compact ? 3 : 4}
+              strokeWidth={compact ? 3 : wide ? 5 : 4}
               strokeLinecap="round"
               strokeLinejoin="round"
               initial={{ pathLength: 0 }}
@@ -238,7 +241,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
                   key={index}
                   cx={geometry.x(index)}
                   cy={geometry.y(value)}
-                  r={isRise ? (compact ? 6 : 8) : compact ? 3.5 : 5}
+                  r={isRise ? (compact ? 6 : wide ? 10 : 8) : compact ? 3.5 : wide ? 6.5 : 5}
                   fill={isRise ? '#1B1233' : '#fff'}
                   stroke="#1B1233"
                   strokeWidth={compact ? 2 : 2.5}
@@ -253,7 +256,7 @@ export function HeroStage({ headline, children }: { headline: ReactNode; childre
               x={geometry.x(EXAMPLE_RISE_INDEX) - (compact ? 10 : 14)}
               y={geometry.y(EXAMPLE_TEMPS[EXAMPLE_RISE_INDEX]) - 4}
               textAnchor="end"
-              fontSize={compact ? 11 : 14}
+              fontSize={labelFont}
               fontWeight={700}
               fill="#1B1233"
               initial={{ opacity: 0, x: 8 }}

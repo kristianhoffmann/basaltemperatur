@@ -27,7 +27,7 @@ export default function AuthLayout({
   return (
     <div className="flex min-h-screen flex-col bg-[var(--bg)]">
       <header className="border-b border-[var(--card-border)]">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="wrap flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2.5" aria-label="Basaltemperatur – Startseite">
             <Logo size="sm" />
             <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">Basaltemperatur</span>

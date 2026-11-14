@@ -32,7 +32,7 @@ export default async function TopicPage({ params }: Props) {
   const posts = topicPosts(await getCachedPosts(locale), entry.slug)
   const firstImage = posts.find((post) => post.hero_image_url)
   return <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-    <BlogHeader locale={locale} /><main id="inhalt" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+    <BlogHeader locale={locale} /><main id="inhalt" className="wrap px-4 py-12 sm:px-6 lg:px-8">
       <p className="eyebrow">Ratgeber · Thema</p>
       <h1 className="font-display mt-3 text-4xl text-[var(--text)] sm:text-5xl">{entry.title}</h1><p className="my-6 max-w-2xl text-lg text-[var(--text-secondary)]">{entry.description}</p>
       <BlogTopicsNav locale={locale} />

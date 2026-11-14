@@ -34,7 +34,7 @@ export function BlogCtaCard() {
 
 export function BlogCtaBand() {
   return (
-    <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+    <section className="wrap px-4 sm:px-6 lg:px-8">
       <div className="rounded-[28px] bg-[#FF9E8F] px-6 py-10 sm:px-12 sm:py-14 lg:flex lg:items-center lg:justify-between lg:gap-12">
         <div>
           <p className="font-display text-4xl text-[var(--text)] sm:text-5xl">

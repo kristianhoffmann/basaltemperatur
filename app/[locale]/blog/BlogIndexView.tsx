@@ -17,7 +17,7 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
       <BlogHeader locale={locale} />
       <main id="inhalt">
         <section className="bg-[var(--cool)]">
-          <div className="mx-auto max-w-6xl px-4 pb-12 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-16">
+          <div className="wrap px-4 pb-12 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-16">
           <h1 className="font-display max-w-5xl text-[clamp(2.5rem,6vw,5rem)] text-[var(--text)]">
             Basaltemperatur messen, Kurve lesen, Zyklus dokumentieren.
           </h1>
@@ -29,7 +29,7 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
           </div>
         </section>
 
-        <section className="mx-auto max-w-6xl px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14">
+        <section className="wrap px-4 pt-10 sm:px-6 lg:px-8 lg:pt-14">
           {!featured ? (
             <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-white p-8 text-[var(--text-muted)]">
               Noch keine Artikel vorhanden.
@@ -48,7 +48,7 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
           )}
         </section>
 
-        {pageCount > 1 && <nav aria-label="Blogseiten" className="mx-auto mt-10 flex max-w-6xl flex-wrap gap-3 px-4">
+        {pageCount > 1 && <nav aria-label="Blogseiten" className="wrap mt-10 flex flex-wrap gap-3 px-4">
           {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => <Link key={number} aria-current={number === page ? 'page' : undefined} className="rounded-lg border border-[var(--card-border)] bg-white px-4 py-2 text-sm font-medium text-[var(--text)] aria-[current=page]:border-[var(--text)]" href={number === 1 ? `/${locale}/blog` : `/${locale}/blog?page=${number}`}>Seite {number}</Link>)}
         </nav>}
         <div className="py-20">

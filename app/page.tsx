@@ -227,13 +227,13 @@ export default function LandingPage() {
         {/* ── Hero: the stage is a thermometer ─────────────── */}
         <HeroStage
           headline={
-            <h1 className="font-display text-[clamp(2.7rem,6.2vw,5.4rem)] text-[var(--text)]">
+            <h1 className="font-display text-[clamp(2.7rem,6.2vw,5.4rem)] text-[var(--text)] 2xl:text-[6.2rem] min-[1900px]:text-[7.3rem] min-[2400px]:text-[8.4rem]">
               <span className="line-mask"><span style={{ '--i': 0 } as CSSProperties}>Basaltemperatur eintragen.</span></span>
               <span className="line-mask"><span style={{ '--i': 1 } as CSSProperties}>Kurve sehen. Mehr nicht.</span></span>
             </h1>
           }
         >
-          <p className="rise-in max-w-xl text-lg leading-relaxed text-[var(--text)] sm:text-xl" style={{ '--i': 3 } as CSSProperties}>
+          <p className="rise-in max-w-xl text-lg leading-relaxed text-[var(--text)] sm:text-xl 2xl:max-w-2xl 2xl:text-2xl 2xl:leading-relaxed" style={{ '--i': 3 } as CSSProperties}>
             Ein privates Tagebuch für Temperatur und Periode. Das Eintragen ist kostenlos. Kurve,
             Statistik und PDF-Export schaltest du einmalig für 9,99&nbsp;€ frei – ohne Abo und ohne
             Werbung.
@@ -275,11 +275,11 @@ export default function LandingPage() {
 
         {/* ── Story: one cycle, built while you scroll ─────── */}
         <section id="features" aria-labelledby="funktionen" className="bg-[var(--ink)] pb-10 pt-20 lg:pt-28">
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
-            <h2 id="funktionen" className="font-display max-w-4xl text-5xl text-white sm:text-7xl">
+          <div className="wrap px-4 sm:px-6 lg:px-8">
+            <h2 id="funktionen" className="font-display max-w-4xl text-5xl text-white sm:text-7xl 2xl:max-w-6xl 2xl:text-8xl min-[1900px]:text-9xl">
               Ein Zyklus, Punkt für Punkt.
             </h2>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70 2xl:max-w-2xl 2xl:text-xl">
               Scroll weiter und sieh zu, wie aus 28 Morgenwerten eine Kurve wird. Kühle Farben
               stehen für niedrige Werte, warme für hohe.
             </p>
@@ -291,14 +291,14 @@ export default function LandingPage() {
 
         {/* ── Purpose ──────────────────────────────────────── */}
         <section aria-labelledby="zweck" className="bg-[var(--cool)]">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-            <h2 id="zweck" className="font-display text-[clamp(2.8rem,9vw,7rem)] text-[var(--text)]">
+          <div className="wrap px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+            <h2 id="zweck" className="font-display text-[clamp(2.8rem,9vw,7rem)] text-[var(--text)] 2xl:text-[8.5rem] min-[1900px]:text-[10rem]">
               Ein Tagebuch.
               <br />
               Kein Orakel.
             </h2>
-            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr_1fr] lg:gap-12">
-              <p className="text-lg leading-relaxed text-[var(--text)]">
+            <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_1fr_1fr] lg:gap-12 2xl:mt-14 2xl:text-lg">
+              <p className="text-lg leading-relaxed text-[var(--text)] 2xl:text-xl">
                 Basaltemperatur hält fest, was du misst, und zeigt es dir übersichtlich. Was die
                 Werte für dich bedeuten, entscheidest du – oder besprichst es mit deiner Ärztin
                 oder deinem Arzt.
@@ -330,8 +330,8 @@ export default function LandingPage() {
         </section>
 
         {/* ── Pricing ──────────────────────────────────────── */}
-        <section id="pricing" aria-labelledby="preis" className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
-          <h2 id="preis" className="font-display max-w-3xl text-5xl text-[var(--text)] sm:text-7xl">Einmal zahlen statt Abo.</h2>
+        <section id="pricing" aria-labelledby="preis" className="wrap px-4 py-20 sm:px-6 lg:px-8 lg:py-28">
+          <h2 id="preis" className="font-display max-w-3xl text-5xl text-[var(--text)] sm:text-7xl 2xl:max-w-5xl 2xl:text-8xl min-[1900px]:text-9xl">Einmal zahlen statt Abo.</h2>
           <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--text-secondary)]">
             Das Eintragen bleibt kostenlos. Die Analyse kaufst du einmal – wenn du sie brauchst.
           </p>
@@ -358,7 +358,7 @@ export default function LandingPage() {
 
             <div className="relative flex flex-col overflow-hidden rounded-[28px] bg-[var(--ink)] p-7 text-white sm:p-9">
               <div aria-hidden className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full" style={{ background: 'radial-gradient(circle, rgba(255,158,143,0.55) 0%, rgba(255,158,143,0) 68%)' }} />
-              <h3 className="relative text-lg font-bold">Analyse</h3>
+              <h3 className="relative text-lg font-bold text-white">Analyse</h3>
               <p className="relative mt-2 flex items-baseline gap-3">
                 <span className="font-display text-7xl tabular-nums sm:text-8xl">9,99&nbsp;€</span>
                 <span className="text-sm font-medium text-white/70">einmalig</span>
@@ -387,8 +387,8 @@ export default function LandingPage() {
 
         {/* ── Steps (a real sequence, hence the numbers) ───── */}
         <section aria-labelledby="start" className="bg-[var(--bg-secondary)]">
-          <div className="mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
-            <h2 id="start" className="font-display text-5xl text-[var(--text)] sm:text-6xl">So fängst du an</h2>
+          <div className="wrap px-4 py-20 sm:px-6 lg:px-8 lg:py-24">
+            <h2 id="start" className="font-display text-5xl text-[var(--text)] sm:text-6xl 2xl:text-7xl">So fängst du an</h2>
             <ol className="mt-12 grid gap-10 md:grid-cols-3 md:gap-8">
               {steps.map((step, index) => (
                 <li key={step.title}>
@@ -406,10 +406,10 @@ export default function LandingPage() {
         </div>
 
         {/* ── FAQ ──────────────────────────────────────────── */}
-        <section id="faq" aria-labelledby="fragen" className="mx-auto max-w-6xl px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
+        <section id="faq" aria-labelledby="fragen" className="wrap px-4 pb-20 sm:px-6 lg:px-8 lg:pb-28">
           <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
             <div>
-              <h2 id="fragen" className="font-display text-5xl text-[var(--text)] sm:text-6xl">Häufige Fragen</h2>
+              <h2 id="fragen" className="font-display text-5xl text-[var(--text)] sm:text-6xl 2xl:text-7xl">Häufige Fragen</h2>
               <p className="mt-5 max-w-sm leading-relaxed text-[var(--text-secondary)]">
                 Etwas fehlt? Schreib uns über die <Link href="/support" className="link-quiet">Support-Seite</Link>.
               </p>
@@ -433,8 +433,8 @@ export default function LandingPage() {
         {/* ── Closing ──────────────────────────────────────── */}
         <section aria-labelledby="schluss" className="relative isolate overflow-hidden bg-[#FF9E8F]">
           <div aria-hidden className="pointer-events-none absolute -bottom-[55%] left-1/2 -z-10 aspect-square w-[90%] -translate-x-1/2 rounded-full sm:w-[60%]" style={{ background: 'radial-gradient(circle, #FFF3D6 0%, rgba(255,214,170,0.9) 38%, rgba(255,158,143,0) 70%)' }} />
-          <div className="mx-auto max-w-6xl px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-32">
-            <h2 id="schluss" className="font-display mx-auto max-w-4xl text-[clamp(2.6rem,8.5vw,6.5rem)] text-[var(--text)]">
+          <div className="wrap px-4 py-24 text-center sm:px-6 lg:px-8 lg:py-32">
+            <h2 id="schluss" className="font-display mx-auto max-w-4xl text-[clamp(2.6rem,8.5vw,6.5rem)] text-[var(--text)] 2xl:max-w-6xl 2xl:text-[8rem] min-[1900px]:text-[9.5rem]">
               Morgen früh der erste Punkt.
             </h2>
             <p className="mt-6 text-lg font-medium text-[var(--text)]">Kostenlos, ohne Zahlungsdaten.</p>

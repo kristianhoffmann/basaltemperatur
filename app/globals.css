@@ -599,6 +599,71 @@
     text-decoration-color: var(--rose);
   }
 
+  /* ── Page container: grows on large screens instead of leaving the page
+        stranded in a narrow column ─────────────────────────── */
+
+  .wrap {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
+  @media (min-width: 1536px) {
+    .wrap {
+      max-width: 84rem;
+    }
+  }
+
+  @media (min-width: 1900px) {
+    .wrap {
+      max-width: 98rem;
+    }
+  }
+
+  @media (min-width: 2400px) {
+    .wrap {
+      max-width: 112rem;
+    }
+  }
+
+  /* ── Scroll story: chart stays centred, steps have a bounded height.
+        Heights are capped so tall screens do not get acres of empty space. ── */
+
+  .story-chart {
+    top: 6.25rem;
+  }
+
+  .story-step {
+    min-height: min(62vh, 30rem);
+  }
+
+  @media (min-width: 1024px) {
+    .story-chart {
+      /* Centre the card in the viewport, but never slide under the header. */
+      top: max(6rem, calc(50vh - var(--story-half, 21rem)));
+    }
+
+    .story-step {
+      min-height: min(80vh, 46rem);
+    }
+  }
+
+  @media (min-width: 1536px) {
+    .story-chart {
+      --story-half: 25rem;
+    }
+  }
+
+  @media (min-width: 1900px) {
+    .story-chart {
+      --story-half: 29rem;
+    }
+
+    .story-step {
+      min-height: min(80vh, 54rem);
+    }
+  }
+
   /* ── Headline reveal: runs in CSS so the text never waits for JavaScript ── */
 
   .line-mask {

@@ -64,7 +64,7 @@ export function BlogArticleView({
       <main id="inhalt">
         <article>
           <header>
-            <div className={`mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8 ${post.hero_image_url ? 'pb-36 sm:pb-52' : 'pb-4'}`}>
+            <div className={`wrap px-4 pt-8 sm:px-6 lg:px-8 ${post.hero_image_url ? 'pb-36 sm:pb-52' : 'pb-4'}`}>
               <nav aria-label="Brotkrümelnavigation" className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
                 <Link href="/" className="transition-colors hover:text-[var(--text)]">Start</Link>
                 <ChevronRight className="h-3.5 w-3.5" />
@@ -101,7 +101,7 @@ export function BlogArticleView({
             </div>
           </header>
 
-          <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <div className="wrap px-4 sm:px-6 lg:px-8">
             {post.hero_image_url && (
               <figure className="relative -mt-28 sm:-mt-44">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -183,7 +183,7 @@ export function BlogArticleView({
         </article>
 
         {related.length > 0 && (
-          <section aria-labelledby="weiterlesen" className="mx-auto mt-20 max-w-6xl px-4 sm:px-6 lg:px-8">
+          <section aria-labelledby="weiterlesen" className="wrap mt-20 px-4 sm:px-6 lg:px-8">
             <div className="flex items-end justify-between gap-4">
               <h2 id="weiterlesen" className="text-3xl font-extrabold tracking-tight text-slate-950">Weitere Artikel</h2>
               <Link href={`/${locale}/blog`} className="text-sm font-semibold text-rose-600 hover:text-rose-700">

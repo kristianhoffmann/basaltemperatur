@@ -39,7 +39,7 @@ export default async function AuthorPage({ params }: Props) {
       worksFor: { '@id': `${site}/#organization` } } }
   return <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]"><BlogHeader locale={locale} />
     <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(schema) }} />
-    <main id="inhalt" className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8"><p className="eyebrow">Ratgeber · Autor</p><h1 className="font-display mt-3 text-4xl text-[var(--text)] sm:text-5xl">{author?.name ?? 'Autoren im Blog'}</h1>
+    <main id="inhalt" className="wrap px-4 py-12 sm:px-6 lg:px-8"><p className="eyebrow">Ratgeber · Autor</p><h1 className="font-display mt-3 text-4xl text-[var(--text)] sm:text-5xl">{author?.name ?? 'Autoren im Blog'}</h1>
       {author?.jobTitle && <p className="mt-4 text-lg text-[var(--text-secondary)]">{author.jobTitle}</p>}
       {author?.bio && <p className="mt-4 max-w-3xl leading-8 text-[var(--text-secondary)]">{author.bio}</p>}
       <h2 className="mt-12 text-2xl font-semibold">Veröffentlichte Artikel</h2>

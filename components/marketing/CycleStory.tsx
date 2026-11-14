@@ -22,7 +22,9 @@ export type StoryStep = { label: string; title: string; body: ReactNode }
 
 export function CycleStory({ steps }: { steps: StoryStep[] }) {
   const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.75', 'end 0.6'] })
+  // Progress is measured against the middle of the viewport, so the chart is in
+  // step with the text on any screen height: step k is centred at (k + 0.5) / 3.
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start center', 'end center'] })
   const progress = useSpring(scrollYProgress, { stiffness: 120, damping: 26, mass: 0.4 })
 
   // Days appear over the first half of the section (steps one and two).
@@ -47,9 +49,9 @@ export function CycleStory({ steps }: { steps: StoryStep[] }) {
 
   return (
     <MotionConfig reducedMotion="user">
-      <div ref={ref} className="mx-auto grid max-w-6xl gap-x-16 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8">
+      <div ref={ref} className="wrap grid gap-x-16 px-4 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:px-8 2xl:gap-x-24">
         {/* Sticky chart */}
-        <div className="sticky top-[6.25rem] z-10 -mx-4 self-start bg-[var(--ink)] px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:top-24 lg:mx-0 lg:px-0 lg:pb-0 lg:pt-0" aria-hidden>
+        <div className="story-chart sticky z-10 -mx-4 self-start bg-[var(--ink)] px-4 pb-4 pt-2 sm:-mx-6 sm:px-6 lg:mx-0 lg:px-0 lg:pb-0 lg:pt-0" aria-hidden>
           <div className="relative overflow-hidden rounded-[26px] bg-[#241A45] p-4 ring-1 ring-white/10 sm:p-6">
             <div className="flex items-baseline justify-between text-sm">
               <motion.span className="font-display text-2xl text-white">{dayLabel}</motion.span>
@@ -175,10 +177,10 @@ export function CycleStory({ steps }: { steps: StoryStep[] }) {
         {/* Steps: plain content, scrolls past the chart */}
         <ol className="relative z-0">
           {steps.map((step) => (
-            <li key={step.title} className="flex min-h-[62vh] flex-col justify-center py-10 lg:min-h-[78vh]">
-              <p className="text-sm font-semibold text-[#FF9E8F]">{step.label}</p>
-              <h3 className="font-display mt-3 text-4xl text-white sm:text-5xl">{step.title}</h3>
-              <div className="mt-5 max-w-md text-lg leading-relaxed text-white/75">{step.body}</div>
+            <li key={step.title} className="story-step flex flex-col justify-center py-10">
+              <p className="text-sm font-semibold text-[#FF9E8F] 2xl:text-base">{step.label}</p>
+              <h3 className="font-display mt-3 text-4xl text-white sm:text-5xl 2xl:text-6xl min-[1900px]:text-7xl">{step.title}</h3>
+              <div className="mt-5 max-w-md text-lg leading-relaxed text-white/75 2xl:max-w-xl 2xl:text-xl min-[1900px]:text-2xl min-[1900px]:leading-relaxed">{step.body}</div>
             </li>
           ))}
         </ol>

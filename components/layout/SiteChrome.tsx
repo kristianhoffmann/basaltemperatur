@@ -28,7 +28,7 @@ export function SiteHeader({ current, from }: { current?: SiteSection; from?: st
   return (
     <header className="sticky top-0 z-40 border-b border-[var(--card-border)] bg-[rgba(255,248,241,0.88)] backdrop-blur-md">
       <a href="#inhalt" className="skip-link">Zum Inhalt springen</a>
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+      <div className="wrap px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between gap-4">
           <Link href="/" className="flex shrink-0 items-center gap-2.5" aria-label="Basaltemperatur – Startseite">
             <Logo size="sm" />
@@ -82,7 +82,7 @@ export function SiteFooter() {
 
   return (
     <footer className="border-t border-[var(--card-border)] bg-[var(--bg-secondary)]">
-      <div className="mx-auto max-w-6xl px-4 py-12 sm:px-6 lg:px-8">
+      <div className="wrap px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
           <div className="max-w-sm">
             <div className="flex items-center gap-2.5">

@@ -18,7 +18,7 @@ export async function HomeArticleLinks() {
   const posts = featuredPosts(allPosts)
   if (!posts.length) return null
   const firstImage = posts.find((post) => post.hero_image_url)
-  return <section aria-labelledby="ratgeber" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
+  return <section aria-labelledby="ratgeber" className="wrap px-4 pb-16 sm:px-6 lg:px-8 lg:pb-24">
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
       <div>
         <h2 id="ratgeber" className="font-display text-5xl text-[var(--text)] sm:text-6xl">Aus dem Ratgeber</h2>
