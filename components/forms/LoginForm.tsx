@@ -102,13 +102,13 @@ export function LoginForm({ redirectTo = '/dashboard', from }: LoginFormProps) {
           <input
             type="checkbox"
             name="remember"
-            className="h-4 w-4 rounded border-gray-300 text-rose-400 focus:ring-rose-400"
+            className="h-4 w-4 rounded border-gray-300 accent-[var(--rose)]"
           />
           <span className="text-sm" style={{ color: 'var(--text-secondary)' }}>Angemeldet bleiben</span>
         </label>
         <Link
           href="/passwort-vergessen"
-          className="text-sm font-medium text-rose-400 hover:text-rose-500 transition-colors"
+          className="text-sm font-medium text-[var(--text)] underline underline-offset-2 transition-colors"
         >
           Passwort vergessen?
         </Link>

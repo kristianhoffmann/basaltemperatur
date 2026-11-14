@@ -2,7 +2,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Crown, ArrowRight, X } from 'lucide-react'
+import { ArrowRight, Check, X } from 'lucide-react'
 
 export function UpgradeBanner() {
     const [loading, setLoading] = useState(false)
@@ -41,50 +41,55 @@ export function UpgradeBanner() {
     }
 
     return (
-        <div className="relative rounded-2xl p-4 overflow-hidden" style={{
-            background: 'linear-gradient(135deg, #f9726820, #f5970b15)',
-            border: '1px solid #f9726830',
-        }}>
+        <section
+            aria-labelledby="analyse-kaufen"
+            className="relative rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6"
+        >
             <button
                 onClick={() => setDismissed(true)}
-                className="absolute top-3 right-3 p-1 rounded-lg hover:bg-black/5 transition-colors"
-                aria-label="Schließen"
+                className="absolute right-3 top-3 rounded-lg p-1.5 text-[var(--text-muted)] transition-colors hover:bg-[var(--bg)] hover:text-[var(--text)]"
+                aria-label="Hinweis ausblenden"
             >
-                <X className="h-4 w-4 text-[var(--text-muted)]" />
+                <X className="h-4 w-4" />
             </button>
 
-            <div className="flex items-center gap-4">
-                <div className="p-2.5 rounded-xl bg-amber-400/15 text-amber-500 shrink-0">
-                    <Crown className="h-6 w-6" />
-                </div>
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-semibold text-[var(--text)]">
+            {/* § 312j Abs. 2 BGB: Leistung, Gesamtpreis und Laufzeit stehen unmittelbar
+                vor der Schaltfläche; § 312j Abs. 1 BGB: akzeptierte Zahlungsmittel. */}
+            <div className="grid gap-5 pr-8 sm:grid-cols-[1fr_auto] sm:items-start sm:gap-8">
+                <div>
+                    <h2 id="analyse-kaufen" className="text-base font-semibold text-[var(--text)]">
                         Analyse freischalten
-                    </p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">
-                        Einmalig 9,99 € – Prognosen, Statistiken, Vergleich & Export.
+                    </h2>
+                    <ul className="mt-3 space-y-1.5 text-sm text-[var(--text-secondary)]">
+                        {[
+                            'Temperaturkurve mit Hilfslinie und rückblickend markierten Anstiegen',
+                            'Zyklusstatistik und Vergleich mehrerer Zyklen',
+                            'Statistische Schätzung des nächsten Periodenbeginns',
+                            'PDF-Export',
+                        ].map((item) => (
+                            <li key={item} className="flex gap-2">
+                                <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
+                                {item}
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+                <div className="sm:text-right">
+                    <p className="text-3xl font-bold tabular-nums tracking-tight text-[var(--text)]">9,99&nbsp;€</p>
+                    <p className="mt-1 text-xs leading-relaxed text-[var(--text-muted)]">
+                        einmalig · zeitlich unbegrenzter Zugang<br />
+                        Endpreis, keine USt. (§ 19 UStG)<br />
+                        kein Abo, keine Folgekosten
                     </p>
                 </div>
-                <button
-                    onClick={handleUpgrade}
-                    disabled={loading || !earlyStartRequested}
-                    className="shrink-0 inline-flex items-center gap-1.5 font-medium text-xs text-white rounded-xl px-4 py-2 transition-all duration-200 active:scale-[0.97] disabled:opacity-50"
-                    style={{
-                        background: 'linear-gradient(135deg, #f97268, #e85d52)',
-                        boxShadow: '0 2px 8px rgba(249, 114, 104, 0.3)',
-                    }}
-                >
-                    {loading ? '...' : 'Jetzt kaufen'}
-                    <ArrowRight className="h-3.5 w-3.5" />
-                </button>
             </div>
 
-            <label className="mt-3 flex cursor-pointer items-start gap-2 text-[11px] leading-relaxed text-[var(--text-muted)]">
+            <label className="mt-5 flex cursor-pointer items-start gap-2.5 rounded-xl border border-[var(--card-border)] bg-[var(--bg)] p-3 text-xs leading-relaxed text-[var(--text-secondary)]">
                 <input
                     type="checkbox"
                     checked={earlyStartRequested}
                     onChange={(event) => setEarlyStartRequested(event.target.checked)}
-                    className="mt-0.5 h-3.5 w-3.5 shrink-0"
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-[var(--rose)]"
                 />
                 <span>
                     Ich verlange ausdrücklich, dass die Freischaltung sofort und vor Ablauf der
@@ -96,11 +101,32 @@ export function UpgradeBanner() {
                     bleibt für vierzehn Tage bestehen.
                 </span>
             </label>
+
+            <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                    Zahlungsarten: Kredit- oder Debitkarte, Apple Pay, Google Pay, Klarna, Link
+                    (Abwicklung über Stripe). Es gelten die{' '}
+                    <a href="/agb" target="_blank" rel="noreferrer" className="underline">AGB</a>.
+                </p>
+                <button
+                    onClick={handleUpgrade}
+                    disabled={loading || !earlyStartRequested}
+                    className="btn btn-primary btn-lg shrink-0"
+                >
+                    {loading ? 'Weiter zur Zahlung …' : 'Jetzt kaufen'}
+                    <ArrowRight className="h-4 w-4" aria-hidden />
+                </button>
+            </div>
+            {!earlyStartRequested && (
+                <p className="mt-2 text-xs text-[var(--text-muted)] sm:text-right">
+                    Bitte bestätige zuerst das Kästchen oben.
+                </p>
+            )}
             {error && (
-                <p className="mt-3 text-xs text-red-600">
+                <p role="alert" className="mt-3 text-xs text-red-700">
                     {error}
                 </p>
             )}
-        </div>
+        </section>
     )
 }

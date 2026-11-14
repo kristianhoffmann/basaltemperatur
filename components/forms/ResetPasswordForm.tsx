@@ -31,7 +31,7 @@ export function ResetPasswordForm() {
     setError(null)
 
     if (!isPasswordStrong) {
-      setError('Bitte wählen Sie ein sichereres Passwort.')
+      setError('Bitte wähle ein sichereres Passwort.')
       return
     }
 

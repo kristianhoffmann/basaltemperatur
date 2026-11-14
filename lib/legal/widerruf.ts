@@ -24,7 +24,7 @@ export function widerrufErlaeuterungBlocks(): LegalBlock[] {
   return [
     { type: 'h2', text: 'Erläuterungen (nicht Teil der Belehrung)' },
     { type: 'p', text: 'Mit dem Kauf schalten wir die Analyse-Funktionen dauerhaft in Ihrem Konto frei. Rechtlich ist das eine digitale Dienstleistung. Bei Dienstleistungen erlischt das Widerrufsrecht nach § 356 Abs. 5 BGB erst mit ihrer vollständigen Erbringung — bei einem dauerhaften Zugang tritt das innerhalb der vierzehn Tage nicht ein. **Ihr Widerrufsrecht bleibt deshalb für die vollen vierzehn Tage bestehen, auch wenn Sie die Analyse in dieser Zeit schon nutzen.**' },
-    { type: 'p', text: 'Beim Kauf bestätigen Sie, dass die Freischaltung sofort beginnen soll. Widerrufen Sie, erstatten wir den Kaufpreis abzüglich des anteiligen Betrags für die Zeit, in der die Analyse bereits freigeschaltet war.' },
+    { type: 'p', text: 'Beim Kauf bestätigen Sie, dass die Freischaltung sofort beginnen soll. Widerrufen Sie, erstatten wir den Kaufpreis abzüglich des anteiligen Betrags für die Zeit, in der die Analyse bereits freigeschaltet war. Weil der Zugang zeitlich unbegrenzt ist, ist dieser Anteil in den ersten vierzehn Tagen verschwindend gering; in der Praxis erstatten wir den vollen Kaufpreis.' },
   ]
 }
 

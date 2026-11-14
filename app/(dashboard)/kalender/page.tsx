@@ -1,12 +1,11 @@
 // app/(dashboard)/kalender/page.tsx
-// Kalender-Ansicht mit Monatsübersicht und Zyklusphasen
+// Kalender-Ansicht mit Monatsübersicht
 
 export const dynamic = 'force-dynamic'
 
 import { createClient } from '@/lib/supabase/server'
 import { redirect } from 'next/navigation'
 import { CalendarClient } from './CalendarClient'
-import { getFutureWindows } from '@/lib/ovulation'
 import { differenceInDays, parseISO, format, addDays } from 'date-fns'
 import type { Profile } from '@/types/database'
 
@@ -46,7 +45,7 @@ function buildCycleStats(
             currentBlockLength = 1
         }
 
-        // Zyklusstart-Erkennung (für Vorhersagen)
+        // Zyklusstart-Erkennung (für die Periodenschätzung)
         if (diff > 3) {
             cycleStarts.push(sortedDates[i])
         }
@@ -116,7 +115,6 @@ export default async function CalendarPage() {
     const profile = profileResult.data as Profile | null
     const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
     const cycleLength = profile?.cycle_length_default || 28
-    const lutealPhase = profile?.luteal_phase_default || 14
     const periodEntries = periodResult.data || []
 
     // Nutzt reale Verlaufsdaten (wenn vorhanden) statt nur Default-Werten.
@@ -129,27 +127,9 @@ export default async function CalendarPage() {
     const lastPeriodStart = cycleStarts.length > 0 ? cycleStarts[cycleStarts.length - 1] : null
     const predictionBaselineReady = completedCycleCount >= 3
 
-    const fertileDates: string[] = []
-    const peakDates: string[] = []
     const predictedPeriodDates: string[] = []
 
     if (lastPeriodStart && hasLifetimeAccess && predictionBaselineReady) {
-        const windows = getFutureWindows(lastPeriodStart, averageCycleLength, lutealPhase)
-        for (const window of windows) {
-            // Generate all dates in fertile window
-            const start = parseISO(window.start)
-            const end = parseISO(window.end)
-            for (let d = start; d <= end; d = addDays(d, 1)) {
-                fertileDates.push(format(d, 'yyyy-MM-dd'))
-            }
-            // Generate peak dates
-            const peakStart = parseISO(window.peakStart)
-            const peakEnd = parseISO(window.peakEnd)
-            for (let d = peakStart; d <= peakEnd; d = addDays(d, 1)) {
-                peakDates.push(format(d, 'yyyy-MM-dd'))
-            }
-        }
-
         // Prognose: nächste Periodenblöcke (Start + durchschnittliche Zykluslänge).
         const lastStartDate = parseISO(lastPeriodStart)
         const forecastUntil = addDays(new Date(), 180)
@@ -169,8 +149,6 @@ export default async function CalendarPage() {
             <CalendarClient
                 entries={tempResult.data || []}
                 periodEntries={periodEntries}
-                fertileDates={fertileDates}
-                peakDates={peakDates}
                 predictedPeriodDates={predictedPeriodDates}
                 hasLifetimeAccess={hasLifetimeAccess}
                 predictionBaselineReady={predictionBaselineReady}

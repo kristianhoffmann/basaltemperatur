@@ -4,13 +4,12 @@
 import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import { format, parseISO, subMonths, isAfter } from 'date-fns'
 import { de } from 'date-fns/locale'
-import { detectAllOvulations, combineOvulationsWithPredictions } from '@/lib/ovulation'
+import { detectAllOvulations } from '@/lib/ovulation'
 import type { TemperatureEntry, PeriodEntry } from '@/types/database'
 
 interface TemperatureChartProps {
     entries: (Pick<TemperatureEntry, 'date' | 'temperature'> & Partial<Pick<TemperatureEntry, 'disturbed' | 'exclude_from_analysis'>>)[]
     periodEntries: Pick<PeriodEntry, 'date' | 'flow_intensity'>[]
-    showPredictions?: boolean
     className?: string
 }
 
@@ -34,7 +33,7 @@ function dateToX(index: number, total: number): number {
 
 type ChartRange = '1M' | '3M' | '6M' | 'MAX'
 
-export function TemperatureChart({ entries, periodEntries, showPredictions = false, className }: TemperatureChartProps) {
+export function TemperatureChart({ entries, periodEntries, className }: TemperatureChartProps) {
     const [range, setRange] = useState<ChartRange>('3M')
     const [selectedIndex, setSelectedIndex] = useState<number | null>(null)
     const [isDragging, setIsDragging] = useState(false)
@@ -69,16 +68,11 @@ export function TemperatureChart({ entries, periodEntries, showPredictions = fal
         [entries]
     )
 
-    const detectedOvulations = useMemo(() =>
+    // Retrospective only: rises that the entered values already confirm.
+    // No calculated or predicted markers (see lib/ovulation.ts).
+    const ovulations = useMemo(() =>
         detectAllOvulations(allSortedEntries),
         [allSortedEntries]
-    )
-
-    const ovulations = useMemo(() =>
-        showPredictions
-            ? combineOvulationsWithPredictions(detectedOvulations, periodEntries)
-            : detectedOvulations,
-        [detectedOvulations, periodEntries, showPredictions]
     )
 
     const sortedEntries = useMemo(() => {
@@ -168,7 +162,6 @@ export function TemperatureChart({ entries, periodEntries, showPredictions = fal
         }
     })()
     const confirmedOvulations = ovulations.filter((ov) => ov.isConfirmed)
-    const predictedOvulations = ovulations.filter((ov) => !ov.isConfirmed)
 
     const linePoints = sortedEntries.map((entry, i) => ({
         x: dateToX(i, total),
@@ -219,20 +212,14 @@ export function TemperatureChart({ entries, periodEntries, showPredictions = fal
                     </span>
                     {confirmedOvulations.length > 0 && (
                         <span className="flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full bg-violet-400" />
-                            bestätigt
-                        </span>
-                    )}
-                    {predictedOvulations.length > 0 && (
-                        <span className="flex items-center gap-1">
-                            <span className="w-2 h-2 rounded-full border border-violet-300" />
-                            Prognose
+                            <span className="w-2 h-2 rounded-full bg-ovulation-400" />
+                            Temperaturanstieg
                         </span>
                     )}
                     {ovulations.some(o => o.coverLineTemp) && (
                         <span className="flex items-center gap-1">
                             <span className="w-4 border-t border-dashed border-gold-400" />
-                            Cover-Linie
+                            Hilfslinie
                         </span>
                     )}
                 </div>
@@ -340,8 +327,6 @@ export function TemperatureChart({ entries, periodEntries, showPredictions = fal
                                         cy={y}
                                         r={isSelected ? 7 : 5}
                                         className="chart-ovulation-marker"
-                                        fillOpacity={ovulationForEntry?.isConfirmed ? 1 : 0.35}
-                                        strokeDasharray={ovulationForEntry?.isConfirmed ? undefined : '3 2'}
                                     />
                                     </>
                                 ) : (
@@ -431,7 +416,7 @@ export function TemperatureChart({ entries, periodEntries, showPredictions = fal
                                 )}
                                 {selectedOvulation && (
                                     <div className="text-[9px] text-violet-500 font-medium mt-0.5">
-                                        {selectedOvulation.isConfirmed ? 'Temperaturanstieg bestätigt' : 'Zyklus-Prognose'}
+                                        Temperaturanstieg (erste höhere Messung)
                                     </div>
                                 )}
                             </div>

@@ -25,37 +25,35 @@ export default function AuthLayout({
   children: React.ReactNode
 }) {
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--bg)' }}>
-      {/* Header */}
-      <header className="p-4">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <Logo size="sm" />
-          <span className="font-heading font-bold text-lg" style={{ color: 'var(--text)' }}>
-            Basaltemperatur
-          </span>
-        </Link>
+    <div className="flex min-h-screen flex-col bg-[var(--bg)]">
+      <header className="border-b border-[var(--card-border)]">
+        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6 lg:px-8">
+          <Link href="/" className="flex items-center gap-2.5" aria-label="Basaltemperatur – Startseite">
+            <Logo size="sm" />
+            <span className="text-[15px] font-semibold tracking-tight text-[var(--text)]">Basaltemperatur</span>
+          </Link>
+          <Link href="/" className="text-sm font-medium text-[var(--text-secondary)] transition-colors hover:text-[var(--text)]">
+            Zur Startseite
+          </Link>
+        </div>
       </header>
 
-      {/* Main Content */}
-      <main className="flex-1 flex items-center justify-center p-4">
+      <main className="flex flex-1 items-start justify-center px-4 py-10 sm:items-center sm:py-14">
         <div className="w-full max-w-md">
           {children}
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="p-4 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
-        <p>
-          © {new Date().getFullYear()} Basaltemperatur. Alle Rechte vorbehalten.
-        </p>
-        <div className="mt-2 space-x-4">
-          <Link href="/impressum" className="hover:text-rose-400 transition-colors">Impressum</Link>
-          <Link href="/datenschutz" className="hover:text-rose-400 transition-colors">Datenschutz</Link>
-          <Link href="/agb" className="hover:text-rose-400 transition-colors">AGB</Link>
-          <Link href="/widerruf" className="hover:text-rose-400 transition-colors">Widerrufsbelehrung</Link>
-          <Link href="/widerruf-ausueben" className="font-semibold text-rose-400 hover:underline transition-colors">Vertrag widerrufen</Link>
-          <ConsentSettingsLink className="hover:text-rose-400 transition-colors" />
-        </div>
+      <footer className="border-t border-[var(--card-border)] px-4 py-6 text-center text-sm text-[var(--text-muted)]">
+        <nav aria-label="Rechtliches" className="flex flex-wrap justify-center gap-x-5 gap-y-2">
+          <Link href="/impressum" className="transition-colors hover:text-[var(--text)]">Impressum</Link>
+          <Link href="/datenschutz" className="transition-colors hover:text-[var(--text)]">Datenschutz</Link>
+          <Link href="/agb" className="transition-colors hover:text-[var(--text)]">AGB</Link>
+          <Link href="/widerruf" className="transition-colors hover:text-[var(--text)]">Widerrufsbelehrung</Link>
+          <Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] underline underline-offset-4">Vertrag widerrufen</Link>
+          <ConsentSettingsLink className="transition-colors hover:text-[var(--text)]" />
+        </nav>
+        <p className="mt-3 text-xs">© {new Date().getFullYear()} Basaltemperatur</p>
       </footer>
     </div>
   )

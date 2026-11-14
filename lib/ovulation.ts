@@ -1,8 +1,19 @@
 // lib/ovulation.ts
-// Eisprung-Erkennung nach der Basaltemperatur-Methode (3-über-6-Regel)
+// Rückblickende Auswertung der Temperaturkurve ("3-über-6-Regel").
 //
-// Die "3-über-6-Regel" besagt:
-// - Der Eisprung wird erkannt, wenn 3 aufeinanderfolgende Temperaturen
+// ZWECKBESTIMMUNG (bitte nicht aufweichen): Die App ist ein Tagebuch. Dieses Modul
+// beschreibt nur, was in den eingetragenen Werten zu sehen ist — einen
+// Temperaturanstieg und die Hilfslinie davor. Es berechnet bewusst KEINEN
+// Eisprungtermin, KEIN fruchtbares Fenster und KEINE Vorhersage dafür. Solche
+// Funktionen würden die App zu einem Medizinprodukt machen (Verordnung (EU)
+// 2017/745, "Kontrolle oder Unterstützung der Empfängnis"). Der Test in
+// lib/ovulation.test.ts sichert das ab.
+//
+// Die Bezeichner (OvulationResult, ovulationDate) sind historisch und bleiben aus
+// Kompatibilitätsgründen; `ovulationDate` ist das Datum der ERSTEN HÖHEREN MESSUNG.
+//
+// "3-über-6-Regel":
+// - Ein Anstieg gilt als bestätigt, wenn 3 aufeinanderfolgende Temperaturen
 //   über den 6 vorhergehenden Werten liegen
 // - Mindestens der 3. Wert muss 0.2°C über der höchsten der 6 vorherigen liegen
 
@@ -95,7 +106,7 @@ function unknownResult(reason: string): OvulationResult {
 }
 
 /**
- * Berechnet die Cover-Linie (Hilfslinie) nach Sensiplan:
+ * Berechnet die Hilfslinie:
  * = der HÖCHSTE Wert der 6 niedrigen Temperaturen vor dem Anstieg
  */
 export function calculateCoverLine(temperatures: number[]): number | null {
@@ -120,7 +131,7 @@ function calculateCycleDay(
 }
 
 /**
- * Erkennt den Eisprung nach der 3-über-6-Regel (Sensiplan-Methode)
+ * Erkennt rückblickend einen Temperaturanstieg nach der 3-über-6-Regel
  * 
  * Regeln:
  * - 3 aufeinanderfolgende Werte müssen ÜBER der Hilfslinie (= Maximum der 6 Vorwerte) liegen
@@ -133,7 +144,7 @@ function calculateCycleDay(
  *   wird er ausgeklammert und es werden insgesamt 4 Messungen über der Hilfslinie benötigt
  * 
  * @param entries - Temperatureinträge, sortiert nach Datum aufsteigend
- * @returns OvulationResult mit Eisprung-Datum und Cover-Linie
+ * @returns Datum der ersten höheren Messung und Hilfslinie
  */
 export function detectOvulation(
     entries: TemperatureInput[]
@@ -165,7 +176,7 @@ export function detectOvulation(
         if (allAbove && thirdHighEnough) {
             // Standard-Regel: 3 über 6, 3. ≥ coverLine + 0.2°C
             const coverLineValue = calculateCoverLine(previousSix)
-            const ovulationIndex = i - 1
+            const ovulationIndex = i // first higher reading: the rise itself
 
             return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
         }
@@ -174,7 +185,7 @@ export function detectOvulation(
         if (allAbove && first3[2] > coverLine && !thirdHighEnough && available.length >= 4) {
             if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine) {
                 const coverLineValue = calculateCoverLine(previousSix)
-                const ovulationIndex = i - 1
+                const ovulationIndex = i // first higher reading: the rise itself
 
                 return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
             }
@@ -188,7 +199,7 @@ export function detectOvulation(
                 const valuesAbove = [...first3.filter(t => t > coverLine), available[3]]
                 if (hasConsecutiveDates(windowEntries.slice(0, 10)) && available[3] > coverLine && valuesAbove.some(t => Math.round(t * 100) >= Math.round((coverLine + 0.2) * 100))) {
                     const coverLineValue = calculateCoverLine(previousSix)
-                    const ovulationIndex = i - 1
+                    const ovulationIndex = i // first higher reading: the rise itself
 
                     return temperatureResult(eligibleEntries, ovulationIndex, coverLineValue)
                 }
@@ -209,7 +220,7 @@ export function detectOvulation(
 }
 
 /**
- * Erkennt ALLE Eisprünge im gesamten Zeitraum (Sensiplan-Methode mit Ausnahmeregeln)
+ * Erkennt alle Temperaturanstiege im gesamten Zeitraum (mit Ausnahmeregeln)
  */
 export function detectAllOvulations(
     entries: TemperatureInput[]
@@ -263,7 +274,7 @@ export function detectAllOvulations(
 
         if (detected) {
             const coverLineValue = calculateCoverLine(previousSix)
-            const ovulationIndex = i - 1
+            const ovulationIndex = i // first higher reading: the rise itself
 
             results.push(temperatureResult(sortedEntries, ovulationIndex, coverLineValue))
 
@@ -367,98 +378,6 @@ export function getPredictionReadiness(
 }
 
 /**
- * Kombiniert erkannte Eisprünge mit berechneten (für Zyklen ohne temperaturbasierten Eisprung)
- * Pro Zyklus wird maximal EIN Eisprung angezeigt.
- */
-export function combineOvulationsWithPredictions(
-    detected: OvulationResult[],
-    periodEntries: PeriodInput[],
-    cycleLength: number = 28 // Fallback
-): OvulationResult[] {
-    const cycleStarts = getCycleStarts(periodEntries)
-    if (cycleStarts.length === 0) return detected
-
-    // Berechne durchschnittliche Zykluslänge aus den Zyklusstarts
-    let avgCycleLength = cycleLength
-    if (cycleStarts.length >= 2) {
-        let sumDays = 0
-        let count = 0
-        for (let i = 0; i < cycleStarts.length - 1; i++) {
-            const start = new Date(cycleStarts[i])
-            const end = new Date(cycleStarts[i + 1])
-            const diff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-            if (diff > 20 && diff < 45) {
-                sumDays += diff
-                count++
-            }
-        }
-        if (count > 0) avgCycleLength = Math.round(sumDays / count)
-    }
-
-    // Pro Zyklus: max 1 erkannter Eisprung behalten, sonst 1 berechneten einfügen
-    const result: OvulationResult[] = []
-
-    for (let i = 0; i < cycleStarts.length; i++) {
-        const cycleStart = new Date(cycleStarts[i])
-        const nextCycleStart = i + 1 < cycleStarts.length ? new Date(cycleStarts[i + 1]) : null
-
-        // Finde ALLE erkannten Eisprünge in diesem Zyklus
-        const detectedInCycle = detected.filter(d => {
-            if (!d.ovulationDate) return false
-            const dDate = new Date(d.ovulationDate)
-            return dDate >= cycleStart && (nextCycleStart ? dDate < nextCycleStart : true)
-        })
-
-        if (detectedInCycle.length > 0) {
-            // Nimm nur den ERSTEN erkannten Eisprung pro Zyklus
-            result.push(detectedInCycle[0])
-        } else {
-            // Kein erkannter Eisprung → berechne einen
-            let predictedDate: Date
-            if (nextCycleStart) {
-                // Vergangener Zyklus: 14 Tage vor nächstem Zyklusstart
-                predictedDate = new Date(nextCycleStart)
-                predictedDate.setDate(predictedDate.getDate() - 14)
-            } else {
-                // Aktueller Zyklus: Start + avgCycleLength - 14
-                predictedDate = new Date(cycleStart)
-                predictedDate.setDate(predictedDate.getDate() + avgCycleLength - 14)
-            }
-
-            result.push({
-                ovulationDate: predictedDate.toISOString().split('T')[0],
-                coverLineTemp: null,
-                phase: 'ovulation',
-                cycleDay: Math.floor((predictedDate.getTime() - cycleStart.getTime()) / DAY_MS) + 1,
-                source: 'prediction',
-                confidence: nextCycleStart ? 'medium' : 'low',
-                isConfirmed: false,
-                reason: nextCycleStart
-                    ? 'Rückrechnung aus nächstem Periodenbeginn, nicht temperaturbestätigt'
-                    : 'Prognose aus durchschnittlicher Zykluslänge',
-            })
-        }
-    }
-
-    return result.sort((a, b) => (a.ovulationDate || '').localeCompare(b.ovulationDate || ''))
-}
-
-/**
- * Bestimmt die aktuelle Zyklusphase basierend auf dem Zyklustag
- */
-export function getCyclePhase(
-    cycleDay: number,
-    ovulationDay: number | null
-): 'menstruation' | 'follicular' | 'ovulation' | 'luteal' {
-    if (cycleDay <= 5) return 'menstruation'
-    if (ovulationDay) {
-        if (cycleDay >= ovulationDay - 1 && cycleDay <= ovulationDay + 1) return 'ovulation'
-        if (cycleDay > ovulationDay + 1) return 'luteal'
-    }
-    return 'follicular'
-}
-
-/**
  * Formatiert die Temperatur für die Anzeige
  */
 export function formatTemperature(temp: number, unit: 'celsius' | 'fahrenheit' = 'celsius'): string {
@@ -467,19 +386,6 @@ export function formatTemperature(temp: number, unit: 'celsius' | 'fahrenheit' =
         return `${fahrenheit.toFixed(1)}°F`
     }
     return `${temp.toFixed(2)}°C`
-}
-
-/**
- * Berechnet den voraussichtlichen nächsten Eisprung
- */
-export function predictNextOvulation(
-    lastPeriodStart: string,
-    cycleLength: number = 28,
-    lutealPhase: number = 14
-): string {
-    const date = new Date(lastPeriodStart)
-    date.setDate(date.getDate() + (cycleLength - lutealPhase))
-    return date.toISOString().split('T')[0]
 }
 
 /**
@@ -492,116 +398,4 @@ export function predictNextPeriod(
     const date = new Date(lastPeriodStart)
     date.setDate(date.getDate() + cycleLength)
     return date.toISOString().split('T')[0]
-}
-
-/**
- * Berechnet das Fruchtbarkeitsfenster basierend auf Zykluslänge
- * Fruchtbar: Tag (Eisprung - 5) bis Tag (Eisprung + 1)
- * Peak: Tag (Eisprung - 1) bis Tag (Eisprung)
- */
-export interface FertilityWindow {
-    start: string
-    end: string
-    peakStart: string
-    peakEnd: string
-}
-
-export function getFertilityWindow(
-    lastPeriodStart: string,
-    cycleLength: number = 28,
-    lutealPhase: number = 14
-): FertilityWindow {
-    const periodDate = new Date(lastPeriodStart)
-    const ovulationDay = cycleLength - lutealPhase
-
-    const fertileStart = new Date(periodDate)
-    fertileStart.setDate(periodDate.getDate() + ovulationDay - 5)
-
-    const fertileEnd = new Date(periodDate)
-    fertileEnd.setDate(periodDate.getDate() + ovulationDay + 1)
-
-    const peakStart = new Date(periodDate)
-    peakStart.setDate(periodDate.getDate() + ovulationDay - 1)
-
-    const peakEnd = new Date(periodDate)
-    peakEnd.setDate(periodDate.getDate() + ovulationDay)
-
-    return {
-        start: fertileStart.toISOString().split('T')[0],
-        end: fertileEnd.toISOString().split('T')[0],
-        peakStart: peakStart.toISOString().split('T')[0],
-        peakEnd: peakEnd.toISOString().split('T')[0],
-    }
-}
-
-/**
- * Bestimmt den Fruchtbarkeitsstatus für ein bestimmtes Datum
- */
-export function getFertilityStatus(
-    dateStr: string,
-    window: FertilityWindow | null
-): 'fertile' | 'peak' | 'infertile' {
-    if (!window) return 'infertile'
-    if (dateStr >= window.peakStart && dateStr <= window.peakEnd) return 'peak'
-    if (dateStr >= window.start && dateStr <= window.end) return 'fertile'
-    return 'infertile'
-}
-
-/**
- * Berechnet Fruchtbarkeitsfenster für aktuelle + zukünftige Zyklen
- * Wissenschaftliche Basis:
- * - Lutealphase: konstant ~14 Tage
- * - Fruchtbares Fenster: 5 Tage vor Eisprung + Eisprung-Tag
- * - Peak-Fertilität: Tag vor Eisprung + Eisprung-Tag
- */
-export function getFutureWindows(
-    lastPeriodStart: string,
-    cycleLength: number = 28,
-    lutealPhase: number = 14,
-    numberOfCycles: number = 8
-): FertilityWindow[] {
-    const startDate = new Date(lastPeriodStart)
-    const windows: FertilityWindow[] = []
-
-    for (let cycle = 0; cycle < numberOfCycles; cycle++) {
-        const cycleStart = new Date(startDate)
-        cycleStart.setDate(startDate.getDate() + cycle * cycleLength)
-
-        const ovulationDay = cycleLength - lutealPhase
-
-        const fertileStart = new Date(cycleStart)
-        fertileStart.setDate(cycleStart.getDate() + ovulationDay - 5)
-
-        const fertileEnd = new Date(cycleStart)
-        fertileEnd.setDate(cycleStart.getDate() + ovulationDay + 1)
-
-        const peakStart = new Date(cycleStart)
-        peakStart.setDate(cycleStart.getDate() + ovulationDay - 1)
-
-        const peakEnd = new Date(cycleStart)
-        peakEnd.setDate(cycleStart.getDate() + ovulationDay)
-
-        windows.push({
-            start: fertileStart.toISOString().split('T')[0],
-            end: fertileEnd.toISOString().split('T')[0],
-            peakStart: peakStart.toISOString().split('T')[0],
-            peakEnd: peakEnd.toISOString().split('T')[0],
-        })
-    }
-
-    return windows
-}
-
-/**
- * Bestimmt den Fruchtbarkeitsstatus für ein Datum gegen mehrere Fenster
- */
-export function getFertilityStatusMulti(
-    dateStr: string,
-    windows: FertilityWindow[]
-): 'fertile' | 'peak' | 'infertile' {
-    for (const window of windows) {
-        if (dateStr >= window.peakStart && dateStr <= window.peakEnd) return 'peak'
-        if (dateStr >= window.start && dateStr <= window.end) return 'fertile'
-    }
-    return 'infertile'
 }

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Eye, EyeOff, Loader2, Check } from 'lucide-react';
 import { signUp } from '@/lib/actions/auth';
+import { SENSITIVE_DATA_CONSENT_TEXT } from '@/lib/legal/consent';
 
 export function RegisterForm({ from }: { from?: string }) {
   const router = useRouter();
@@ -33,7 +34,7 @@ export function RegisterForm({ from }: { from?: string }) {
     setError(null);
 
     if (!formData.acceptTerms) {
-      setError('Bitte akzeptiere die AGB.');
+      setError('Bitte akzeptiere die AGB, um ein Konto anzulegen.');
       return;
     }
 
@@ -43,7 +44,7 @@ export function RegisterForm({ from }: { from?: string }) {
     }
 
     if (!isPasswordStrong) {
-      setError('Bitte wählen Sie ein sichereres Passwort.');
+      setError('Bitte wähle ein sichereres Passwort (siehe Hinweise unter dem Feld).');
       return;
     }
 
@@ -78,9 +79,9 @@ export function RegisterForm({ from }: { from?: string }) {
       <div>
         <label
           htmlFor="name"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="label"
         >
-          Vollständiger Name
+          Name
         </label>
         <input
           id="name"
@@ -90,8 +91,8 @@ export function RegisterForm({ from }: { from?: string }) {
           required
           value={formData.name}
           onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-          className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-          placeholder="Max Mustermann"
+          className="input"
+          placeholder="Dein Name"
         />
       </div>
 
@@ -99,7 +100,7 @@ export function RegisterForm({ from }: { from?: string }) {
       <div>
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="label"
         >
           E-Mail-Adresse
         </label>
@@ -111,8 +112,8 @@ export function RegisterForm({ from }: { from?: string }) {
           required
           value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          className="w-full px-4 py-3 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-          placeholder="max@beispiel.de"
+          className="input"
+          placeholder="du@beispiel.de"
         />
       </div>
 
@@ -120,7 +121,7 @@ export function RegisterForm({ from }: { from?: string }) {
       <div>
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-700 mb-1.5"
+          className="label"
         >
           Passwort
         </label>
@@ -135,7 +136,7 @@ export function RegisterForm({ from }: { from?: string }) {
             onChange={(e) =>
               setFormData({ ...formData, password: e.target.value })
             }
-            className="w-full px-4 py-3 pr-12 text-gray-900 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+            className="input pr-11"
             placeholder="••••••••"
           />
           <button
@@ -196,19 +197,19 @@ export function RegisterForm({ from }: { from?: string }) {
           onChange={(e) =>
             setFormData({ ...formData, acceptTerms: e.target.checked })
           }
-          className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+          className="mt-1 h-4 w-4 shrink-0 rounded border-[#B9AFA3] accent-[var(--rose)]"
         />
-        <label htmlFor="terms" className="text-sm text-gray-600">
+        <label htmlFor="terms" className="text-sm leading-relaxed text-[var(--text-secondary)]">
           Ich akzeptiere die{' '}
-          <a href="/agb" className="text-primary-600 hover:underline" target="_blank">
+          <a href="/agb" className="font-medium text-[var(--text)] underline underline-offset-2" target="_blank">
             AGB
           </a>{' '}
           und habe die{' '}
-          <a href="/datenschutz" className="text-primary-600 hover:underline" target="_blank">
+          <a href="/datenschutz" className="font-medium text-[var(--text)] underline underline-offset-2" target="_blank">
             Datenschutzerklärung
           </a>{' '}
           sowie die{' '}
-          <a href="/widerruf" className="text-primary-600 hover:underline" target="_blank">
+          <a href="/widerruf" className="font-medium text-[var(--text)] underline underline-offset-2" target="_blank">
             Widerrufsbelehrung
           </a>{' '}
           zur Kenntnis genommen.
@@ -225,21 +226,19 @@ export function RegisterForm({ from }: { from?: string }) {
           onChange={(e) =>
             setFormData({ ...formData, acceptHealthData: e.target.checked })
           }
-          className="mt-1 w-4 h-4 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+          className="mt-1 h-4 w-4 shrink-0 rounded border-[#B9AFA3] accent-[var(--rose)]"
         />
-        <label htmlFor="healthData" className="text-sm text-gray-600">
-          Ich willige ausdrücklich in die Verarbeitung meiner{' '}
-          <strong>Gesundheitsdaten</strong> (Basaltemperatur, Periodendaten) gemäß{' '}
-          <a href="/datenschutz" className="text-primary-600 hover:underline" target="_blank">
-            Art. 9 DSGVO
-          </a>{' '}
-          ein.
+        <label htmlFor="healthData" className="text-sm leading-relaxed text-[var(--text-secondary)]">
+          {SENSITIVE_DATA_CONSENT_TEXT}{' '}
+          <a href="/datenschutz" className="font-medium text-[var(--text)] underline underline-offset-2" target="_blank">
+            Datenschutzerklärung
+          </a>
         </label>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
+        <div role="alert" className="rounded-lg border border-red-200 bg-red-50 p-3">
           <p className="text-sm text-red-700">{error}</p>
         </div>
       )}
@@ -248,7 +247,7 @@ export function RegisterForm({ from }: { from?: string }) {
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-primary-600 text-white font-medium rounded-lg hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        className="btn btn-primary btn-lg w-full"
       >
         {isLoading ? (
           <>
@@ -256,7 +255,7 @@ export function RegisterForm({ from }: { from?: string }) {
             Konto wird erstellt...
           </>
         ) : (
-          'Registrieren'
+          'Kostenlos registrieren'
         )}
       </button>
     </form>

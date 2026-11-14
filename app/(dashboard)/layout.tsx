@@ -67,7 +67,7 @@ export default async function DashboardLayout({
         {/* User */}
         <div className="sidebar-footer">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-rose-400 to-violet-500 flex items-center justify-center text-white text-xs font-bold shadow-lg">
+            <div className="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-white text-xs font-semibold">
               {email[0]?.toUpperCase() || '?'}
             </div>
             <div className="min-w-0 flex-1">
@@ -79,10 +79,6 @@ export default async function DashboardLayout({
 
       {/* ── Main Content ─────────────────────────────────── */}
       <main className="lg:ml-[260px] pb-24 lg:pb-8 pt-4 lg:pt-8 min-h-screen relative">
-        {/* Decorative gradient orbs */}
-        <div className="orb orb-rose w-[400px] h-[400px] -top-40 -right-40 opacity-30 hidden lg:block" />
-        <div className="orb orb-violet w-[300px] h-[300px] top-1/2 -left-20 opacity-20 hidden lg:block" />
-
         <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
           <NotificationPrompt />
           {children}

@@ -25,7 +25,7 @@ export function Logo({ size = 'md', className }: LogoProps) {
       height={px}
       // The tiny shared logo is already used in the visible header and reused in the footer.
       loading="eager"
-      className={cn('shrink-0 rounded-[28%] shadow-md shadow-violet-950/25 ring-1 ring-white/15', className)}
+      className={cn('shrink-0 rounded-[28%] shadow-sm ring-1 ring-black/5', className)}
       style={{ width: px, height: px }}
     />
   )

@@ -14,6 +14,7 @@ import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { trackConversion, shouldTrackAccount } from '@/lib/seo-autopilot/attribution'
 import { planAccountDeletion } from '@/lib/account-deletion'
 import { z } from 'zod'
+import { SENSITIVE_DATA_CONSENT_VERSION } from '@/lib/legal/consent'
 
 // ============================================
 // VALIDATION SCHEMAS
@@ -59,7 +60,6 @@ type AuthActionState = {
   message?: string
 } | null
 
-const SENSITIVE_DATA_CONSENT_VERSION = '2026-05-18'
 
 // ============================================
 // SIGN UP

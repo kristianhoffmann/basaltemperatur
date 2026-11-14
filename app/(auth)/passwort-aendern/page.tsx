@@ -9,7 +9,7 @@ import { ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
   title: 'Neues Passwort',
-  description: 'Legen Sie Ihr neues Passwort fest.',
+  description: 'Neues Passwort für dein Basaltemperatur-Konto festlegen.',
 }
 
 interface PageProps {
@@ -42,7 +42,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
             Link ungültig oder abgelaufen
           </h2>
           <p className="text-gray-600 mb-6">
-            Der Link zum Zurücksetzen Ihres Passworts ist leider ungültig oder abgelaufen. Bitte fordern Sie einen neuen Link an.
+            Der Link zum Zurücksetzen deines Passworts ist ungültig oder abgelaufen. Bitte fordere einen neuen Link an.
           </p>
           <Link
             href="/passwort-vergessen"
@@ -66,7 +66,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
           Neues Passwort festlegen
         </h1>
         <p className="mt-2 text-gray-600">
-          Wählen Sie ein sicheres Passwort für Ihr Konto
+          Wähle ein sicheres Passwort für dein Konto
         </p>
       </div>
 
@@ -76,7 +76,7 @@ export default async function ResetPasswordPage({ searchParams }: PageProps) {
 
       {/* Help Text */}
       <p className="mt-6 text-center text-sm text-gray-500">
-        Erinnern Sie sich an Ihr Passwort?{' '}
+        Passwort wieder eingefallen?{' '}
         <Link
           href="/login"
           className="font-medium text-primary-600 hover:text-primary-500"

@@ -86,7 +86,7 @@ export default async function StatisticsPage() {
                         {STATISTICS_GATE_BODY}
                     </p>
                     <Link href="/dashboard" className="mt-5 inline-flex">
-                        <button className="btn btn-glow">Vollzugang ansehen</button>
+                        <button className="btn btn-primary">Analyse ansehen</button>
                     </Link>
                 </div>
             </div>
@@ -281,8 +281,8 @@ export default async function StatisticsPage() {
                     </div>
                 )}
                 <p className="mt-4 text-xs leading-relaxed" style={{ color: 'var(--text-muted)' }}>
-                    Die Statistik bewertet nur deine Eingaben. Sie ist keine Diagnose und sagt nicht sicher voraus,
-                    wann eine Zyklusphase oder die nächste Periode eintritt.
+                    Die Statistik beschreibt nur deine Eingaben. Sie ist keine Diagnose, bestimmt keine fruchtbaren
+                    Tage und sagt nicht sicher voraus, wann die nächste Periode eintritt.
                 </p>
             </div>
 

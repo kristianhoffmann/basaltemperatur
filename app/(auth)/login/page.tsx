@@ -25,18 +25,14 @@ export default async function LoginPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold" style={{ color: 'var(--text)' }}>
-          Willkommen zurück
-        </h1>
-        <p className="mt-2" style={{ color: 'var(--text-secondary)' }}>
-          Melde dich an, um fortzufahren
-        </p>
+      <div>
+        <h1 className="font-display text-4xl text-[var(--text)]">Anmelden</h1>
+        <p className="mt-3 text-[var(--text-secondary)]">Weiter zu deinem Zyklustagebuch.</p>
       </div>
 
       {/* Error/Success Messages */}
       {searchParams.error && (
-        <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-600">
+        <div className="rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700">
           {searchParams.error === 'invalid_credentials' && 'Ungültige E-Mail oder Passwort.'}
           {searchParams.error === 'email_not_confirmed' && 'Bitte bestätige zuerst deine E-Mail-Adresse.'}
           {searchParams.error === 'unknown' && 'Ein Fehler ist aufgetreten. Bitte versuche es erneut.'}
@@ -44,9 +40,9 @@ export default async function LoginPage({
       )}
 
       {searchParams.message && (
-        <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-600">
+        <div className="rounded-xl bg-emerald-50 border border-emerald-200 p-4 text-sm text-emerald-800">
           {searchParams.message === 'password_reset' && 'Passwort erfolgreich zurückgesetzt. Du kannst dich jetzt anmelden.'}
-          {searchParams.message === 'email_confirmed' && 'E-Mail bestätigt! Du kannst dich jetzt anmelden.'}
+          {searchParams.message === 'email_confirmed' && 'E-Mail bestätigt. Du kannst dich jetzt anmelden.'}
           {searchParams.message === 'check_email' && 'Bitte bestätige deine E-Mail-Adresse. Wir haben dir einen Link geschickt.'}
         </div>
       )}
@@ -58,7 +54,7 @@ export default async function LoginPage({
         <>
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full" style={{ borderTop: '1px solid var(--border)' }} />
+              <div className="w-full" style={{ borderTop: '1px solid var(--card-border)' }} />
             </div>
             <div className="relative flex justify-center text-sm">
               <span className="px-4" style={{ backgroundColor: 'var(--bg)', color: 'var(--text-muted)' }}>oder</span>
@@ -74,8 +70,8 @@ export default async function LoginPage({
       {/* Register Link */}
       <p className="text-center text-sm" style={{ color: 'var(--text-secondary)' }}>
         Noch kein Konto?{' '}
-        <Link href={withFrom("/registrieren", from)} className="font-medium text-rose-400 hover:text-rose-500 transition-colors">
-          Jetzt registrieren
+        <Link href={withFrom("/registrieren", from)} className="font-semibold text-[var(--text)] underline underline-offset-2">
+          Kostenlos registrieren
         </Link>
       </p>
     </div>

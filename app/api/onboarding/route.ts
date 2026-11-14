@@ -4,8 +4,8 @@
 import { createClient, createAdminClient } from '@/lib/supabase/server'
 import { createClient as createSupabaseClient, type User } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { SENSITIVE_DATA_CONSENT_VERSION } from '@/lib/legal/consent'
 
-const SENSITIVE_DATA_CONSENT_VERSION = '2026-05-18'
 
 async function getUserForRequest(request: Request): Promise<{ user: User | null; bearerToken: string | null }> {
     const authHeader = request.headers.get('Authorization')

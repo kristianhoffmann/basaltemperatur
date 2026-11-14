@@ -31,10 +31,16 @@ export async function generateMetadata({ params, searchParams }: Props): Promise
   if (!page || page > Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))) notFound()
   return {
     // absolute: sonst haengt das Root-Layout ein zweites " | Basaltemperatur" an.
-    title: { absolute: 'Zyklus und Temperaturkurven | Basaltemperatur' },
+    title: { absolute: `Ratgeber: Basaltemperatur messen & Kurve lesen${page > 1 ? ` – Seite ${page}` : ''} | Basaltemperatur` },
     description: 'Ratgeber zur Zyklusbeobachtung: Basaltemperatur messen, Temperaturkurven verstehen und Zyklus-Apps nach Funktionen, Kosten und Datenschutz vergleichen.',
     alternates: {
       canonical: `${blogUrl(locale)}${page > 1 ? `?page=${page}` : ''}`,
+    },
+    openGraph: {
+      title: 'Ratgeber: Basaltemperatur messen & Kurve lesen',
+      description: 'Artikel zum Messen der Basaltemperatur, zum Lesen von Temperaturkurven und zur Zyklusdokumentation.',
+      url: `${blogUrl(locale)}${page > 1 ? `?page=${page}` : ''}`,
+      type: 'website',
     },
   }
 }

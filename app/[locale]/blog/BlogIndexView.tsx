@@ -6,8 +6,6 @@ import { BlogCtaBand } from './BlogCta'
 import { BlogPostCard } from './BlogPostCard'
 import type { BlogPostSummary } from './posts'
 
-const HERO_GRADIENT = 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 100%)'
-
 export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; posts: BlogPostSummary[]; page?: number }) {
   const pageCount = Math.max(1, Math.ceil(posts.length / BLOG_PAGE_SIZE))
   const pagePosts = posts.slice((page - 1) * BLOG_PAGE_SIZE, page * BLOG_PAGE_SIZE)
@@ -15,32 +13,24 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
   const firstImage = pagePosts.find((post) => post.hero_image_url)
 
   return (
-    <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <BlogHeader locale={locale} />
-      <main>
-        <section className="relative overflow-hidden text-white" style={{ background: HERO_GRADIENT }}>
-          <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-rose-400/20 blur-3xl" />
-          <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-10 h-[24rem] w-[24rem] rounded-full bg-violet-500/20 blur-3xl" />
-          <div className="relative mx-auto max-w-6xl px-4 pb-28 pt-12 sm:px-6 sm:pb-36 sm:pt-16 lg:px-8">
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-rose-300">Basaltemperatur Blog</p>
-            <h1 className="mt-4 max-w-4xl text-4xl font-extrabold leading-[1.08] tracking-tight !text-white sm:text-5xl lg:text-6xl">
-              Wissen rund um Zyklus, Basaltemperatur und Temperaturkurven.
-            </h1>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-white/70">
-              Praxisnahe Artikel rund um Basaltemperatur, App-Vergleiche und sichere digitale Zyklusdokumentation.
-            </p>
-            {posts.length > 0 && (
-              <p className="mt-8 inline-flex rounded-full border border-white/15 bg-white/5 px-4 py-1.5 text-sm text-white/70">
-                {posts.length} Artikel
-              </p>
-            )}
-          </div>
+      <main id="inhalt">
+        <section className="mx-auto max-w-6xl px-4 pb-10 pt-12 sm:px-6 sm:pt-16 lg:px-8">
+          <p className="eyebrow">Ratgeber</p>
+          <h1 className="font-display mt-4 max-w-4xl text-4xl text-[var(--text)] sm:text-5xl lg:text-6xl">
+            Basaltemperatur messen, Kurve lesen, Zyklus dokumentieren.
+          </h1>
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-[var(--text-secondary)]">
+            Praxisnahe Artikel zum Messen und Dokumentieren – ohne Heilsversprechen und mit Quellen.
+            {posts.length > 0 && <> Aktuell {posts.length} Artikel.</>}
+          </p>
+          <div className="mt-8"><BlogTopicsNav locale={locale} posts={posts} /></div>
         </section>
 
-        <div className="relative z-10 mx-auto max-w-6xl px-4 pb-28"><BlogTopicsNav locale={locale} /></div>
-        <section className="relative mx-auto -mt-16 max-w-6xl px-4 sm:-mt-24 sm:px-6 lg:px-8">
+        <section className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           {!featured ? (
-            <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-8 text-slate-500">
+            <div className="rounded-2xl border border-dashed border-[var(--card-border)] bg-white p-8 text-[var(--text-muted)]">
               Noch keine Artikel vorhanden.
             </div>
           ) : (
@@ -58,7 +48,7 @@ export function BlogIndexView({ locale, posts, page = 1 }: { locale: string; pos
         </section>
 
         {pageCount > 1 && <nav aria-label="Blogseiten" className="mx-auto mt-10 flex max-w-6xl flex-wrap gap-3 px-4">
-          {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => <Link key={number} aria-current={number === page ? 'page' : undefined} className="rounded-lg border bg-white px-4 py-2 text-rose-800" href={number === 1 ? `/${locale}/blog` : `/${locale}/blog?page=${number}`}>Seite {number}</Link>)}
+          {Array.from({ length: pageCount }, (_, index) => index + 1).map((number) => <Link key={number} aria-current={number === page ? 'page' : undefined} className="rounded-lg border border-[var(--card-border)] bg-white px-4 py-2 text-sm font-medium text-[var(--text)] aria-[current=page]:border-[var(--text)]" href={number === 1 ? `/${locale}/blog` : `/${locale}/blog?page=${number}`}>Seite {number}</Link>)}
         </nav>}
         <div className="py-20">
           <BlogCtaBand />

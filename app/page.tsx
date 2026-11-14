@@ -1,149 +1,217 @@
 // app/page.tsx
-// Landing Page – Basaltemperatur App – 2026 Premium Dark Hero Design
+// Start page. Design language "Kurvenblatt": paper, ink, one accent.
+//
+// Wording is part of the product's intended purpose (MDR): the app is a diary.
+// Do not add claims about fertile days, ovulation prediction, contraception or
+// conception here.
 
-import { HomeArticleLinks } from '@/app/[locale]/blog/BlogDiscovery'
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import {
-  CheckCircle,
-  ArrowRight,
-  Thermometer,
-  CalendarHeart,
-  TrendingUp,
-  Shield,
-  Heart,
-  Sparkles,
-  Lock,
-  Zap,
-  FileDown,
-  Smartphone,
-  ExternalLink,
-} from 'lucide-react'
+import { ArrowRight, Check, Minus } from 'lucide-react'
+import { HomeArticleLinks } from '@/app/[locale]/blog/BlogDiscovery'
+import { SiteFooter, SiteHeader } from '@/components/layout/SiteChrome'
 import { getSeoSiteUrl } from '@/lib/seo-site-url'
-import { Logo } from '@/components/shared/Logo'
-import { ConsentSettingsLink } from '@/components/analytics/ConsentSettingsLink'
-
-const appStoreInfoUrl = process.env.NEXT_PUBLIC_APP_STORE_URL || 'https://www.apple.com/de/app-store/'
+import { serializeJsonLd } from '@/lib/seo-autopilot/structured-data'
 
 export const revalidate = 60
 
+const PAGE_TITLE = 'Basaltemperatur App: Temperaturkurve & Zyklustagebuch ohne Abo'
+const PAGE_DESCRIPTION =
+  'Basaltemperatur und Periode kostenlos eintragen. Temperaturkurve, Zyklusstatistik und PDF-Export einmalig für 9,99 € – ohne Abo, Server in Deutschland.'
+
 export const metadata: Metadata = {
-  title: 'Basaltemperatur App: Zyklus & Temperaturkurve tracken',
-  description: 'Basaltemperatur App für natürliches Zyklustracking: Temperatur und Periode kostenlos eintragen, komplette Analyse einmalig für 9,99 € freischalten.',
-  alternates: {
-    canonical: '/',
-  },
+  title: { absolute: PAGE_TITLE },
+  description: PAGE_DESCRIPTION,
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Basaltemperatur App: Zyklus & Temperaturkurve tracken',
-    description: 'Temperatur & Periode kostenlos eintragen. Analyse, Prognosen und Export einmalig für 9,99 € freischalten.',
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
     url: '/',
     type: 'website',
-    images: [
-      {
-        url: '/opengraph-image',
-        width: 1200,
-        height: 630,
-        alt: 'Basaltemperatur App',
-      },
-    ],
+    images: [{ url: '/opengraph-image', width: 1200, height: 630, alt: 'Basaltemperatur – Zyklustagebuch mit Temperaturkurve' }],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Basaltemperatur App',
-    description: 'Zyklustracking mit Basaltemperatur, Periodenkalender und Analyse.',
+    title: PAGE_TITLE,
+    description: PAGE_DESCRIPTION,
     images: ['/twitter-image'],
   },
 }
 
-const features = [
-  {
-    icon: Thermometer,
-    title: 'Temperatur erfassen',
-    description: 'Trage täglich deine Basaltemperatur ein – schnell und unkompliziert.',
-    tier: 'Kostenlos',
-    accent: 'from-rose-400 to-pink-500',
-    iconBg: 'bg-rose-400/10',
-    iconColor: 'text-rose-500',
-  },
-  {
-    icon: CalendarHeart,
-    title: 'Periode markieren',
-    description: 'Markiere deine Periodentage. Sie werden farblich hervorgehoben.',
-    tier: 'Kostenlos',
-    accent: 'from-pink-400 to-rose-500',
-    iconBg: 'bg-pink-400/10',
-    iconColor: 'text-pink-500',
-  },
-  {
-    icon: TrendingUp,
-    title: 'Analyse-Dashboard',
-    description: 'Temperaturkurve, Trends und Zyklus-KPIs auf einen Blick.',
-    tier: 'Premium Analyse',
-    accent: 'from-blue-400 to-indigo-500',
-    iconBg: 'bg-blue-400/10',
-    iconColor: 'text-blue-500',
-  },
-  {
-    icon: Sparkles,
-    title: 'Prognosen & Temperaturanstieg',
-    description: 'Statistische Zyklus- und Periodenprognosen mit rückblickender Temperaturauswertung.',
-    tier: 'Premium Analyse',
-    accent: 'from-violet-400 to-purple-500',
-    iconBg: 'bg-violet-400/10',
-    iconColor: 'text-violet-500',
-  },
-  {
-    icon: Heart,
-    title: 'Statistiken & Vergleich',
-    description: 'Analysiere Zyklusverläufe über mehrere Monate und vergleiche Zyklen.',
-    tier: 'Premium Analyse',
-    accent: 'from-amber-400 to-orange-500',
-    iconBg: 'bg-amber-400/10',
-    iconColor: 'text-amber-500',
-  },
-  {
-    icon: FileDown,
-    title: 'PDF-Export',
-    description: 'Exportiere deine Kurve als PDF für deine persönliche Dokumentation.',
-    tier: 'Premium Analyse',
-    accent: 'from-emerald-400 to-teal-500',
-    iconBg: 'bg-emerald-400/10',
-    iconColor: 'text-emerald-500',
-  },
+// ── Example chart (clearly labelled as example data) ──────────────────────────
+
+const EXAMPLE_TEMPS = [
+  36.52, 36.48, 36.44, 36.41, 36.38, 36.42, 36.36, 36.4, 36.34, 36.38, 36.42, 36.36, 36.33, 36.4,
+  36.38, 36.62, 36.74, 36.8, 36.77, 36.83, 36.79, 36.85, 36.8, 36.76, 36.82, 36.78, 36.7, 36.58,
+]
+const RISE_INDEX = 15
+const CHART = { width: 640, height: 300, left: 46, right: 18, top: 22, bottom: 40, min: 36.2, max: 37.0 }
+
+const chartX = (index: number) =>
+  CHART.left + (index * (CHART.width - CHART.left - CHART.right)) / (EXAMPLE_TEMPS.length - 1)
+const chartY = (temp: number) =>
+  CHART.top + ((CHART.max - temp) / (CHART.max - CHART.min)) * (CHART.height - CHART.top - CHART.bottom)
+const formatTemp = (value: number) => value.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 2 })
+
+function ExampleChart() {
+  // Same rule as the app: the highest of the six readings before the rise.
+  const guideLine = Math.max(...EXAMPLE_TEMPS.slice(RISE_INDEX - 6, RISE_INDEX))
+  const points = EXAMPLE_TEMPS.map((temp, index) => `${chartX(index).toFixed(1)},${chartY(temp).toFixed(1)}`).join(' ')
+  const ticks = [36.2, 36.4, 36.6, 36.8, 37.0]
+  const dayStep = chartX(1) - chartX(0)
+
+  return (
+    <svg
+      viewBox={`0 0 ${CHART.width} ${CHART.height}`}
+      className="h-auto w-full"
+      role="img"
+      aria-label="Beispiel einer Temperaturkurve über 28 Tage: fünf Periodentage, Tieflage um 36,4 Grad, Anstieg an Tag 16 und Hochlage um 36,8 Grad. Eine gestrichelte Hilfslinie liegt bei 36,42 Grad."
+    >
+      <rect
+        x={chartX(0) - dayStep / 2}
+        y={CHART.top}
+        width={dayStep * 5}
+        height={CHART.height - CHART.top - CHART.bottom}
+        rx="6"
+        fill="var(--period)"
+        opacity="0.1"
+      />
+      {ticks.map((tick) => (
+        <g key={tick}>
+          <line x1={CHART.left} x2={CHART.width - CHART.right} y1={chartY(tick)} y2={chartY(tick)} stroke="var(--text)" strokeOpacity="0.08" />
+          <text x={CHART.left - 10} y={chartY(tick) + 4} textAnchor="end" fontSize="11" fill="var(--text-muted)">{formatTemp(tick)}</text>
+        </g>
+      ))}
+      {[1, 7, 14, 21, 28].map((day) => (
+        <text key={day} x={chartX(day - 1)} y={CHART.height - 16} textAnchor="middle" fontSize="11" fill="var(--text-muted)">
+          {day}
+        </text>
+      ))}
+      <text x={chartX(2)} y={CHART.top + 16} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--period)">Periode</text>
+
+      <line
+        x1={CHART.left}
+        x2={CHART.width - CHART.right}
+        y1={chartY(guideLine)}
+        y2={chartY(guideLine)}
+        stroke="var(--gold)"
+        strokeWidth="1.5"
+        strokeDasharray="6 5"
+      />
+      <text x={CHART.width - CHART.right} y={chartY(guideLine) + 15} textAnchor="end" fontSize="11" fontWeight="600" fill="var(--gold)">
+        Hilfslinie {formatTemp(guideLine)} °C
+      </text>
+
+      <polyline points={points} fill="none" stroke="var(--rose)" strokeWidth="2.25" strokeLinecap="round" strokeLinejoin="round" />
+      {EXAMPLE_TEMPS.map((temp, index) => (
+        <circle
+          key={index}
+          cx={chartX(index)}
+          cy={chartY(temp)}
+          r={index === RISE_INDEX ? 5.5 : 3.25}
+          fill={index === RISE_INDEX ? 'var(--violet)' : '#fff'}
+          stroke={index === RISE_INDEX ? '#fff' : 'var(--rose)'}
+          strokeWidth="2"
+        />
+      ))}
+      <text x={chartX(RISE_INDEX) - 10} y={chartY(EXAMPLE_TEMPS[RISE_INDEX]) - 2} textAnchor="end" fontSize="11" fontWeight="600" fill="var(--violet)">
+        Anstieg
+      </text>
+    </svg>
+  )
+}
+
+// ── Content ───────────────────────────────────────────────────────────────────
+
+const facts = ['Kein Abo', 'Server in Deutschland', 'Keine Werbung', 'Konto jederzeit löschbar']
+
+const purposeDoes = [
+  'Temperatur, Messzeit, Schlafdauer und Störfaktoren festhalten',
+  'Periodentage, Blutungsstärke und eigene Beobachtungen notieren',
+  'Deine Werte als Kurve mit Hilfslinie zeigen',
+  'Zykluslängen und Temperaturverläufe rückblickend auswerten',
 ]
 
-const lifetimeFeatures = [
-  'Analyse-Dashboard mit Zyklus-KPIs',
-  'Temperaturkurve mit Mustererkennung',
-  'Temperaturauswertung sowie Zyklus- und Periodenprognosen',
-  'Zyklusstatistiken und Verlaufstrends',
-  'Zyklusvergleich mehrerer Zyklen',
-  'PDF-Export für deine Dokumentation',
-  'Analyse in der Web-App (iOS-App in Vorbereitung)',
-  'Alle zukünftigen Updates',
-  'Kein Abo – einmalig zahlen',
+const purposeDoesNot = [
+  'Keine Bestimmung fruchtbarer Tage, keine Vorhersage eines Eisprungs',
+  'Kein Verhütungsmittel und keine Hilfe zur Familienplanung',
+  'Kein Medizinprodukt, keine Diagnose, kein Ersatz für ärztlichen Rat',
+  'Kein Verkauf deiner Daten, keine Werbung in der App',
+]
+
+const freeFeatures = [
+  'Basaltemperatur mit Messzeit, Schlafdauer und Störfaktoren',
+  'Periodentage mit Blutungsstärke',
+  'Eigene Beobachtungen und Notizen',
+  'Kalender mit allen Einträgen',
+  'Am Handy und am Computer, im Browser',
+]
+
+const paidFeatures = [
+  'Temperaturkurve mit Hilfslinie',
+  'Rückblickende Markierung von Temperaturanstiegen',
+  'Zyklusstatistik: Längen, Durchschnitte, Verlauf',
+  'Vergleich mehrerer Zyklen',
+  'Statistische Schätzung des nächsten Periodenbeginns',
+  'PDF-Export deiner Kurve',
+  'Künftige Updates inklusive',
+]
+
+const steps = [
+  {
+    title: 'Konto anlegen',
+    text: 'Name, E-Mail-Adresse, Passwort. Keine Zahlungsdaten, keine Testphase, die abläuft.',
+  },
+  {
+    title: 'Morgens messen und eintragen',
+    text: 'Vor dem Aufstehen messen, Wert eintragen, bei Bedarf eine gestörte Messung markieren.',
+  },
+  {
+    title: 'Kurve ansehen',
+    text: 'Nach einigen Wochen zeigt die Analyse deine Kurve, die Hilfslinie und deine Zykluslängen.',
+  },
 ]
 
 const faqItems = [
   {
-    question: 'Ist Basaltemperatur kostenlos?',
+    question: 'Was ist die Basaltemperatur?',
     answer:
-      'Ja. Das Eintragen von Temperatur und Periodentagen ist kostenlos. Die komplette Analyse kann einmalig für 9,99 € freigeschaltet werden.',
+      'Die Basaltemperatur ist die Körpertemperatur direkt nach dem Aufwachen, noch vor dem Aufstehen. Im Lauf eines Zyklus liegt sie in der zweiten Zyklushälfte meist einige Zehntelgrad höher als in der ersten. Wer täglich misst und die Werte notiert, erhält daraus eine Temperaturkurve.',
   },
   {
-    question: 'Ist Basaltemperatur ein Abo?',
+    question: 'Was kann ich kostenlos nutzen?',
     answer:
-      'Nein. Es gibt kein Abonnement. Der Analyse-Zugang ist eine einmalige Zahlung.',
+      'Das Eintragen ist dauerhaft kostenlos: Basaltemperatur mit Messzeit und Störfaktoren, Periodentage, Notizen und der Kalender. Es gibt keine Testphase, die abläuft.',
   },
   {
-    question: 'Sind meine Daten sicher?',
+    question: 'Was kostet die Analyse?',
     answer:
-      'Die App ist DSGVO-konform aufgebaut. Gesundheitsdaten werden ausschließlich zur Bereitstellung der Funktionen verarbeitet.',
+      'Einmalig 9,99 €. Das ist der Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Es gibt kein Abo und keine Folgekosten. Enthalten sind die Temperaturkurve mit Hilfslinie, Zyklusstatistik, Zyklusvergleich, eine statistische Schätzung des nächsten Periodenbeginns und der PDF-Export.',
   },
   {
-    question: 'Kann ich Basaltemperatur auf iOS und Web nutzen?',
+    question: 'Kann ich mit der App verhüten oder fruchtbare Tage bestimmen?',
     answer:
-      'Aktuell als Web-App im Browser – das funktioniert auch auf dem iPhone. Eine eigene iOS-App ist in Vorbereitung und noch nicht im App Store.',
+      'Nein. Basaltemperatur ist ein Tagebuch, kein Medizinprodukt und kein Verhütungsmittel. Die App bestimmt keine fruchtbaren Tage und sagt keinen Eisprung voraus. Bei Fragen zu Verhütung, Kinderwunsch oder auffälligen Zyklusveränderungen wende dich an deine Frauenärztin oder deinen Frauenarzt.',
+  },
+  {
+    question: 'Wo liegen meine Daten?',
+    answer:
+      'Auf einem Server in Deutschland. Deine Zyklusdaten sind Gesundheitsdaten: Wir verarbeiten sie nur mit deiner ausdrücklichen Einwilligung, verkaufen sie nicht und geben sie nicht an Werbepartner weiter. Die Einzelheiten stehen in der Datenschutzerklärung.',
+  },
+  {
+    question: 'Kann ich meine Daten löschen oder mitnehmen?',
+    answer:
+      'Ja. Dein Konto löschst du selbst in den Einstellungen; dabei werden deine Einträge unwiderruflich entfernt. Eine Kopie deiner Daten erhältst du auf Anfrage kostenlos per E-Mail. Der PDF-Export der Kurve gehört zur Analyse.',
+  },
+  {
+    question: 'Gibt es eine App für das iPhone?',
+    answer:
+      'Basaltemperatur läuft als Web-App im Browser – auf dem iPhone, auf Android und am Computer – und lässt sich zum Startbildschirm hinzufügen. Eine eigene iOS-App ist in Arbeit, aber noch nicht im App Store erhältlich.',
+  },
+  {
+    question: 'Kann ich den Kauf widerrufen?',
+    answer:
+      'Ja. Du kannst den Kauf der Analyse 14 Tage lang ohne Angabe von Gründen widerrufen, am einfachsten online über „Vertrag widerrufen“ im Seitenfuß.',
   },
 ]
 
@@ -153,489 +221,405 @@ export default function LandingPage() {
     '@context': 'https://schema.org',
     '@graph': [
       {
-        '@type': 'Organization',
-        '@id': `${siteUrl}/#organization`,
+        '@type': 'WebApplication',
+        '@id': `${siteUrl}/#app`,
         name: 'Basaltemperatur',
         url: siteUrl,
-      },
-      {
-        '@type': 'WebSite',
-        name: 'Basaltemperatur',
-        url: siteUrl,
-        inLanguage: 'de-DE',
-      },
-      {
-        '@type': 'SoftwareApplication',
-        name: 'Basaltemperatur',
-        applicationCategory: 'HealthApplication',
+        applicationCategory: 'LifestyleApplication',
         operatingSystem: 'Web',
+        browserRequirements: 'Aktueller Browser mit JavaScript',
         inLanguage: 'de-DE',
         description:
-          'Zyklustracking mit Basaltemperatur, Periodentagen, Prognosen und Auswertungen.',
-        offers: {
-          '@type': 'Offer',
-          price: '9.99',
-          priceCurrency: 'EUR',
-          availability: 'https://schema.org/InStock',
-        },
+          'Privates Zyklustagebuch: Basaltemperatur und Periode eintragen, Temperaturkurve und Zyklusstatistik ansehen. Kein Medizinprodukt und kein Verhütungsmittel.',
+        publisher: { '@id': `${siteUrl}/#organization` },
+        offers: [
+          {
+            '@type': 'Offer',
+            name: 'Eintragen (kostenlos)',
+            price: '0',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+          },
+          {
+            '@type': 'Offer',
+            name: 'Analyse (einmalig)',
+            price: '9.99',
+            priceCurrency: 'EUR',
+            availability: 'https://schema.org/InStock',
+          },
+        ],
       },
       {
         '@type': 'FAQPage',
+        '@id': `${siteUrl}/#faq`,
         mainEntity: faqItems.map((item) => ({
           '@type': 'Question',
           name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer,
-          },
+          acceptedAnswer: { '@type': 'Answer', text: item.answer },
         })),
       },
     ],
   }
 
   return (
-    <div className="min-h-screen">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
-      />
+    <div className="min-h-screen bg-[var(--bg)]">
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJsonLd(structuredData) }} />
+      <SiteHeader current="home" />
 
-      {/* ═══════════════════════════════════════════════════
-          HERO — Dark Gradient with Floating Orbs
-          ═══════════════════════════════════════════════════ */}
-      <section className="relative overflow-hidden" style={{ background: 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 100%)' }}>
-
-        {/* Animated gradient orbs */}
-        <div className="orb orb-rose w-[500px] h-[500px] -top-32 -right-32 opacity-50" />
-        <div className="orb orb-violet w-[400px] h-[400px] top-1/3 -left-48 opacity-40" />
-        <div className="orb orb-teal w-[350px] h-[350px] bottom-0 right-1/4 opacity-30" />
-
-        {/* Navigation */}
-        <nav className="relative z-20 mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-5">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Logo />
-              <span className="font-bold text-white text-sm tracking-tight">Basaltemperatur</span>
-            </div>
-            <div className="hidden md:flex items-center gap-6">
-              <a href="#features" className="text-sm text-white/50 hover:text-white transition-colors">Features</a>
-              <a href="#faq" className="text-sm text-white/50 hover:text-white transition-colors">FAQ</a>
-              <a href="#pricing" className="text-sm text-white/50 hover:text-white transition-colors">Preis</a>
-              <Link href="/de/blog" className="text-sm text-white/50 hover:text-white transition-colors">Blog</Link>
-              <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="text-sm text-white/50 hover:text-white transition-colors">App Store (bald)</a>
-              <Link href="/login" className="text-sm text-white/50 hover:text-white transition-colors">Anmelden</Link>
-              <Link href="/registrieren" className="btn btn-sm text-white border border-white/15 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all">
-                Kostenlos starten
-              </Link>
-            </div>
-            <div className="md:hidden flex flex-col items-end gap-2">
-              <div className="flex items-center gap-3">
-                <Link href="/login" className="text-sm text-white/60">Anmelden</Link>
-                <Link href="/registrieren" className="btn btn-sm !px-3 text-white border border-white/15 bg-white/5">
+      <main id="inhalt">
+        {/* ── Hero ─────────────────────────────────────────── */}
+        <section className="mx-auto max-w-6xl px-4 pb-16 pt-12 sm:px-6 sm:pt-16 lg:px-8 lg:pb-24 lg:pt-20">
+          <div className="grid items-center gap-12 lg:grid-cols-[1.02fr_1fr] lg:gap-14">
+            <div>
+              <p className="eyebrow">Basaltemperatur-App · Zyklustagebuch im Browser</p>
+              <h1 className="font-display mt-4 text-[2.6rem] text-[var(--text)] sm:text-6xl lg:text-[4.1rem]">
+                Basaltemperatur eintragen. Kurve sehen. Mehr nicht.
+              </h1>
+              <p className="mt-6 max-w-xl text-lg leading-relaxed text-[var(--text-secondary)]">
+                Ein privates Tagebuch für Temperatur und Periode. Das Eintragen ist kostenlos.
+                Kurve, Statistik und PDF-Export schaltest du einmalig für 9,99&nbsp;€ frei –
+                ohne Abo und ohne Werbung.
+              </p>
+              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-5">
+                <Link href="/registrieren" className="btn btn-primary btn-xl">
                   Kostenlos starten
+                  <ArrowRight className="h-5 w-5" aria-hidden />
+                </Link>
+                <Link href="/werkzeuge/temperatur-hilfslinie" className="link-quiet text-[15px] font-medium">
+                  Hilfslinie ohne Konto berechnen
                 </Link>
               </div>
-              <a
-                href={appStoreInfoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-2.5 py-1 text-[11px] font-medium text-white/70"
-              >
-                <Smartphone className="h-3.5 w-3.5" />
-                App Store bald verfügbar
-              </a>
-            </div>
-          </div>
-        </nav>
-
-        {/* Hero Content */}
-        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 sm:px-6 lg:px-8 pt-12 sm:pt-24 pb-16 sm:pb-32">
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/5 backdrop-blur-md border border-white/10 px-4 py-1.5 text-xs sm:text-sm text-white/80 font-medium mb-6 sm:mb-8 animate-fade-in">
-            <Heart className="h-4 w-4 text-rose-400" />
-            Natürliches Zyklustracking
-          </div>
-
-          {/* Headline */}
-          <h1 className="text-3xl sm:text-5xl lg:text-7xl font-extrabold text-white tracking-[-0.04em] leading-[1.05] animate-fade-in animate-stagger-1">
-            Basaltemperatur-App für deinen Zyklus.
-            <br />
-            <span className="text-gradient-hero">Natürlich.</span>
-          </h1>
-
-          {/* Subheadline */}
-          <p className="mt-5 sm:mt-8 text-[15px] sm:text-lg lg:text-xl text-white/55 max-w-2xl mx-auto leading-relaxed animate-fade-in animate-stagger-2">
-            Trage kostenlos deine Einträge ein und schalte bei Bedarf die komplette
-            Zyklusanalyse frei – einfach, sicher und privat.
-          </p>
-
-          {/* CTA Buttons */}
-          <div className="mt-8 sm:mt-12 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 animate-fade-in animate-stagger-3">
-            <Link href="/registrieren" className="w-full sm:w-auto">
-              <button className="btn btn-glow btn-xl animate-glow w-full sm:w-auto">
-                Kostenlos starten
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </Link>
-            <a href="#features" className="w-full sm:w-auto">
-              <button className="btn btn-lg text-white/70 border border-white/10 bg-white/5 backdrop-blur-sm hover:bg-white/10 transition-all w-full sm:w-auto">
-                Mehr erfahren
-              </button>
-            </a>
-          </div>
-
-          <p className="mt-4 text-xs sm:text-sm text-white/35 animate-fade-in animate-stagger-4">
-            Einträge kostenlos · Analyse einmalig 9,99 € · Kein Abo
-          </p>
-          <p className="mt-3 text-xs sm:text-sm text-white/45 animate-fade-in animate-stagger-4">
-            iOS-App folgt:
-            {' '}
-            <a
-              href={appStoreInfoUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 text-white/80 hover:text-white underline underline-offset-2"
-            >
-              App Store Link
-              <ExternalLink className="h-3.5 w-3.5" />
-            </a>
-          </p>
-
-          {/* Floating Glass Chart Preview */}
-          <div className="mt-10 sm:mt-20 max-w-3xl mx-auto animate-slide-up animate-stagger-5 animate-float">
-            <div className="sm:hidden glass-dark p-4 rounded-3xl text-left">
-              <p className="text-xs uppercase tracking-[0.08em] text-white/45 font-semibold">Web-App jetzt verfügbar</p>
-              <ul className="mt-3 space-y-2 text-sm text-white/80">
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-                  Temperatur und Periode kostenlos eintragen
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-                  Analyse optional einmalig freischalten
-                </li>
-                <li className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-emerald-400 shrink-0" />
-                  iOS-App folgt im App Store
-                </li>
-              </ul>
-            </div>
-
-            <div className="hidden sm:block glass-dark p-6 sm:p-8 rounded-[28px]">
-              <svg viewBox="0 0 800 260" className="w-full" aria-label="Beispiel Temperaturkurve">
-                <defs>
-                  <linearGradient id="heroGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#E8788A" stopOpacity="0.25" />
-                    <stop offset="100%" stopColor="#E8788A" stopOpacity="0" />
-                  </linearGradient>
-                  <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-                    <stop offset="0%" stopColor="#E8788A" />
-                    <stop offset="100%" stopColor="#7B61FF" />
-                  </linearGradient>
-                </defs>
-
-                {/* Period background */}
-                <rect x="40" y="15" width="100" height="220" rx="14" fill="rgba(232,93,117,0.08)" />
-                <text x="90" y="250" textAnchor="middle" fill="#E85D75" fontSize="11" fontWeight="600">Periode</text>
-
-                {/* Grid lines */}
-                {[37.2, 37.0, 36.8, 36.6, 36.4].map((v, i) => (
-                  <g key={v}>
-                    <text x="18" y={28 + i * 50} textAnchor="middle" fill="rgba(255,255,255,0.25)" fontSize="10">{v.toFixed(1)}</text>
-                    <line x1="38" y1={28 + i * 50} x2="780" y2={28 + i * 50} stroke="rgba(255,255,255,0.05)" strokeWidth="1" />
-                  </g>
-                ))}
-
-                {/* Cover line */}
-                <line x1="38" y1="168" x2="780" y2="168" stroke="#F59E0B" strokeWidth="1.5" strokeDasharray="6 4" opacity="0.5" />
-                <text x="785" y="168" fill="#F59E0B" fontSize="10" fontWeight="600" dominantBaseline="middle" opacity="0.6">Cover</text>
-
-                {/* Area fill */}
-                <path
-                  d="M60,200 L100,192 L140,188 L180,200 L220,196 L260,183 L300,188 L340,183 L380,178 L420,168 L460,78 L500,68 L540,63 L580,73 L620,68 L660,78 L700,73 L740,70 L740,235 L60,235 Z"
-                  fill="url(#heroGrad)"
-                />
-
-                {/* Temperature line */}
-                <polyline
-                  points="60,200 100,192 140,188 180,200 220,196 260,183 300,188 340,183 380,178 420,168 460,78 500,68 540,63 580,73 620,68 660,78 700,73 740,70"
-                  fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
-                  style={{ filter: 'drop-shadow(0 2px 8px rgba(232, 120, 138, 0.4))' }}
-                />
-
-                {/* Data points */}
-                {[[60, 200], [100, 192], [140, 188], [180, 200], [220, 196], [260, 183], [300, 188], [340, 183], [380, 178], [420, 168], [460, 78], [500, 68], [540, 63], [580, 73], [620, 68], [660, 78], [700, 73], [740, 70]].map(([cx, cy]) => (
-                  <circle key={`${cx}-${cy}`} cx={cx} cy={cy} r="4" fill="#0F1029" stroke="url(#lineGrad)" strokeWidth="2" />
-                ))}
-
-                {/* Ovulation marker */}
-                <circle cx="420" cy="168" r="10" fill="rgba(123,97,255,0.2)" stroke="#7B61FF" strokeWidth="2" />
-                <circle cx="420" cy="168" r="4" fill="#7B61FF" />
-                <text x="420" y="152" textAnchor="middle" fill="#7B61FF" fontSize="11" fontWeight="700">Anstieg</text>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        {/* Bottom fade into white */}
-        <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-[#F5F6FA] to-transparent z-10" />
-      </section>
-
-      {/* ═══════════════════════════════════════════════════
-          TRUST BADGES
-          ═══════════════════════════════════════════════════ */}
-      <section className="py-8 sm:py-10 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
-            {[
-              { icon: Lock, label: 'DSGVO-konform', sublabel: 'Daten in Deutschland', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-              { icon: Shield, label: 'Made in Germany', sublabel: 'Entwickelt in Hannover', color: 'text-blue-500', bg: 'bg-blue-500/10' },
-              { icon: Zap, label: 'Kein Abo', sublabel: 'Einmalig 9,99 €', color: 'text-amber-500', bg: 'bg-amber-500/10' },
-            ].map((badge, i) => (
-              <div
-                key={badge.label}
-                className={`card card-hover flex items-center sm:items-center text-left sm:text-center p-4 sm:p-6 animate-fade-in animate-stagger-${i + 1}`}
-              >
-                <div className="flex items-center gap-3 sm:flex-col sm:gap-0">
-                  <div className={`p-3 rounded-2xl ${badge.bg} ${badge.color} sm:mb-3`}>
-                    <badge.icon className="h-5 w-5" />
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[var(--text)]">{badge.label}</p>
-                    <p className="text-xs text-[var(--text-muted)] mt-0.5">{badge.sublabel}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════
-          FEATURES
-          ═══════════════════════════════════════════════════ */}
-      <section id="features" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Alles für deinen Zyklus</h2>
-            <p className="mt-4 text-lg text-[var(--text-secondary)]">Kostenlos eintragen. Analyse bei Bedarf freischalten.</p>
-          </div>
-          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {features.map((f, i) => (
-              <div key={f.title} className={`card card-hover group animate-fade-in animate-stagger-${i + 1}`}>
-                <div className={`flex h-12 w-12 items-center justify-center rounded-2xl mb-5 transition-all duration-500 group-hover:scale-110 group-hover:shadow-lg ${f.iconBg} ${f.iconColor}`}>
-                  <f.icon className="h-6 w-6" />
-                </div>
-                <span className={`inline-flex text-[10px] font-semibold px-2 py-1 rounded-full mb-3 ${
-                  f.tier === 'Kostenlos'
-                    ? 'bg-emerald-100 text-emerald-700'
-                    : 'bg-rose-100 text-rose-700'
-                }`}>
-                  {f.tier}
-                </span>
-                <h3 className="text-lg font-bold mb-2 text-[var(--text)] tracking-tight">{f.title}</h3>
-                <p className="leading-relaxed text-sm text-[var(--text-secondary)]">{f.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ═══════════════════════════════════════════════════
-          HOW IT WORKS
-          ═══════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg-secondary)]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">So einfach geht&apos;s</h2>
-          </div>
-          <div className="grid gap-8 md:grid-cols-3">
-            {[
-              { step: '1', title: 'Registrieren', desc: 'Erstelle in Sekunden deinen Account.' },
-              { step: '2', title: 'Temperatur eintragen', desc: 'Miss morgens deine Basaltemperatur und trage sie ein.' },
-              { step: '3', title: 'Zyklus verstehen', desc: 'Deine Kurve zeigt dir Periode, Temperaturanstiege und Muster.' },
-            ].map((item, i) => (
-              <div key={item.step} className={`text-center animate-fade-in animate-stagger-${i + 1}`}>
-                <div className="inline-flex items-center justify-center h-16 w-16 rounded-3xl bg-gradient-to-br from-rose-400 to-violet-500 text-white text-2xl font-bold mb-6 shadow-lg shadow-rose-500/20">
-                  {item.step}
-                </div>
-                <h3 className="text-lg font-bold mb-2 text-[var(--text)] tracking-tight">{item.title}</h3>
-                <p className="text-[var(--text-secondary)]">{item.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      <div className="mx-auto max-w-6xl px-4 pt-10"><Link href="/werkzeuge/temperatur-hilfslinie" className="font-semibold text-rose-700 underline">Temperatur-Hilfslinie ohne Anmeldung ausprobieren</Link> · <Link href="/ueber-uns" className="text-rose-700 underline">Über uns</Link></div>
-      <HomeArticleLinks />
-
-      {/* ═══════════════════════════════════════════════════
-          FAQ
-          ═══════════════════════════════════════════════════ */}
-      <section id="faq" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Häufige Fragen</h2>
-            <p className="mt-4 text-lg text-[var(--text-secondary)]">Kurz und transparent beantwortet.</p>
-          </div>
-          <div className="space-y-4">
-            {faqItems.map((item, i) => (
-              <div key={item.question} className={`card animate-fade-in animate-stagger-${i + 1}`}>
-                <h3 className="text-lg font-bold text-[var(--text)] tracking-tight">{item.question}</h3>
-                <p className="mt-2 text-sm leading-relaxed text-[var(--text-secondary)]">{item.answer}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-
-      {/* ═══════════════════════════════════════════════════
-          PRICING — Shimmer Border
-          ═══════════════════════════════════════════════════ */}
-      <section id="pricing" className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-lg mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-[var(--text)] tracking-[-0.04em]">Ein Preis. Für immer.</h2>
-            <p className="mt-4 text-lg text-[var(--text-secondary)]">Einträge bleiben kostenlos. Kein Abo. Keine versteckten Kosten.</p>
-          </div>
-
-          <div className="shimmer-border rounded-[24px]">
-            <div className="card card-lg relative overflow-visible" style={{ margin: '2px', borderRadius: '22px' }}>
-              {/* Lifetime badge */}
-              <div className="absolute -top-4 left-1/2 -translate-x-1/2 z-10">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-rose-500 to-violet-500 px-5 py-1.5 text-sm font-bold text-white shadow-lg shadow-rose-500/25">
-                  <Sparkles className="h-4 w-4" />
-                  Lifetime
-                </span>
-              </div>
-
-              <div className="text-center pt-4">
-                <h3 className="text-xl font-bold text-[var(--text)]">Vollzugang</h3>
-                <div className="mt-4 flex items-baseline justify-center gap-1">
-                  <span className="text-6xl font-extrabold text-[var(--text)] tracking-[-0.04em]">9,99</span>
-                  <span className="text-2xl text-[var(--text-muted)]">€</span>
-                </div>
-                <p className="mt-2 text-sm text-[var(--text-muted)]">Einmalige Zahlung · Kein Abo</p>
-              </div>
-
-              <ul className="mt-8 space-y-3.5">
-                {lifetimeFeatures.map((feature) => (
-                  <li key={feature} className="flex items-start gap-3">
-                    <CheckCircle className="h-5 w-5 text-emerald-500 shrink-0 mt-0.5" />
-                    <span className="text-[var(--text-secondary)] text-sm">{feature}</span>
+              <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-sm text-[var(--text-secondary)]">
+                {facts.map((fact) => (
+                  <li key={fact} className="flex items-center gap-1.5">
+                    <Check className="h-4 w-4 text-[var(--emerald)]" aria-hidden />
+                    {fact}
                   </li>
                 ))}
               </ul>
+            </div>
 
-              <div className="mt-8">
-                <Link href="/registrieren" className="block">
-                  <button className="btn btn-glow w-full btn-lg">
-                    Jetzt freischalten
-                    <ArrowRight className="h-5 w-5" />
-                  </button>
-                </Link>
+            <figure className="relative">
+              <div className="paper-grid rounded-2xl border border-[var(--card-border)] p-4 shadow-strong sm:p-6">
+                <div className="flex items-baseline justify-between gap-4">
+                  <p className="text-sm font-semibold text-[var(--text)]">Zyklus 4</p>
+                  <p className="text-xs text-[var(--text-muted)]">28 Tage · Beispieldaten</p>
+                </div>
+                <div className="mt-2">
+                  <ExampleChart />
+                </div>
+                <dl className="mt-3 grid grid-cols-3 divide-x divide-[var(--card-border)] rounded-xl border border-[var(--card-border)] bg-white/85 text-center">
+                  {[
+                    ['Heute', '36,58 °C'],
+                    ['Ø Zykluslänge', '29 Tage'],
+                    ['Hochlage', '+0,39 °C'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="px-2 py-3">
+                      <dt className="text-[11px] text-[var(--text-muted)]">{label}</dt>
+                      <dd className="mt-0.5 text-[15px] font-semibold tabular-nums text-[var(--text)]">{value}</dd>
+                    </div>
+                  ))}
+                </dl>
+              </div>
+              <figcaption className="mt-3 text-xs text-[var(--text-muted)]">
+                So sieht die Kurve in der Analyse aus. Die Werte sind ein erfundenes Beispiel.
+              </figcaption>
+            </figure>
+          </div>
+        </section>
+
+        {/* ── Purpose ──────────────────────────────────────── */}
+        <section aria-labelledby="zweck" className="border-y border-[var(--card-border)] bg-[var(--bg-secondary)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
+            <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:gap-16">
+              <div>
+                <h2 id="zweck" className="font-display text-4xl text-[var(--text)] sm:text-5xl">
+                  Ein Tagebuch. Kein Orakel.
+                </h2>
+                <p className="mt-5 max-w-md leading-relaxed text-[var(--text-secondary)]">
+                  Basaltemperatur hält fest, was du misst, und zeigt es dir übersichtlich. Was die
+                  Werte für dich bedeuten, entscheidest du – oder besprichst es mit deiner Ärztin
+                  oder deinem Arzt.
+                </p>
+              </div>
+              <div className="grid gap-8 sm:grid-cols-2">
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--text)]">Das macht die App</h3>
+                  <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text-secondary)]">
+                    {purposeDoes.map((item) => (
+                      <li key={item} className="flex gap-2.5">
+                        <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold text-[var(--text)]">Das macht sie bewusst nicht</h3>
+                  <ul className="mt-4 space-y-3 text-[15px] leading-snug text-[var(--text-secondary)]">
+                    {purposeDoesNot.map((item) => (
+                      <li key={item} className="flex gap-2.5">
+                        <Minus className="mt-0.5 h-4 w-4 shrink-0 text-[var(--text-muted)]" aria-hidden />
+                        {item}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* ═══════════════════════════════════════════════════
-          CTA — Gradient Banner
-          ═══════════════════════════════════════════════════ */}
-      <section className="py-16 sm:py-24 px-4 sm:px-6 lg:px-8 bg-[var(--bg)]">
-        <div className="max-w-4xl mx-auto text-center rounded-[28px] p-8 sm:p-16 relative overflow-hidden" style={{
-          background: 'linear-gradient(135deg, var(--rose) 0%, var(--violet) 100%)',
-        }}>
-          {/* Decorative orb inside */}
-          <div className="absolute -top-20 -right-20 w-[200px] h-[200px] rounded-full bg-white/10 blur-3xl" />
-          <div className="absolute -bottom-20 -left-20 w-[200px] h-[200px] rounded-full bg-white/5 blur-3xl" />
-
-          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white tracking-[-0.04em] relative z-10">
-            Bereit, deinen Zyklus zu verstehen?
+        {/* ── Features ─────────────────────────────────────── */}
+        <section id="features" aria-labelledby="funktionen" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <h2 id="funktionen" className="font-display max-w-2xl text-4xl text-[var(--text)] sm:text-5xl">
+            Drei Dinge, ordentlich gemacht
           </h2>
-          <p className="mt-4 text-base sm:text-lg text-white/70 relative z-10">
-            Starte jetzt und behalte deine Basaltemperatur im Blick.
-          </p>
-          <div className="mt-8 relative z-10">
-            <Link href="/registrieren">
-              <button className="btn btn-xl bg-white text-[var(--rose-vibrant)] font-extrabold hover:bg-white/90 active:scale-[0.97] transition-all shadow-xl shadow-black/10">
-                Jetzt registrieren
-                <ArrowRight className="h-5 w-5" />
-              </button>
-            </Link>
-          </div>
-        </div>
-      </section>
 
-      {/* ═══════════════════════════════════════════════════
-          FOOTER
-          ═══════════════════════════════════════════════════ */}
-      <footer className="py-12 px-4 sm:px-6 lg:px-8 bg-[var(--bg-secondary)] border-t border-[var(--card-border)]">
-        <div className="max-w-6xl mx-auto">
-          <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <Logo size="sm" />
-                <span className="font-bold text-sm text-[var(--text)]">Basaltemperatur</span>
+          <div className="mt-12 space-y-14 lg:mt-16 lg:space-y-20">
+            {/* 1 — Eintragen */}
+            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+              <div>
+                <p className="eyebrow">Kostenlos</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Eintragen in zehn Sekunden</h3>
+                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
+                  Wert eintippen, fertig. Messzeit und Schlafdauer kannst du ergänzen. War die
+                  Messung gestört – krank, kurze Nacht, Alkohol –, markierst du sie, damit sie die
+                  Auswertung nicht verfälscht.
+                </p>
               </div>
-              <p className="mt-4 text-sm text-[var(--text-muted)]">
-                Dein Zyklustracker – einfach, sicher und privat.
+              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6" aria-hidden>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-semibold text-[var(--text)]">Eintrag · Donnerstag, 12. November</p>
+                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
+                </div>
+                <div className="mt-4 grid grid-cols-3 gap-3">
+                  {[
+                    ['Temperatur', '36,45 °C'],
+                    ['Messzeit', '06:40'],
+                    ['Schlaf', '7,5 h'],
+                  ].map(([label, value]) => (
+                    <div key={label} className="rounded-xl border border-[var(--card-border)] bg-[var(--bg)] px-3 py-2.5">
+                      <p className="text-[11px] text-[var(--text-muted)]">{label}</p>
+                      <p className="mt-0.5 text-[15px] font-semibold tabular-nums text-[var(--text)]">{value}</p>
+                    </div>
+                  ))}
+                </div>
+                <div className="mt-3 flex flex-wrap gap-2 text-xs">
+                  <span className="rounded-md border border-[var(--card-border)] px-2.5 py-1.5 text-[var(--text-secondary)]">Messung gestört: nein</span>
+                  <span className="rounded-md bg-rose-100 px-2.5 py-1.5 font-medium text-rose-800">Periode: leicht</span>
+                  <span className="rounded-md border border-[var(--card-border)] px-2.5 py-1.5 text-[var(--text-secondary)]">Notiz: spät ins Bett</span>
+                </div>
+              </div>
+            </article>
+
+            {/* 2 — Kalender */}
+            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+              <div className="lg:order-2">
+                <p className="eyebrow">Kostenlos</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Periode im Kalender</h3>
+                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
+                  Periodentage markierst du mit einem Tipp, auf Wunsch mit Blutungsstärke. Der
+                  Kalender zeigt, an welchen Tagen du gemessen hast und wann deine Periode war.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6 lg:order-1" aria-hidden>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-semibold text-[var(--text)]">November</p>
+                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
+                </div>
+                <div className="mt-4 grid grid-cols-7 gap-1.5 text-center text-xs tabular-nums">
+                  {['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So'].map((day) => (
+                    <span key={day} className="pb-1 text-[11px] text-[var(--text-muted)]">{day}</span>
+                  ))}
+                  {Array.from({ length: 28 }, (_, index) => index + 2).map((day) => {
+                    const isPeriod = day >= 3 && day <= 7
+                    const measured = !isPeriod && day <= 20 && day !== 14
+                    return (
+                      <span
+                        key={day}
+                        className={`flex aspect-square items-center justify-center rounded-lg border ${
+                          isPeriod
+                            ? 'border-rose-300 bg-rose-100 font-semibold text-rose-800'
+                            : measured
+                              ? 'border-[var(--card-border)] bg-[var(--bg)] text-[var(--text)]'
+                              : 'border-transparent text-[var(--text-muted)]'
+                        } ${day === 20 ? 'ring-2 ring-[var(--text)] ring-offset-1' : ''}`}
+                      >
+                        {day}
+                      </span>
+                    )
+                  })}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-4 text-xs text-[var(--text-secondary)]">
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded border border-rose-300 bg-rose-100" />Periode</span>
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded border border-[var(--card-border)] bg-[var(--bg)]" />Temperatur eingetragen</span>
+                  <span className="flex items-center gap-1.5"><span className="h-3 w-3 rounded ring-2 ring-[var(--text)]" />Heute</span>
+                </div>
+              </div>
+            </article>
+
+            {/* 3 — Analyse */}
+            <article className="grid items-center gap-8 lg:grid-cols-2 lg:gap-16">
+              <div>
+                <p className="eyebrow">Analyse · einmalig 9,99&nbsp;€</p>
+                <h3 className="mt-2 text-2xl font-semibold text-[var(--text)]">Kurve, Statistik, PDF</h3>
+                <p className="mt-3 max-w-md leading-relaxed text-[var(--text-secondary)]">
+                  Die Analyse zeichnet deine Kurve mit Hilfslinie und markiert Temperaturanstiege
+                  rückblickend. Dazu kommen Zykluslängen, der Vergleich mehrerer Zyklen, eine
+                  statistische Schätzung des nächsten Periodenbeginns und der PDF-Export – zum
+                  Beispiel für den nächsten Arzttermin.
+                </p>
+              </div>
+              <div className="rounded-2xl border border-[var(--card-border)] bg-white p-5 shadow-card sm:p-6" aria-hidden>
+                <div className="flex items-baseline justify-between">
+                  <p className="text-sm font-semibold text-[var(--text)]">Zykluslängen</p>
+                  <p className="text-xs text-[var(--text-muted)]">Beispiel</p>
+                </div>
+                <ul className="mt-4 space-y-2.5 text-sm tabular-nums">
+                  {[
+                    ['Juli', 28],
+                    ['August', 31],
+                    ['September', 29],
+                    ['Oktober', 28],
+                  ].map(([month, days]) => (
+                    <li key={month} className="grid grid-cols-[5.5rem_1fr_3.5rem] items-center gap-3">
+                      <span className="text-[var(--text-secondary)]">{month}</span>
+                      <span className="h-2.5 rounded-full bg-[var(--bg-secondary)]">
+                        <span className="block h-2.5 rounded-full bg-[var(--rose)]" style={{ width: `${(Number(days) / 34) * 100}%` }} />
+                      </span>
+                      <span className="text-right font-semibold text-[var(--text)]">{days} Tage</span>
+                    </li>
+                  ))}
+                </ul>
+                <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-[var(--card-border)] pt-4 text-sm">
+                  <div>
+                    <dt className="text-[11px] text-[var(--text-muted)]">Durchschnitt</dt>
+                    <dd className="font-semibold tabular-nums text-[var(--text)]">29 Tage</dd>
+                  </div>
+                  <div>
+                    <dt className="text-[11px] text-[var(--text-muted)]">Nächste Periode (Schätzung)</dt>
+                    <dd className="font-semibold tabular-nums text-[var(--text)]">um den 1. Dezember</dd>
+                  </div>
+                </dl>
+              </div>
+            </article>
+          </div>
+        </section>
+
+        {/* ── Pricing ──────────────────────────────────────── */}
+        <section id="pricing" aria-labelledby="preis" className="border-y border-[var(--card-border)] bg-[var(--bg-secondary)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+            <div className="max-w-2xl">
+              <h2 id="preis" className="font-display text-4xl text-[var(--text)] sm:text-5xl">Einmal zahlen statt Abo</h2>
+              <p className="mt-5 leading-relaxed text-[var(--text-secondary)]">
+                Das Eintragen bleibt kostenlos. Die Analyse kaufst du einmal – wenn du sie brauchst.
               </p>
             </div>
-            <div>
-              <h4 className="font-bold mb-4 text-sm text-[var(--text)]">Produkt</h4>
-              <ul className="space-y-2.5 text-sm text-[var(--text-secondary)]">
-                <li><a href="#features" className="hover:text-[var(--rose)] transition-colors">Features</a></li>
-                <li><a href="#faq" className="hover:text-[var(--rose)] transition-colors">FAQ</a></li>
-                <li><a href="#pricing" className="hover:text-[var(--rose)] transition-colors">Preis</a></li>
-                <li><Link href="/de/blog" className="hover:text-[var(--rose)] transition-colors">Blog</Link></li>
-                <li>
-                  <a href={appStoreInfoUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-[var(--rose)] transition-colors">
-                    App Store (bald)
-                    <ExternalLink className="h-3.5 w-3.5" />
-                  </a>
-                </li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4 text-sm text-[var(--text)]">Rechtliches</h4>
-              <ul className="space-y-2.5 text-sm text-[var(--text-secondary)]">
-                <li><Link href="/impressum" className="hover:text-[var(--rose)] transition-colors">Impressum</Link></li>
-                <li><Link href="/datenschutz" className="hover:text-[var(--rose)] transition-colors">Datenschutz</Link></li>
-                <li><Link href="/agb" className="hover:text-[var(--rose)] transition-colors">AGB</Link></li>
-                <li><Link href="/widerruf" className="hover:text-[var(--rose)] transition-colors">Widerrufsbelehrung</Link></li>
-                <li><Link href="/widerruf-ausueben" className="font-semibold text-[var(--rose)] hover:underline transition-colors">Vertrag widerrufen</Link></li>
-                <li><ConsentSettingsLink className="hover:text-[var(--rose)] transition-colors" /></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-bold mb-4 text-sm text-[var(--text)]">Kontakt</h4>
-              <ul className="space-y-2.5 text-sm text-[var(--text-secondary)]">
-                <li>
-                  <a href="mailto:info@kristianhoffmann.de" className="hover:text-[var(--rose)] transition-colors">
-                    info@kristianhoffmann.de
-                  </a>
-                </li>
-              </ul>
+
+            <div className="mt-10 grid gap-6 lg:grid-cols-2">
+              <div className="flex flex-col rounded-2xl border border-[var(--card-border)] bg-white p-6 sm:p-8">
+                <h3 className="text-lg font-semibold text-[var(--text)]">Eintragen</h3>
+                <p className="mt-3 flex items-baseline gap-2">
+                  <span className="font-display text-5xl tabular-nums text-[var(--text)]">0&nbsp;€</span>
+                  <span className="text-sm text-[var(--text-muted)]">dauerhaft</span>
+                </p>
+                <ul className="mt-6 space-y-3 text-[15px] text-[var(--text-secondary)]">
+                  {freeFeatures.map((feature) => (
+                    <li key={feature} className="flex gap-2.5">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-8">
+                  <Link href="/registrieren" className="btn btn-secondary btn-lg w-full">Kostenlos starten</Link>
+                </div>
+              </div>
+
+              <div className="flex flex-col rounded-2xl border-2 border-[var(--text)] bg-white p-6 sm:p-8">
+                <h3 className="text-lg font-semibold text-[var(--text)]">Analyse</h3>
+                <p className="mt-3 flex items-baseline gap-2">
+                  <span className="font-display text-5xl tabular-nums text-[var(--text)]">9,99&nbsp;€</span>
+                  <span className="text-sm text-[var(--text-muted)]">einmalig</span>
+                </p>
+                <ul className="mt-6 space-y-3 text-[15px] text-[var(--text-secondary)]">
+                  {paidFeatures.map((feature) => (
+                    <li key={feature} className="flex gap-2.5">
+                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--emerald)]" aria-hidden />
+                      {feature}
+                    </li>
+                  ))}
+                </ul>
+                <div className="mt-auto pt-8">
+                  <Link href="/registrieren" className="btn btn-primary btn-lg w-full">
+                    Konto anlegen und später freischalten
+                  </Link>
+                  <p className="mt-3 text-xs leading-relaxed text-[var(--text-muted)]">
+                    Endpreis; gemäß § 19 UStG wird keine Umsatzsteuer berechnet. Kein Abo, keine
+                    Folgekosten. Du kaufst im Konto und kannst den Kauf 14 Tage lang{' '}
+                    <Link href="/widerruf" className="underline underline-offset-2">widerrufen</Link>.
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-          <div className="mt-12 pt-8 border-t border-[var(--card-border)] text-center text-sm text-[var(--text-muted)]">
-            <p>
-              © {new Date().getFullYear()} Basaltemperatur. Ein Projekt von{' '}
-              <a
-                href="https://www.kristianhoffmann.de"
-                className="underline underline-offset-2 transition-colors hover:text-gray-900 dark:hover:text-white"
-              >
-                Kristian Hoffmann
-              </a>
-              .
-            </p>
+        </section>
+
+        {/* ── Steps ────────────────────────────────────────── */}
+        <section aria-labelledby="start" className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+          <h2 id="start" className="font-display text-4xl text-[var(--text)] sm:text-5xl">So fängst du an</h2>
+          <ol className="mt-10 grid gap-10 md:grid-cols-3 md:gap-8">
+            {steps.map((step, index) => (
+              <li key={step.title} className="border-t border-[var(--text)] pt-5">
+                <span className="font-display text-4xl tabular-nums text-[var(--rose)]">{index + 1}</span>
+                <h3 className="mt-3 text-lg font-semibold text-[var(--text)]">{step.title}</h3>
+                <p className="mt-2 leading-relaxed text-[var(--text-secondary)]">{step.text}</p>
+              </li>
+            ))}
+          </ol>
+        </section>
+
+        <HomeArticleLinks />
+
+        {/* ── FAQ ──────────────────────────────────────────── */}
+        <section id="faq" aria-labelledby="fragen" className="border-t border-[var(--card-border)]">
+          <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
+            <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:gap-16">
+              <div>
+                <h2 id="fragen" className="font-display text-4xl text-[var(--text)] sm:text-5xl">Häufige Fragen</h2>
+                <p className="mt-5 max-w-sm leading-relaxed text-[var(--text-secondary)]">
+                  Etwas fehlt? Schreib uns über die <Link href="/support" className="link-quiet">Support-Seite</Link>.
+                </p>
+              </div>
+              <dl className="divide-y divide-[var(--card-border)] border-y border-[var(--card-border)]">
+                {faqItems.map((item) => (
+                  <div key={item.question} className="py-6">
+                    <dt className="text-lg font-semibold text-[var(--text)]">{item.question}</dt>
+                    <dd className="mt-2 leading-relaxed text-[var(--text-secondary)]">{item.answer}</dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
           </div>
-        </div>
-      </footer>
+        </section>
+
+        {/* ── Closing ──────────────────────────────────────── */}
+        <section aria-labelledby="schluss" className="border-t border-[var(--card-border)] bg-[var(--bg-secondary)]">
+          <div className="mx-auto flex max-w-6xl flex-col gap-6 px-4 py-14 sm:px-6 md:flex-row md:items-center md:justify-between lg:px-8">
+            <div>
+              <h2 id="schluss" className="font-display text-3xl text-[var(--text)] sm:text-4xl">Morgen früh den ersten Wert eintragen.</h2>
+              <p className="mt-2 text-[var(--text-secondary)]">Kostenlos, ohne Zahlungsdaten.</p>
+            </div>
+            <Link href="/registrieren" className="btn btn-primary btn-xl shrink-0">
+              Kostenlos starten
+              <ArrowRight className="h-5 w-5" aria-hidden />
+            </Link>
+          </div>
+        </section>
+      </main>
+
+      <SiteFooter />
     </div>
   )
 }

@@ -11,7 +11,7 @@ import Register from '@/app/(auth)/registrieren/page'
 import ForgotPassword from '@/app/(auth)/passwort-vergessen/page'
 import ResetPassword from '@/app/(auth)/passwort-aendern/page'
 it('reads login feedback from asynchronous Next.js searchParams', async () => {
-  expect(renderToStaticMarkup(await Login({ searchParams: Promise.resolve({ message: 'email_confirmed' }) }))).toContain('E-Mail bestätigt!')
+  expect(renderToStaticMarkup(await Login({ searchParams: Promise.resolve({ message: 'email_confirmed' }) }))).toContain('E-Mail bestätigt.')
 })
 it('reads registration feedback from asynchronous Next.js searchParams', async () => {
   expect(renderToStaticMarkup(await Register({ searchParams: Promise.resolve({ error: 'Lokaler Testfehler' }) }))).toContain('Lokaler Testfehler')

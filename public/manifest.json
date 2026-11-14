@@ -1,16 +1,16 @@
 {
   "name": "Basaltemperatur",
   "short_name": "Basaltemp",
-  "description": "Zyklustracking mit Basaltemperatur, Periodenkalender und statistischen Prognosen.",
+  "description": "Privates Zyklustagebuch für Basaltemperatur und Periode.",
   "lang": "de-DE",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],
   "orientation": "portrait-primary",
-  "background_color": "#0F1029",
-  "theme_color": "#0F1029",
-  "categories": ["health", "lifestyle"],
+  "background_color": "#FAF7F2",
+  "theme_color": "#FAF7F2",
+  "categories": ["lifestyle", "health"],
   "icons": [
     {
       "src": "/icons/icon-192x192.png",

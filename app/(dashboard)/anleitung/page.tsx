@@ -22,17 +22,17 @@ const steps = [
     },
     {
         title: '2. Periode markieren',
-        text: 'Markiere alle Blutungstage im Kalender, damit Zyklusphase und Vorhersagen genauer werden.',
+        text: 'Markiere alle Blutungstage im Kalender. Daraus ergeben sich deine Zykluslängen.',
     },
     {
         title: '3. Regelmäßig dranbleiben',
-        text: 'Je mehr ungestörte Daten du hast, desto stabiler werden Temperaturauswertung sowie Zyklus- und Periodenprognosen.',
+        text: 'Je mehr ungestörte Werte du einträgst, desto aussagekräftiger werden Kurve, Statistik und die Schätzung des nächsten Periodenbeginns.',
     },
 ]
 
 const premiumItems = [
     'Komplette Analyse mit Trends und KPIs',
-    'Temperaturauswertung sowie Zyklus- und Periodenprognosen',
+    'Temperaturkurve mit Hilfslinie und statistische Schätzung des nächsten Periodenbeginns',
     'Zyklusvergleich über mehrere Monate',
     'PDF-Export für deine Dokumentation',
 ]
@@ -43,7 +43,7 @@ export default function GuidePage() {
             <div>
                 <h1 className="text-2xl font-bold text-[var(--text)]">Anleitung</h1>
                 <p className="text-sm text-[var(--text-secondary)]">
-                    So nutzt du die App sicher und effektiv.
+                    So trägst du ein und liest deine Kurve.
                 </p>
             </div>
 
@@ -75,11 +75,10 @@ export default function GuidePage() {
                 <div className="grid gap-2 sm:grid-cols-2">
                     <LegendItem label="Temperatur eingetragen" color="bg-slate-100 border-slate-200" icon={<Thermometer className="h-4 w-4 text-slate-500" />} />
                     <LegendItem label="Periode" color="bg-rose-50 border-rose-200" icon={<CalendarHeart className="h-4 w-4 text-rose-500" />} />
-                    <LegendItem label="Vor der Zyklusmitte (Prognose)" color="bg-emerald-50 border-emerald-200" icon={<Sparkles className="h-4 w-4 text-emerald-500" />} />
-                    <LegendItem label="Zyklusmitte (Prognose)" color="bg-amber-50 border-amber-200" icon={<Sparkles className="h-4 w-4 text-amber-500" />} />
+                    <LegendItem label="Periode (Schätzung)" color="bg-rose-50 border-dashed border-rose-300" icon={<Sparkles className="h-4 w-4 text-rose-400" />} />
                 </div>
                 <p className="text-xs text-[var(--text-muted)]">
-                    Prognosen sind Schätzungen auf Basis deiner bisherigen Daten und können vom tatsächlichen Verlauf abweichen.
+                    Die Schätzung der nächsten Periode beruht auf deinen bisherigen Zykluslängen und kann vom tatsächlichen Verlauf abweichen. Die App bestimmt keine fruchtbaren Tage und ist nicht zur Verhütung geeignet.
                 </p>
             </section>
 

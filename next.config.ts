@@ -110,6 +110,16 @@ const nextConfig: NextConfig = {
                         key: 'Referrer-Policy',
                         value: 'strict-origin-when-cross-origin',
                     },
+                    // The site is HTTPS-only (Caddy redirects); pin that in the browser.
+                    {
+                        key: 'Strict-Transport-Security',
+                        value: 'max-age=31536000; includeSubDomains',
+                    },
+                    // A health diary needs none of these device APIs.
+                    {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()',
+                    },
                 ],
             },
         ]

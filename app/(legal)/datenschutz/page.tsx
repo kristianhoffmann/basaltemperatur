@@ -32,7 +32,6 @@ const STORAGE_ROWS: Array<[name: string, kind: string, purpose: string, basis: s
   ['Service-Worker-Cache', 'Cache Storage', 'schnelleres Laden und Offline-Seite', 'notwendig', 'bis zur nächsten App-Version'],
   ['bt_visitor_id', 'Local Storage', 'pseudonyme Besucherkennung der eigenen Statistik', 'Einwilligung', 'bis zum Widerruf oder Löschen des Browser-Speichers'],
   ['bt_session_id, bt_last_url', 'Session Storage', 'Sitzungskennung und vorherige Seite der eigenen Statistik', 'Einwilligung', 'bis zum Schließen des Tabs'],
-  ['seo_autopilot_attribution', 'Cookie', 'merkt sich, über welchen Blogartikel Sie gekommen sind', 'Einwilligung', '30 Tage'],
   ['_ga, _ga_*', 'Cookie', 'Google Analytics', 'Einwilligung', 'bis zu 2 Jahre'],
 ];
 
@@ -64,7 +63,7 @@ export default function DatenschutzPage() {
       <p>Bei der Nutzung von Website und App verarbeiten wir insbesondere:</p>
       <ul>
         <li><strong>Kontodaten:</strong> Name, E-Mail-Adresse, Passwort-Hash, Zeitpunkte von Registrierung, Anmeldung und Einwilligungen</li>
-        <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte, Periodendaten, Zyklusnotizen und daraus berechnete Auswertungen</li>
+        <li><strong>Gesundheitsdaten (Art. 9 DSGVO):</strong> Basaltemperaturwerte mit Messzeit, Schlafdauer und Störfaktoren, Periodendaten, Zervixschleim-Beobachtungen, Notizen und daraus berechnete Auswertungen</li>
         <li><strong>Kaufdaten:</strong> Freischaltungsstatus, Zahlungsreferenz, Zeitpunkt Ihres Verlangens nach sofortigem Beginn</li>
         <li><strong>Technische Daten:</strong> IP-Adresse, Browser- und Geräteangaben, Zugriffszeiten (Server-Logs)</li>
         <li><strong>Statistikdaten</strong> – nur mit Ihrer Einwilligung, siehe Abschnitt 9</li>
@@ -74,14 +73,15 @@ export default function DatenschutzPage() {
         abzusichern und – nur mit Einwilligung – die Nutzung auszuwerten. Wir verkaufen keine
         Daten und geben sie nicht zu Werbezwecken weiter. Eine automatisierte
         Entscheidungsfindung im Sinne von Art. 22 DSGVO findet nicht statt; Zyklusauswertungen
-        und Prognosen sind rein rechnerische Anzeigen ohne rechtliche Wirkung für Sie.
+        und Schätzungen sind rein rechnerische Anzeigen ohne rechtliche Wirkung für Sie.
       </p>
 
       <h2>3. Gesundheitsdaten (Art. 9 DSGVO)</h2>
       <p>
-        Basaltemperatur, Periodendaten (Datum und Stärke der Blutung), Zyklusnotizen (z. B.
-        Krankheit, Schlafstörungen) und die daraus berechneten Angaben (Temperaturanstiege,
-        Zyklusphasen, Prognosen) sind Gesundheitsdaten. Wir verarbeiten sie ausschließlich auf
+        Basaltemperatur (mit Messzeit, Schlafdauer und markierten Störfaktoren), Periodendaten
+        (Datum und Stärke der Blutung), Zervixschleim-Beobachtungen, Notizen (z. B. Krankheit,
+        Schlafstörungen) und die daraus berechneten Angaben (Temperaturanstiege, Zykluslängen,
+        Schätzung des nächsten Periodenbeginns) sind Gesundheitsdaten. Wir verarbeiten sie ausschließlich auf
         Grundlage Ihrer <strong>ausdrücklichen Einwilligung</strong> nach Art. 9 Abs. 2 lit. a
         DSGVO, die Sie bei der Registrierung bzw. beim ersten Einrichten der App gesondert
         erteilen. Zeitpunkt und Fassung der Einwilligung speichern wir als Nachweis.
@@ -136,8 +136,8 @@ export default function DatenschutzPage() {
         Zahlungsdaten geben Sie direkt bei Stripe ein; wir speichern keine Kartennummern oder
         Bankdaten. An Stripe übermitteln wir Ihre E-Mail-Adresse, eine interne Nutzerkennung zur
         Zuordnung der Freischaltung, den Zeitpunkt, zu dem Sie den sofortigen Beginn verlangt
-        haben, und – nur wenn Sie der Statistik zugestimmt haben – den Blogartikel, über den Sie
-        gekommen sind. Für die Vertragsbestätigung per E-Mail erhalten wir von Stripe die dort
+        haben, und – sofern Sie über einen Link aus einem Blogartikel gekommen sind – dessen
+        Kurzbezeichnung (siehe Abschnitt 9a). Für die Vertragsbestätigung per E-Mail erhalten wir von Stripe die dort
         angegebene E-Mail-Adresse und den Namen, die Bestellnummer, den Betrag und den Zeitpunkt
         der Zahlung. Stripe verarbeitet Zahlungsdaten zur Betrugsprävention und wegen
         gesetzlicher Pflichten auch in eigener Verantwortung und kann dabei Daten in die USA

@@ -48,7 +48,7 @@ export default function ImpressumPage() {
         Gemäß § 19 UStG wird keine Umsatzsteuer berechnet (Kleinunternehmerregelung).
       </p>
 
-      <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
+      <h2>Redaktionell verantwortlich nach § 18 Abs. 2 MStV</h2>
       <p>
         {company.name}<br />
         {company.street}<br />
@@ -73,11 +73,12 @@ export default function ImpressumPage() {
       <p>
         Die Basaltemperatur App ist ein persönliches Zyklustagebuch zur Selbstbeobachtung.
         Die App dient <strong>nicht</strong> als Medizinprodukt, Verhütungsmittel oder
-        Diagnosewerkzeug. Sie ersetzt keine ärztliche Beratung oder Untersuchung.
+        Diagnosewerkzeug. Sie bestimmt keine fruchtbaren Tage, sagt keinen Eisprung voraus und
+        ersetzt keine ärztliche Beratung oder Untersuchung.
       </p>
       <p>
-        Rückblickende Auswertungen und statistische Prognosen (z.B. zu Zyklusphasen und zum
-        Periodenbeginn) sind Schätzungen und können individuell abweichen. Für medizinische
+        Rückblickende Auswertungen und die statistische Schätzung des nächsten Periodenbeginns
+        beruhen allein auf den eingetragenen Werten und können individuell abweichen. Für medizinische
         Entscheidungen konsultieren Sie bitte Ihre Ärztin oder Ihren Arzt.
       </p>
 

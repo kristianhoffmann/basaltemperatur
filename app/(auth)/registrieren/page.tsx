@@ -6,11 +6,10 @@ import Link from 'next/link';
 import { RegisterForm } from '@/components/forms/RegisterForm';
 import { SocialLogin } from '@/components/auth/SocialLogin';
 import { googleAuthEnabled } from '@/lib/auth-providers';
-import { Logo } from '@/components/shared/Logo';
 
 export const metadata: Metadata = {
   title: 'Registrieren',
-  description: 'Erstellen Sie Ihr Basaltemperatur-Konto und starten Sie noch heute.',
+  description: 'Kostenloses Konto für das Basaltemperatur-Zyklustagebuch anlegen.',
 };
 
 interface PageProps {
@@ -23,17 +22,10 @@ export default async function RegisterPage({ searchParams }: PageProps) {
 
   return (
     <div className="w-full max-w-md">
-      {/* Logo */}
-      <div className="text-center mb-8">
-        <Link href="/" className="inline-flex items-center gap-2">
-          <Logo size="lg" />
-          <span className="text-xl font-bold text-gray-900">{'Basaltemperatur'}</span>
-        </Link>
-        <h1 className="mt-6 text-2xl font-bold text-gray-900">
-          Konto erstellen
-        </h1>
-        <p className="mt-2 text-gray-600">
-          Starten Sie kostenlos – keine Kreditkarte erforderlich
+      <div className="mb-8">
+        <h1 className="font-display text-4xl text-[var(--text)]">Konto anlegen</h1>
+        <p className="mt-3 text-[var(--text-secondary)]">
+          Kostenlos, ohne Zahlungsdaten. Das Eintragen bleibt dauerhaft frei.
         </p>
       </div>
 
@@ -52,7 +44,7 @@ export default async function RegisterPage({ searchParams }: PageProps) {
       )}
 
       {/* Register Form */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-200 p-8">
+      <div className="rounded-2xl border border-[var(--card-border)] bg-white p-6 shadow-card sm:p-8">
         <RegisterForm from={from} />
 
         {googleAuthEnabled && (
@@ -71,28 +63,19 @@ export default async function RegisterPage({ searchParams }: PageProps) {
         )}
 
         {/* Login Link */}
-        <p className="mt-6 text-center text-sm text-gray-600">
+        <p className="mt-6 text-center text-sm text-[var(--text-secondary)]">
           Bereits ein Konto?{' '}
           <Link
             href={withFrom("/login", from)}
-            className="font-medium text-primary-600 hover:text-primary-500"
+            className="font-semibold text-[var(--text)] underline underline-offset-2"
           >
             Jetzt anmelden
           </Link>
         </p>
       </div>
 
-      {/* Terms */}
-      <p className="mt-6 text-center text-xs text-gray-500">
-        Es gelten unsere{' '}
-        <Link href="/agb" className="text-primary-600 hover:underline">
-          AGB
-        </Link>
-        . Wie wir mit deinen Daten umgehen, steht in der{' '}
-        <Link href="/datenschutz" className="text-primary-600 hover:underline">
-          Datenschutzerklärung
-        </Link>
-        .
+      <p className="mt-6 text-center text-xs leading-relaxed text-[var(--text-muted)]">
+        Basaltemperatur ist ein Zyklustagebuch – kein Medizinprodukt und kein Verhütungsmittel.
       </p>
     </div>
   );

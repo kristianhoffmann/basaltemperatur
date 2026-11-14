@@ -134,7 +134,7 @@ function renderBlock(block: MarkdownBlock, index: number, isLead: boolean): Reac
   }
   if (block.type === 'quote') {
     return (
-      <blockquote key={index} className="rounded-2xl border-l-4 border-violet-400 bg-gradient-to-r from-violet-50 to-rose-50/60 px-6 py-5 text-slate-800">
+      <blockquote key={index} className="rounded-2xl border-l-4 border-[var(--rose)] bg-[var(--bg-secondary)] px-6 py-5 text-slate-800">
         {renderInline(block.text)}
       </blockquote>
     )

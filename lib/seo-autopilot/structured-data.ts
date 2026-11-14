@@ -39,7 +39,12 @@ export function serializeJsonLd(value: unknown) {
 export function siteSchema() {
   const site = getSeoSiteUrl()
   return { '@context': 'https://schema.org', '@graph': [
-    { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Basaltemperatur', url: `${site}/` },
+    { '@type': 'Organization', '@id': `${site}/#organization`, name: 'Basaltemperatur', url: `${site}/`,
+      logo: { '@type': 'ImageObject', url: `${site}/icons/icon-512x512.png`, width: 512, height: 512 },
+      description: 'Privates Zyklustagebuch für Basaltemperatur und Periode. Kein Medizinprodukt, kein Verhütungsmittel.',
+      founder: { '@type': 'Person', name: 'Kristian Hoffmann', url: 'https://www.kristianhoffmann.de' },
+      address: { '@type': 'PostalAddress', addressLocality: 'Hannover', addressCountry: 'DE' },
+      contactPoint: { '@type': 'ContactPoint', contactType: 'customer support', url: `${site}/support`, availableLanguage: 'de' } },
     { '@type': 'WebSite', '@id': `${site}/#website`, name: 'Basaltemperatur', url: `${site}/`,
       inLanguage: 'de-DE', publisher: { '@id': `${site}/#organization` } },
   ] }

@@ -10,9 +10,6 @@ import { UpgradeBanner } from './UpgradeBanner'
 import {
   detectOvulation,
   predictNextPeriod,
-  predictNextOvulation,
-  getFertilityWindow,
-  getFertilityStatus,
   getPredictionReadiness,
 } from '@/lib/ovulation'
 import { format, differenceInDays, parseISO, startOfDay } from 'date-fns'
@@ -63,7 +60,6 @@ export default async function DashboardPage() {
   const profile = profileResult.data as Profile | null
   const hasLifetimeAccess = Boolean(profile?.has_lifetime_access)
   const cycleLength = profile?.cycle_length_default || 28
-  const lutealPhase = profile?.luteal_phase_default || 14
 
   const cyclePeriodEntries = periodEntries.filter(p => p.flow_intensity !== 'spotting')
   const periodDates = cyclePeriodEntries.map(p => p.date).sort()
@@ -97,14 +93,8 @@ export default async function DashboardPage() {
   const lastEntry = entries.length > 0 ? entries[entries.length - 1] : null
 
   const nextPeriod = lastPeriodStart ? predictNextPeriod(lastPeriodStart, cycleLength) : null
-  const nextOvulation = predictionBaselineReady && lastPeriodStart ? predictNextOvulation(lastPeriodStart, cycleLength, lutealPhase) : null
   const today = startOfDay(new Date())
   const daysUntilPeriod = nextPeriod ? differenceInDays(parseISO(nextPeriod), today) : null
-  const daysUntilOvulation = nextOvulation ? differenceInDays(parseISO(nextOvulation), today) : null
-
-  const fertilityWindow = predictionBaselineReady && lastPeriodStart ? getFertilityWindow(lastPeriodStart, cycleLength, lutealPhase) : null
-  const todayStr = format(new Date(), 'yyyy-MM-dd')
-  const fertilityStatus = getFertilityStatus(todayStr, fertilityWindow)
 
   const kpiCards = [
     {
@@ -124,16 +114,11 @@ export default async function DashboardPage() {
     {
       icon: Sparkles,
       label: 'Temperaturanstieg',
-      value: ovulation.ovulationDate
-        ? 'Bestätigt'
-        : predictionBaselineReady && daysUntilOvulation !== null && daysUntilOvulation > 0
-          ? `~${daysUntilOvulation}d`
-          : '–',
+      // Retrospective only: shown once the entered values confirm a rise.
+      value: ovulation.ovulationDate ? 'Bestätigt' : '–',
       subtitle: ovulation.ovulationDate
-        ? format(parseISO(ovulation.ovulationDate), 'd. MMM', { locale: de })
-        : predictionBaselineReady && daysUntilOvulation !== null && daysUntilOvulation > 0 && nextOvulation
-          ? format(parseISO(nextOvulation), 'd. MMM', { locale: de })
-          : primaryPredictionReason,
+        ? `erste höhere Messung am ${format(parseISO(ovulation.ovulationDate), 'd. MMM', { locale: de })}`
+        : 'in den letzten Werten nicht erkennbar',
       iconClass: 'kpi-icon-violet',
     },
     {
@@ -152,15 +137,15 @@ export default async function DashboardPage() {
       {/* Header */}
       <div className="flex items-center justify-between animate-fade-in animate-stagger-1">
         <div>
-          <h1 className="text-2xl font-extrabold text-[var(--text)] tracking-[-0.03em]">
-            Hallo! 👋
+          <h1 className="font-display text-3xl text-[var(--text)]">
+            Dein Tagebuch
           </h1>
           <p className="text-sm mt-0.5 text-[var(--text-muted)]">
             {format(new Date(), "EEEE, d. MMMM yyyy", { locale: de })}
           </p>
         </div>
         <Link href="/eintrag">
-          <button className="btn btn-glow btn-sm">
+          <button className="btn btn-primary btn-sm">
             <PlusCircle className="h-4 w-4" />
             Neuer Eintrag
           </button>
@@ -216,14 +201,14 @@ export default async function DashboardPage() {
         </>
       ) : (
         <>
-          {/* Fertility Status Banner */}
+          {/* Forecast readiness */}
           {!predictionBaselineReady && (
             <div className="card animate-fade-in">
               <p className="text-sm font-semibold text-[var(--text)]">
-                Prognosen bleiben ausgeblendet
+                Periodenschätzung noch ausgeblendet
               </p>
               <p className="text-xs text-[var(--text-muted)] mt-1 leading-relaxed">
-                Zyklus- und Periodenprognosen erscheinen erst, wenn die Datenbasis belastbar genug ist.
+                Die Schätzung des nächsten Periodenbeginns erscheint erst, wenn die Datenbasis belastbar genug ist.
               </p>
               <div className="mt-3 flex flex-wrap gap-2">
                 {predictionReadiness.reasons.map((reason) => (
@@ -238,30 +223,6 @@ export default async function DashboardPage() {
               <p className="text-[11px] text-[var(--text-muted)] mt-3">
                 Auswertbar: {completedCycleCount}/3 Zyklen, {predictionReadiness.usableTemperatureCount} Temperaturwerte.
               </p>
-            </div>
-          )}
-
-          {predictionBaselineReady && fertilityStatus !== 'infertile' && (
-            <div
-              className="card animate-fade-in"
-              style={{
-                background: fertilityStatus === 'peak'
-                  ? 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(245, 158, 11, 0.03))'
-                  : 'linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(16, 185, 129, 0.03))',
-                border: `1px solid ${fertilityStatus === 'peak' ? 'rgba(245, 158, 11, 0.2)' : 'rgba(16, 185, 129, 0.2)'}`,
-              }}
-            >
-              <div className="text-center">
-                <span className="text-2xl">
-                  {fertilityStatus === 'peak' ? '⚡' : '🔥'}
-                </span>
-                <p className="font-bold text-sm mt-1.5" style={{ color: fertilityStatus === 'peak' ? '#b45309' : '#047857' }}>
-                  {fertilityStatus === 'peak' ? 'Zyklusmitte (Prognose)' : 'Vor der Zyklusmitte (Prognose)'}
-                </p>
-                <p className="text-xs mt-0.5" style={{ color: fertilityStatus === 'peak' ? '#92400e' : '#065f46' }}>
-                  Statistische Anzeige aus mindestens 3 abgeschlossenen Zyklen
-                </p>
-              </div>
             </div>
           )}
 
@@ -287,15 +248,16 @@ export default async function DashboardPage() {
 
           {/* Temperature Chart */}
           <div className="animate-fade-in animate-stagger-5">
-            <TemperatureChart entries={entries} periodEntries={periodEntries} showPredictions={predictionBaselineReady} />
+            <TemperatureChart entries={entries} periodEntries={periodEntries} />
           </div>
 
           {/* Disclaimer */}
           <div className="text-center pb-2 pt-2 px-4">
             <p className="text-xs text-[var(--text-muted)] max-w-2xl mx-auto leading-relaxed">
-              <strong>Hinweis:</strong> Eine temperaturbasierte Auswertung kann einen Anstieg erst rückblickend bestätigen.
-              Angezeigte Zyklusphasen und Periodenprognosen sind Schätzungen und können abweichen.
-              Diese App dient <u>nicht</u> zur Verhütung und ersetzt keinen ärztlichen Rat.
+              <strong>Hinweis:</strong> Die Auswertung beschreibt nur deine eingetragenen Werte und kann einen
+              Temperaturanstieg erst rückblickend zeigen. Die Schätzung des nächsten Periodenbeginns ist eine
+              Statistik und kann abweichen. Die App bestimmt keine fruchtbaren Tage, dient <u>nicht</u> zur
+              Verhütung und ersetzt keinen ärztlichen Rat.
             </p>
           </div>
         </>
@@ -304,14 +266,14 @@ export default async function DashboardPage() {
       {/* Quick Entry Prompt */}
       {!entries.find(e => e.date === format(new Date(), 'yyyy-MM-dd')) && (
         <div className="card text-center animate-fade-in animate-stagger-6 py-8">
-          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-rose-400/10 to-violet-400/10 flex items-center justify-center">
+          <div className="w-14 h-14 mx-auto mb-4 rounded-2xl bg-[var(--rose-light)] flex items-center justify-center">
             <Thermometer className="h-7 w-7 text-[var(--rose)]" />
           </div>
           <p className="text-sm mb-5 text-[var(--text-secondary)]">
             Du hast heute noch keine Temperatur eingetragen.
           </p>
           <Link href="/eintrag">
-            <button className="btn btn-glow">
+            <button className="btn btn-primary">
               <PlusCircle className="h-4 w-4" />
               Jetzt eintragen
             </button>

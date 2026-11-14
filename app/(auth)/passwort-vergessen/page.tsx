@@ -8,7 +8,7 @@ import { ArrowLeft, CheckCircle } from 'lucide-react';
 
 export const metadata: Metadata = {
   title: 'Passwort vergessen',
-  description: 'Setzen Sie Ihr Passwort zurück.',
+  description: 'Passwort für dein Basaltemperatur-Konto zurücksetzen.',
 };
 
 interface PageProps {
@@ -38,7 +38,7 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
           Passwort vergessen?
         </h1>
         <p className="mt-2 text-gray-600">
-          Kein Problem! Geben Sie Ihre E-Mail-Adresse ein und wir senden Ihnen einen Link zum Zurücksetzen.
+          Gib deine E-Mail-Adresse ein. Wir senden dir einen Link zum Zurücksetzen.
         </p>
       </div>
 
@@ -52,7 +52,7 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
             E-Mail gesendet!
           </h2>
           <p className="text-gray-600 mb-6">
-            Wenn ein Konto mit dieser E-Mail-Adresse existiert, erhalten Sie in Kürze eine E-Mail mit weiteren Anweisungen.
+            Wenn ein Konto mit dieser E-Mail-Adresse existiert, erhältst du in Kürze eine E-Mail mit weiteren Anweisungen.
           </p>
           <p className="text-sm text-gray-500">
             Keine E-Mail erhalten?{' '}
@@ -72,7 +72,7 @@ export default async function ForgotPasswordPage({ searchParams }: PageProps) {
 
       {/* Help Text */}
       <p className="mt-6 text-center text-sm text-gray-500">
-        Erinnern Sie sich an Ihr Passwort?{' '}
+        Passwort wieder eingefallen?{' '}
         <Link
           href="/login"
           className="font-medium text-primary-600 hover:text-primary-500"

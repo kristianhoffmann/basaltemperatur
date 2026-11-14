@@ -9,7 +9,6 @@ import { formatBlogDate, type BlogPost, type BlogPostSummary } from '../posts'
 import { BlogArticleBody, estimateReadingMinutes, extractHeadings, type ArticleHeading } from './BlogArticleBody'
 import { MedicalDisclaimer } from './MedicalDisclaimer'
 
-const HERO_GRADIENT = 'linear-gradient(135deg, #0F1029 0%, #1A0F2E 45%, #0D1B2A 100%)'
 
 // The autopilot writes updated_at on every publish, often equal to published_at.
 // "Zuletzt aktualisiert" only earns its place when the day actually differs.
@@ -58,36 +57,34 @@ export function BlogArticleView({
   const firstRelatedImage = !post.hero_image_url ? related.find((item) => item.hero_image_url) : undefined
 
   return (
-    <div className="min-h-screen bg-[#f7f7fb] text-slate-950">
+    <div className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       {beforeContent}
       <BlogHeader locale={locale} from={post.slug} />
 
-      <main>
+      <main id="inhalt">
         <article>
-          <header className="relative overflow-hidden text-white" style={{ background: HERO_GRADIENT }}>
-            <div aria-hidden="true" className="pointer-events-none absolute -right-32 -top-40 h-[28rem] w-[28rem] rounded-full bg-rose-400/20 blur-3xl" />
-            <div aria-hidden="true" className="pointer-events-none absolute -left-40 top-10 h-[24rem] w-[24rem] rounded-full bg-violet-500/20 blur-3xl" />
-            <div className={`relative mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8 ${post.hero_image_url ? 'pb-40 sm:pb-56' : 'pb-16 sm:pb-20'}`}>
-              <nav aria-label="Brotkrümelnavigation" className="flex items-center gap-1.5 text-sm text-white/55">
-                <Link href="/" className="transition-colors hover:text-white">Start</Link>
+          <header>
+            <div className={`mx-auto max-w-6xl px-4 pt-8 sm:px-6 lg:px-8 ${post.hero_image_url ? 'pb-36 sm:pb-52' : 'pb-4'}`}>
+              <nav aria-label="Brotkrümelnavigation" className="flex items-center gap-1.5 text-sm text-[var(--text-muted)]">
+                <Link href="/" className="transition-colors hover:text-[var(--text)]">Start</Link>
                 <ChevronRight className="h-3.5 w-3.5" />
-                <Link href={`/${locale}/blog`} className="transition-colors hover:text-white">Blog</Link>
+                <Link href={`/${locale}/blog`} className="transition-colors hover:text-[var(--text)]">Ratgeber</Link>
               </nav>
 
-              <h1 className="mt-8 max-w-4xl text-[2.25rem] font-extrabold leading-[1.08] tracking-tight !text-white sm:text-5xl lg:text-[3.5rem]">
+              <h1 className="font-display mt-8 max-w-4xl text-[2.4rem] text-[var(--text)] sm:text-5xl lg:text-[3.5rem]">
                 {post.title}
               </h1>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-white/70 sm:text-xl">
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-[var(--text-secondary)] sm:text-xl">
                 {post.meta_description}
               </p>
 
-              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 text-sm text-white/60">
+              <div className="mt-8 flex flex-wrap items-center gap-x-5 gap-y-3 border-t border-[var(--card-border)] pt-5 text-sm text-[var(--text-muted)]">
                 {authorName && (
                   <span className="flex items-center gap-2.5">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-rose-400 to-violet-500 text-xs font-bold text-white">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[var(--text)] text-xs font-bold text-white">
                       {authorName.charAt(0).toUpperCase()}
                     </span>
-                    <Link href={authorPath(authorName, locale)} className="font-medium text-white/85 underline underline-offset-4">{authorName}</Link>
+                    <Link href={authorPath(authorName, locale)} className="font-medium text-[var(--text)] underline underline-offset-4">{authorName}</Link>
                   </span>
                 )}
                 <time dateTime={post.published_at}>{formatBlogDate(post.published_at)}</time>
@@ -115,7 +112,7 @@ export function BlogArticleView({
                   height={1024}
                   fetchPriority="high"
                   decoding="async"
-                  className="aspect-[16/9] w-full rounded-[1.75rem] object-cover shadow-2xl shadow-slate-900/20 ring-1 ring-black/5 lg:aspect-[21/9]"
+                  className="aspect-[16/9] w-full rounded-2xl border border-[var(--card-border)] object-cover shadow-strong lg:aspect-[21/9]"
                 />
               </figure>
             )}

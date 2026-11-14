@@ -83,37 +83,36 @@ export function StatisticsConsent() {
       role="dialog"
       aria-live="polite"
       aria-label="Einstellungen zur Statistik"
-      className="fixed inset-x-3 bottom-3 z-[1000] mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-4 text-[13px] text-slate-700 shadow-2xl sm:inset-x-4 sm:bottom-4 sm:p-5 sm:text-sm"
+      className="fixed inset-x-3 bottom-3 z-[60] mx-auto max-w-lg rounded-xl border border-[var(--card-border)] bg-white p-3.5 text-[12.5px] leading-snug text-[var(--text-secondary)] shadow-strong sm:inset-x-4 sm:bottom-4 sm:p-5 sm:text-sm sm:leading-relaxed"
     >
-      <p className="font-semibold text-slate-950">Dürfen wir die Nutzung auswerten?</p>
-      <p className="mt-1.5 leading-relaxed">
+      <p className="font-semibold text-[var(--text)]">Dürfen wir die Nutzung auswerten?</p>
+      <p className="mt-1">
         Mit deiner Zustimmung erfassen wir Seitenaufrufe über eine eigene, pseudonyme Statistik
-        und Google Analytics. Dafür
-        werden Kennungen in deinem Browser gespeichert. Ohne Zustimmung läuft nur das technisch
-        Notwendige. Du kannst deine Wahl jederzeit über „Cookie-Einstellungen“ im Seitenfuß
-        ändern.{' '}
-        <Link href="/datenschutz#statistik" className="font-medium text-slate-950 underline underline-offset-2">
+        und Google Analytics. Dafür werden Kennungen in deinem Browser gespeichert. Ohne
+        Zustimmung läuft nur das technisch Notwendige. Ändern kannst du das jederzeit über
+        „Cookie-Einstellungen“ im Seitenfuß.{' '}
+        <Link href="/datenschutz#statistik" className="font-medium text-[var(--text)] underline underline-offset-2">
           Details
         </Link>
       </p>
       {consent !== 'unset' && (
-        <p className="mt-2 text-xs text-slate-500">
+        <p className="mt-2 text-xs text-[var(--text-muted)]">
           Aktuell: {consent === 'granted' ? 'Statistik erlaubt' : 'nur notwendige Speicherung'}
         </p>
       )}
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-3 grid grid-cols-2 gap-2">
         {/* Both choices look the same on purpose: a visually preferred "accept" is nudging. */}
         <button
           type="button"
           onClick={() => choose(false)}
-          className="rounded-full bg-slate-950 px-4 py-2 font-medium text-white hover:bg-slate-800"
+          className="rounded-lg bg-[var(--text)] px-3 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-black"
         >
           Nur notwendige
         </button>
         <button
           type="button"
           onClick={() => choose(true)}
-          className="rounded-full bg-slate-950 px-4 py-2 font-medium text-white hover:bg-slate-800"
+          className="rounded-lg bg-[var(--text)] px-3 py-2 text-[13px] font-semibold text-white transition-colors hover:bg-black"
         >
           Statistik erlauben
         </button>

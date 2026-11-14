@@ -89,6 +89,14 @@ async function handleCheckout(request: Request) {
                     quantity: 1,
                 },
             ],
+            // § 312j BGB: the payment page itself names what is ordered, that the click
+            // is a binding order with an obligation to pay, and that nothing recurs.
+            custom_text: {
+                submit: {
+                    message:
+                        'Mit Klick auf „Bezahlen“ bestellst du zahlungspflichtig: Basaltemperatur – Analyse (zeitlich unbegrenzter Zugang), einmalig 9,99 € Endpreis, kein Abo. Es gelten die AGB und die Widerrufsbelehrung unter www.basaltemperatur.online.',
+                },
+            },
             client_reference_id: user.id,
             metadata,
             customer_email: user.email,

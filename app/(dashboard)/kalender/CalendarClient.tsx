@@ -1,5 +1,5 @@
 // app/(dashboard)/kalender/CalendarClient.tsx
-// Client-seitige Kalender-Komponente mit Zyklusphasen
+// Client-seitige Kalender-Komponente (Einträge, Periode, geschätzte nächste Periode)
 'use client'
 
 import { useState, useMemo, type CSSProperties } from 'react'
@@ -20,8 +20,6 @@ import Link from 'next/link'
 interface CalendarClientProps {
     entries: { date: string; temperature: number }[]
     periodEntries: { date: string; flow_intensity: string }[]
-    fertileDates?: string[]
-    peakDates?: string[]
     predictedPeriodDates?: string[]
     hasLifetimeAccess?: boolean
     predictionBaselineReady?: boolean
@@ -33,8 +31,6 @@ const weekDays = ['Mo', 'Di', 'Mi', 'Do', 'Fr', 'Sa', 'So']
 export function CalendarClient({
     entries,
     periodEntries,
-    fertileDates = [],
-    peakDates = [],
     predictedPeriodDates = [],
     hasLifetimeAccess = false,
     predictionBaselineReady = false,
@@ -54,8 +50,6 @@ export function CalendarClient({
         return map
     }, [periodEntries])
 
-    const fertileSet = useMemo(() => new Set(fertileDates), [fertileDates])
-    const peakSet = useMemo(() => new Set(peakDates), [peakDates])
     const predictedPeriodSet = useMemo(() => new Set(predictedPeriodDates), [predictedPeriodDates])
 
     const monthStart = startOfMonth(currentMonth)
@@ -105,8 +99,6 @@ export function CalendarClient({
                     const temp = entryMap.get(dateStr)
                     const isPeriod = periodMap.has(dateStr)
                     const isPredictedPeriod = hasLifetimeAccess && !isPeriod && predictedPeriodSet.has(dateStr)
-                    const isFertile = hasLifetimeAccess && fertileSet.has(dateStr)
-                    const isPeak = hasLifetimeAccess && peakSet.has(dateStr)
                     const today = isToday(day)
 
                     let bgClass = 'hover:bg-gray-50'
@@ -125,14 +117,7 @@ export function CalendarClient({
                             backgroundColor: '#fff4f7',
                             border: '1px dashed rgba(212, 99, 122, 0.7)',
                         }
-                    } else if (isPeak) {
-                        bgClass = ''
-                        dayStyle = { backgroundColor: 'rgba(254, 243, 199, 0.12)', border: '1px solid rgba(245, 158, 11, 0.25)' }
-                    } else if (isFertile) {
-                        bgClass = ''
-                        dayStyle = { backgroundColor: 'rgba(209, 250, 229, 0.12)', border: '1px solid rgba(16, 185, 129, 0.19)' }
-                    }
-                    else if (temp !== undefined) bgClass = 'bg-primary-50'
+                    } else if (temp !== undefined) bgClass = 'bg-primary-50'
 
                     return (
                         <Link
@@ -148,9 +133,7 @@ export function CalendarClient({
                             <span className={`text-sm font-medium ${today ? 'text-primary' :
                                     isPeriod ? 'text-period' :
                                         isPredictedPeriod ? 'text-rose-500' :
-                                        isPeak ? 'text-amber-600' :
-                                            isFertile ? 'text-emerald-600' :
-                                                'text-gray-700'
+                                            'text-gray-700'
                                 }`}>
                                 {format(day, 'd')}
                             </span>
@@ -174,13 +157,6 @@ export function CalendarClient({
                                 <Droplets className="h-3 w-3 text-rose-400 absolute bottom-1" />
                             )}
 
-                            {isPeak && !isPeriod && !isPredictedPeriod && (
-                                <span className="absolute bottom-0.5 text-[8px]">⚡</span>
-                            )}
-
-                            {isFertile && !isPeak && !isPeriod && !isPredictedPeriod && (
-                                <span className="absolute bottom-0.5 text-[8px]">🌱</span>
-                            )}
                         </Link>
                     )
                 })}
@@ -200,15 +176,7 @@ export function CalendarClient({
                     <>
                         <span className="flex items-center gap-1.5">
                             <span className="w-3 h-3 rounded" style={{ backgroundColor: '#fff4f7', border: '1px dashed rgba(212, 99, 122, 0.7)' }} />
-                            Periode (Prognose)
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(209, 250, 229, 0.12)', borderColor: 'rgba(16, 185, 129, 0.25)' }} />
-                            Vor Zyklusmitte
-                        </span>
-                        <span className="flex items-center gap-1.5">
-                            <span className="w-3 h-3 rounded border" style={{ backgroundColor: 'rgba(254, 243, 199, 0.12)', borderColor: 'rgba(245, 158, 11, 0.25)' }} />
-                            Zyklusmitte ⚡
+                            Periode (Schätzung)
                         </span>
                     </>
                 )}
@@ -220,12 +188,12 @@ export function CalendarClient({
 
             {!hasLifetimeAccess && (
                 <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Perioden- und Zyklusprognosen sind im Vollzugang enthalten.
+                    Die statistische Schätzung der nächsten Periode gehört zur Analyse.
                 </div>
             )}
             {hasLifetimeAccess && !predictionBaselineReady && (
                 <div className="mt-3 text-center text-xs text-[var(--text-muted)]">
-                    Zyklus- und Periodenprognosen erscheinen nach 3 abgeschlossenen Zyklen.
+                    Die Schätzung der nächsten Periode erscheint nach 3 abgeschlossenen Zyklen.
                     Aktuell auswertbar: {completedCycleCount}.
                 </div>
             )}

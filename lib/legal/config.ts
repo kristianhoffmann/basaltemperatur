@@ -1,4 +1,4 @@
-export const LEGAL_LAST_UPDATED = '16. September 2026';
+export const LEGAL_LAST_UPDATED = '14. November 2026';
 
 export type LegalCompany = {
   name: string;

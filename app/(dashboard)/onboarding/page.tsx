@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { SENSITIVE_DATA_CONSENT_TEXT } from '@/lib/legal/consent'
 import {
     Heart,
     Thermometer,
@@ -238,11 +239,11 @@ export default function OnboardingPage() {
                                     className="mt-1 h-4 w-4 rounded border-[var(--border)] accent-rose-400"
                                 />
                                 <span className="text-xs leading-relaxed text-[var(--text-secondary)]">
-                                    Ich willige ausdrücklich ein, dass Basaltemperatur meine Gesundheitsdaten
-                                    wie Temperaturwerte, Periodendaten, Zervixschleim und Störfaktoren für
-                                    Zyklusauswertungen verarbeitet. Mir ist bewusst, dass die App kein
-                                    Medizinprodukt ist und nicht zur Verhütung, Diagnose oder Behandlung
-                                    verwendet werden darf.
+                                    {SENSITIVE_DATA_CONSENT_TEXT}{' '}
+                                    <span className="mt-2 block">
+                                        Die App ist ein Tagebuch: kein Medizinprodukt und nicht zur
+                                        Verhütung, Diagnose oder Behandlung bestimmt.
+                                    </span>
                                 </span>
                             </label>
                             {error && (
