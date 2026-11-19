@@ -277,15 +277,18 @@ export default function LandingPage() {
         <section id="features" aria-labelledby="funktionen" className="bg-[var(--ink)] pb-10 pt-20 lg:pt-28">
           <div className="wrap px-4 sm:px-6 lg:px-8">
             <h2 id="funktionen" className="font-display max-w-4xl text-5xl text-white sm:text-7xl 2xl:max-w-6xl 2xl:text-8xl min-[1900px]:text-9xl">
-              Ein Zyklus, Punkt für Punkt.
+              Eine Temperaturkurve über 28 Zyklustage
             </h2>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-white/70 2xl:max-w-2xl 2xl:text-xl">
-              Scroll weiter und sieh zu, wie aus 28 Morgenwerten eine Kurve wird. Kühle Farben
-              stehen für niedrige Werte, warme für hohe.
+              Das Beispiel zeigt 28 fiktive Morgenmessungen. Jeder Punkt steht für die Basaltemperatur
+              an einem Zyklustag. Beim Scrollen kannst du die einzelnen Werte und ihren Verlauf ansehen.
             </p>
           </div>
           <div className="mt-8 lg:mt-4">
             <CycleStory steps={storySteps} />
+            <p className="wrap mx-auto mt-6 px-4 text-white sm:px-6 lg:px-8">
+              <Link className="underline underline-offset-4" href="/werkzeuge/basaltemperaturkurve">Eigene Basaltemperaturkurve zeichnen</Link>
+            </p>
           </div>
         </section>
 
