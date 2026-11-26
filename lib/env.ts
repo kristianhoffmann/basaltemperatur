@@ -33,8 +33,8 @@ const clientSchema = z.object({
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   
   // Feature Flags
-  NEXT_PUBLIC_ENABLE_AI: z.string().transform((v) => v === 'true').default('false'),
-  NEXT_PUBLIC_ENABLE_ANALYTICS: z.string().transform((v) => v === 'true').default('true'),
+  NEXT_PUBLIC_ENABLE_AI: z.string().default('false').transform((v) => v === 'true'),
+  NEXT_PUBLIC_ENABLE_ANALYTICS: z.string().default('true').transform((v) => v === 'true'),
 });
 
 // ============================================================================

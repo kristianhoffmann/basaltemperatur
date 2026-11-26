@@ -11,7 +11,7 @@ export const publishPayloadSchema = z.object({
   heroImageUrl: z.string().url().nullable(),
   heroImageAlt: z.string().nullable(),
   // Public JSON-LD is built locally. Ignore incompatible upstream schema shapes.
-  schemaJsonLd: z.unknown().transform((value): Record<string, unknown> =>
+  schemaJsonLd: z.unknown().optional().transform((value): Record<string, unknown> =>
     value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : {}),
   internalLinks: z.array(
     z.object({ targetSlug: z.string(), anchorText: z.string() })

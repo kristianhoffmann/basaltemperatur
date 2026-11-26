@@ -29,12 +29,8 @@ const SignUpSchema = z.object({
     .regex(/[0-9]/, 'Das Passwort muss mindestens eine Zahl enthalten.'),
   companyName: z.string().optional(),
   ownerName: z.string().min(1, 'Bitte gib deinen Namen ein.'),
-  termsAccepted: z.literal('true', {
-    errorMap: () => ({ message: 'Bitte akzeptiere die AGB.' }),
-  }),
-  sensitiveDataConsent: z.literal('true', {
-    errorMap: () => ({ message: 'Bitte willige in die Verarbeitung deiner Gesundheitsdaten ein.' }),
-  }),
+  termsAccepted: z.literal('true', { error: 'Bitte akzeptiere die AGB.' }),
+  sensitiveDataConsent: z.literal('true', { error: 'Bitte willige in die Verarbeitung deiner Gesundheitsdaten ein.' }),
 })
 
 const SignInSchema = z.object({
